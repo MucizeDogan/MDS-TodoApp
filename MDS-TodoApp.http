@@ -1,0 +1,6 @@
+@MDS_TodoApp_HostAddress = http://localhost:5134
+
+GET {{MDS_TodoApp_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

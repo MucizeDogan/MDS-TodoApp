@@ -1,0 +1,34 @@
+﻿SONRADAN YAPILACAKLAR;
+- Dark Mode
+- Responsive
+- Toast mesajları
+✅ Görev başarıyla eklendi.🗑️ Görev silindi.⚠️ Son tarih geçmiş!
+
+- Email doğrulama
+Register   ↓Email gönder ↓Link↓Account Activated
+
+- Şifremi unuttum
+Forgot Password       ↓Email      ↓Reset Password
+
+-Kullanıcı arkadaş sistemi
+
+👥 Shared Todo
+
+Bir Todo'yu arkadaşınla paylaş:
+
+"Hafta sonu mangal"
+
+👤 Cristdoan
+👤 Ahmet
+👤 Mehmet
+
+- Notification
+Yarın son tarihli 3 görevin var.
+
+-TAKVİM Todo'ları:
+
+September 2026
+
+Mon Tue Wed Thu Fri
+      16  17  18
+şeklinde takvimde gösterebiliriz.

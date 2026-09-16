@@ -1,0 +1,141 @@
+﻿                    ┌─────────────────────┐
+                    │      Browser        │
+                    │                     │
+                    │ HTML                │
+                    │ CSS                 │
+                    │ Bootstrap           │
+                    │ JavaScript           │
+                    └──────────┬──────────┘
+                               │
+                         HTTP / HTTPS
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │   ASP.NET Core API  │
+                    │                     │
+                    │ Controllers          │
+                    │ Services             │
+                    │ DTOs                 │
+                    │ Validation            │
+                    │ Authentication       │
+                    │ Authorization        │
+                    └──────────┬──────────┘
+                               │
+                         Entity Framework
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │     SQL Server      │
+                    │                     │
+                    │ Users               │
+                    │ TodoItems           │
+                    │ Categories          │
+                    │ ...                 │
+                    └─────────────────────┘
+
+Frontend: HTML + CSS + Bootstrap + JavaScript
+Backend: ASP.NET Core Web API + C#
+ORM: Entity Framework Core
+Database: SQL Server
+Authentication: ASP.NET Core Identity + JWT
+API: RESTful API
+Deployment: İlk aşamada lokal → daha sonra Azure / başka bir VPS
+Versiyon kontrolü: Git + GitHub
+
+
+
+                USER
+                 │
+                 ▼
+            LOGIN / JWT
+                 │
+                 ▼
+          ASP.NET CORE API
+                 │
+        ┌────────┴────────┐
+        │                 │
+     Identity          TodoService
+        │                 │
+        ▼                 ▼
+     Users            TodoItems
+                          │
+                          ▼
+                     SQL SERVER
+
+
+Kullanıcı bilgileri → SQL Server
+
+Şifre → Hashlenmiş şekilde Identity
+
+Todo kayıtları → SQL Server
+
+Kategori → SQL Server
+
+Frontend → sadece API ile konuşacak
+
+Kullanıcı hangi Todo'ları görebilir → backend karar verecek
+
+Bu son madde özellikle önemli. Güvenliği frontend'e bırakmayacağız.
+
+
+
+
+┌─────────────────────────────────────────────────────────────┐
+│  TodoApp                              👤 Cristdoan   Logout │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  Merhaba Cristdoan 👋                                       │
+│  Bugün yapacaklarına göz atalım.                            │
+│                                                             │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────────┐   │
+│  │   12     │ │    5     │ │    7     │ │      2       │   │
+│  │  Toplam  │ │ Bekleyen │ │ Tamamlanan│ │ Süresi Geçen│   │
+│  └──────────┘ └──────────┘ └──────────┘ └──────────────┘   │
+│                                                             │
+│  Kategoriler                                                │
+│                                                             │
+│  [💻 Yazılım 5] [📚 Eğitim 3] [🏋️ Spor 2] [🏠 Ev 4]       │
+│                                                             │
+│  Yapılacaklar                         [+ Yeni Görev]         │
+│                                                             │
+│  ☐ ASP.NET API geliştir       🔴 Yüksek      18 Eylül       │
+│                                                             │
+│  ☐ SQL çalış                  🟡 Orta        20 Eylül       │
+│                                                             │
+│  ☑ GitHub README güncelle     🟢 Düşük       Tamamlandı     │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+
+
+
+APILER
+
+GET    /api/todos
+GET    /api/todos/15
+POST   /api/todos
+PUT    /api/todos/15
+DELETE /api/todos/15
+
+GET    /api/categories
+POST   /api/categories
+PUT    /api/categories/5
+DELETE /api/categories/5
+
+
+
+
+KATMANLAR
+
+                 TodoApp.API
+                      │
+                      ▼
+              TodoApp.Application
+                      │
+                      ▼
+                TodoApp.Domain
+                      ▲
+                      │
+              TodoApp.Infrastructure
+
+
+
