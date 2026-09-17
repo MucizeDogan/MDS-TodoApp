@@ -40,8 +40,6 @@ using TodoApp.Domain.Enums;
 //    }
 //}
 
-using TodoApp.Domain.Enums;
-
 namespace TodoApp.Domain.Entities {
     public class TodoItem {
         public int Id { get; set; }
