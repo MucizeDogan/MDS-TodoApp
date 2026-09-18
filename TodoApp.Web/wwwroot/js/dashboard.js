@@ -305,6 +305,64 @@ function initializeEvents() {
 
                     event.preventDefault();
 
+                    const view =
+                        item.dataset.view || "all";
+
+
+                    /*
+                     * Dashboard'a tıklanırsa
+                     * bütün filtreleri temizle.
+                     */
+                    if (view === "all") {
+
+                        currentView = "all";
+
+                        currentFilter = "all";
+
+                        currentCategory = "all";
+
+                        document.getElementById(
+                            "categoryFilter"
+                        ).value = "all";
+
+
+                        document
+                            .querySelectorAll(
+                                ".filter-tab"
+                            )
+                            .forEach(x =>
+                                x.classList.remove(
+                                    "active"
+                                )
+                            );
+
+
+                        document
+                            .querySelector(
+                                '[data-filter="all"]'
+                            )
+                            ?.classList.add(
+                                "active"
+                            );
+
+
+                        document
+                            .querySelectorAll(
+                                ".sidebar-category"
+                            )
+                            .forEach(x =>
+                                x.classList.remove(
+                                    "active"
+                                )
+                            );
+                    }
+
+                    else {
+
+                        currentView = view;
+                    }
+
+
                     document
                         .querySelectorAll(
                             ".nav-item"
@@ -315,13 +373,11 @@ function initializeEvents() {
                             )
                         );
 
+
                     item.classList.add(
                         "active"
                     );
 
-                    currentView =
-                        item.dataset.view
-                        || "all";
 
                     updatePanelTitle();
 
@@ -533,6 +589,118 @@ function initializeEvents() {
 
         }
     );
+
+    document
+        .querySelector(".brand")
+        .addEventListener(
+            "click",
+            event => {
+
+                event.preventDefault();
+
+                resetTaskFilters();
+
+                window.scrollTo({
+                    top: 0,
+                    behavior: "smooth"
+                });
+            }
+        );
+}
+
+function resetTaskFilters() {
+
+    currentView = "all";
+
+    currentFilter = "all";
+
+    currentCategory = "all";
+
+
+    const categoryFilter =
+        document.getElementById(
+            "categoryFilter"
+        );
+
+    if (categoryFilter) {
+        categoryFilter.value = "all";
+    }
+
+
+    document
+        .querySelectorAll(
+            ".filter-tab"
+        )
+        .forEach(x =>
+            x.classList.remove(
+                "active"
+            )
+        );
+
+
+    document
+        .querySelector(
+            '[data-filter="all"]'
+        )
+        ?.classList.add(
+            "active"
+        );
+
+
+    document
+        .querySelectorAll(
+            ".nav-item"
+        )
+        .forEach(x =>
+            x.classList.remove(
+                "active"
+            )
+        );
+
+
+    document
+        .querySelector(
+            '.nav-item[data-view="all"]'
+        )
+        ?.classList.add(
+            "active"
+        );
+
+
+    document
+        .querySelectorAll(
+            ".sidebar-category"
+        )
+        .forEach(x =>
+            x.classList.remove(
+                "active"
+            )
+        );
+
+
+    document
+        .querySelectorAll(
+            ".smart-summary-item"
+        )
+        .forEach(x =>
+            x.classList.remove(
+                "active"
+            )
+        );
+
+
+    document
+        .querySelector(
+            '[data-smart-filter="today"]'
+        )
+        ?.classList.add(
+            "active"
+        );
+
+
+    updatePanelTitle();
+
+    renderTasks();
 }
 
 
@@ -581,6 +749,170 @@ async function loadDashboardData() {
     }
 }
 
+function renderSmartSummary() {
+
+    const now = new Date();
+
+
+    const startOfToday =
+        new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate()
+        );
+
+
+    const endOfToday =
+        new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate() + 1
+        );
+
+
+    const todayCount =
+        todos.filter(todo => {
+
+            if (todo.isCompleted ||
+                !todo.dueDate) {
+                return false;
+            }
+
+            const date =
+                new Date(
+                    todo.dueDate
+                );
+
+            return (
+                date >= startOfToday &&
+                date < endOfToday
+            );
+
+        }).length;
+
+
+    const overdueCount =
+        todos.filter(todo => {
+
+            if (todo.isCompleted ||
+                !todo.dueDate) {
+                return false;
+            }
+
+            return (
+                new Date(todo.dueDate)
+                < startOfToday
+            );
+
+        }).length;
+
+
+    const upcomingCount =
+        todos.filter(todo => {
+
+            if (todo.isCompleted ||
+                !todo.dueDate) {
+                return false;
+            }
+
+            return (
+                new Date(todo.dueDate)
+                >= endOfToday
+            );
+
+        }).length;
+
+
+    document.getElementById(
+        "todayTaskCount"
+    ).textContent =
+        todayCount;
+
+
+    document.getElementById(
+        "upcomingTaskCount"
+    ).textContent =
+        upcomingCount;
+
+
+    document.getElementById(
+        "overdueTaskCount"
+    ).textContent =
+        overdueCount;
+}
+
+document
+    .querySelectorAll(
+        ".smart-summary-item"
+    )
+    .forEach(button => {
+
+        button.addEventListener(
+            "click",
+            () => {
+
+                const filter =
+                    button.dataset.smartFilter;
+
+
+                document
+                    .querySelectorAll(
+                        ".smart-summary-item"
+                    )
+                    .forEach(x =>
+                        x.classList.remove(
+                            "active"
+                        )
+                    );
+
+
+                button.classList.add(
+                    "active"
+                );
+
+
+                currentView = "all";
+
+                currentCategory = "all";
+
+                currentFilter =
+                    filter;
+
+
+                if (filter === "today") {
+
+                    currentFilter =
+                        "today";
+                }
+
+                else if (
+                    filter === "upcoming"
+                ) {
+
+                    currentFilter =
+                        "upcoming";
+                }
+
+                else if (
+                    filter === "overdue"
+                ) {
+
+                    currentFilter =
+                        "overdue";
+                }
+
+
+                document.getElementById(
+                    "categoryFilter"
+                ).value = "all";
+
+
+                renderTasks();
+            }
+        );
+
+    });
+
 
 /* ========================================================= */
 /* RENDER EVERYTHING */
@@ -603,6 +935,8 @@ function renderEverything() {
     renderTodayProgress();
 
     updatePanelTitle();
+
+    renderSmartSummary();
 }
 
 
@@ -796,6 +1130,41 @@ function renderSidebarCategories() {
         )
         .forEach(button => {
 
+            //button.addEventListener(
+            //    "click",
+            //    () => {
+
+            //        currentCategory =
+            //            button.dataset.categoryId;
+
+            //        document.getElementById(
+            //            "categoryFilter"
+            //        ).value =
+            //            currentCategory;
+
+            //        currentFilter = "all";
+
+            //        document
+            //            .querySelectorAll(
+            //                ".filter-tab"
+            //            )
+            //            .forEach(x =>
+            //                x.classList.remove(
+            //                    "active"
+            //                )
+            //            );
+
+            //        document
+            //            .querySelector(
+            //                '[data-filter="all"]'
+            //            )
+            //            ?.classList.add(
+            //                "active"
+            //            );
+
+            //        renderTasks();
+            //    }
+            //);
             button.addEventListener(
                 "click",
                 () => {
@@ -803,12 +1172,42 @@ function renderSidebarCategories() {
                     currentCategory =
                         button.dataset.categoryId;
 
+                    currentView = "all";
+
+                    currentFilter = "all";
+
+
+                    document
+                        .querySelectorAll(
+                            ".sidebar-category"
+                        )
+                        .forEach(x =>
+                            x.classList.remove(
+                                "active"
+                            )
+                        );
+
+                    button.classList.add(
+                        "active"
+                    );
+
+
+                    document
+                        .querySelectorAll(
+                            ".nav-item"
+                        )
+                        .forEach(x =>
+                            x.classList.remove(
+                                "active"
+                            )
+                        );
+
+
                     document.getElementById(
                         "categoryFilter"
                     ).value =
                         currentCategory;
 
-                    currentFilter = "all";
 
                     document
                         .querySelectorAll(
@@ -820,6 +1219,7 @@ function renderSidebarCategories() {
                             )
                         );
 
+
                     document
                         .querySelector(
                             '[data-filter="all"]'
@@ -828,7 +1228,11 @@ function renderSidebarCategories() {
                             "active"
                         );
 
+
+                    updatePanelTitle();
+
                     renderTasks();
+
                 }
             );
 
@@ -925,6 +1329,105 @@ function getFilteredTodos() {
             );
     }
 
+    if (currentFilter === "today") {
+
+        const now = new Date();
+
+        const start =
+            new Date(
+                now.getFullYear(),
+                now.getMonth(),
+                now.getDate()
+            );
+
+        const end =
+            new Date(
+                now.getFullYear(),
+                now.getMonth(),
+                now.getDate() + 1
+            );
+
+
+        result =
+            result.filter(todo => {
+
+                if (
+                    todo.isCompleted ||
+                    !todo.dueDate
+                ) {
+                    return false;
+                }
+
+                const date =
+                    new Date(todo.dueDate);
+
+                return (
+                    date >= start &&
+                    date < end
+                );
+            });
+    }
+
+
+    if (currentFilter === "upcoming") {
+
+        const now = new Date();
+
+        const tomorrow =
+            new Date(
+                now.getFullYear(),
+                now.getMonth(),
+                now.getDate() + 1
+            );
+
+
+        result =
+            result.filter(todo => {
+
+                if (
+                    todo.isCompleted ||
+                    !todo.dueDate
+                ) {
+                    return false;
+                }
+
+                return (
+                    new Date(todo.dueDate)
+                    >= tomorrow
+                );
+            });
+    }
+
+
+    if (currentFilter === "overdue") {
+
+        const now = new Date();
+
+        const today =
+            new Date(
+                now.getFullYear(),
+                now.getMonth(),
+                now.getDate()
+            );
+
+
+        result =
+            result.filter(todo => {
+
+                if (
+                    todo.isCompleted ||
+                    !todo.dueDate
+                ) {
+                    return false;
+                }
+
+                return (
+                    new Date(todo.dueDate)
+                    < today
+                );
+            });
+    }
+
 
     if (currentCategory !== "all") {
 
@@ -973,6 +1476,80 @@ function getFilteredTodos() {
     return result;
 }
 
+function updateEmptyState() {
+
+    const title =
+        document.getElementById(
+            "emptyStateTitle"
+        );
+
+    const message =
+        document.getElementById(
+            "emptyStateMessage"
+        );
+
+
+    const search =
+        document.getElementById(
+            "searchInput"
+        )
+            .value
+            .trim();
+
+
+    if (search) {
+
+        title.textContent =
+            "Sonuç bulunamadı";
+
+        message.textContent =
+            `"${search}" için eşleşen görev bulunamadı.`;
+
+        return;
+    }
+
+
+    if (currentCategory !== "all") {
+
+        const category =
+            categories.find(
+                x =>
+                    String(x.id)
+                    === String(currentCategory)
+            );
+
+
+        title.textContent =
+            "Bu kategoride görev yok";
+
+        message.textContent =
+            category
+                ? `"${category.name}" kategorisinde henüz görev bulunmuyor.`
+                : "Bu kategoride henüz görev bulunmuyor.";
+
+        return;
+    }
+
+
+    if (currentFilter === "completed") {
+
+        title.textContent =
+            "Henüz tamamlanan görev yok";
+
+        message.textContent =
+            "Bir görevi tamamladığında burada görünecek.";
+
+        return;
+    }
+
+
+    title.textContent =
+        "Burada henüz bir görev yok";
+
+    message.textContent =
+        "Yeni bir görev oluşturarak başlayabilirsin.";
+}
+
 
 function renderTasks() {
 
@@ -1006,6 +1583,19 @@ function renderTasks() {
     empty.classList.add(
         "d-none"
     );
+
+    if (!filtered.length) {
+
+        container.innerHTML = "";
+
+        updateEmptyState();
+
+        empty.classList.remove(
+            "d-none"
+        );
+
+        return;
+    }
 
 
     container.innerHTML =

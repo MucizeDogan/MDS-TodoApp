@@ -358,6 +358,15 @@
 
                 </section>
 
+                <div class="welcome-micro-stats">
+
+                    <span>
+                        <i class="bi bi-lightning-charge"></i>
+                        Bugün odaklan
+                    </span>
+
+                </div>
+
 
                 <!-- STATISTICS -->
 
@@ -506,6 +515,70 @@
                         </div>
 
 
+                        <div class="task-smart-summary">
+
+                            <button class="smart-summary-item active"
+                                    data-smart-filter="today">
+
+                                <span class="smart-summary-icon today">
+                                    <i class="bi bi-sun"></i>
+                                </span>
+
+                                <span>
+                                    <strong id="todayTaskCount">
+                                        0
+                                    </strong>
+
+                                    <small>
+                                        Bugün
+                                    </small>
+                                </span>
+
+                            </button>
+
+
+                            <button class="smart-summary-item"
+                                    data-smart-filter="upcoming">
+
+                                <span class="smart-summary-icon upcoming">
+                                    <i class="bi bi-calendar-event"></i>
+                                </span>
+
+                                <span>
+                                    <strong id="upcomingTaskCount">
+                                        0
+                                    </strong>
+
+                                    <small>
+                                        Yaklaşan
+                                    </small>
+                                </span>
+
+                            </button>
+
+
+                            <button class="smart-summary-item"
+                                    data-smart-filter="overdue">
+
+                                <span class="smart-summary-icon overdue">
+                                    <i class="bi bi-exclamation-circle"></i>
+                                </span>
+
+                                <span>
+                                    <strong id="overdueTaskCount">
+                                        0
+                                    </strong>
+
+                                    <small>
+                                        Geciken
+                                    </small>
+                                </span>
+
+                            </button>
+
+                        </div>
+
+
                         <!-- FILTERS -->
 
                         <div class="task-filters">
@@ -588,11 +661,11 @@
 
                             </div>
 
-                            <h3>
+                            <h3 id="emptyStateTitle">
                                 Burada henüz bir görev yok
                             </h3>
 
-                            <p>
+                            <p id="emptyStateMessage">
                                 Yeni bir görev oluşturarak başlayabilirsin.
                             </p>
 
