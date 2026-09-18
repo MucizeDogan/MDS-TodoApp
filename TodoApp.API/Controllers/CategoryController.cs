@@ -34,7 +34,7 @@ namespace TodoApp.API.Controllers {
         public async Task<IActionResult> GetAll() {
             var userId = GetCurrentUserId();
 
-            var result =await _categoryService.GetAllAsync(userId);
+            var result = await _categoryService.GetAllAsync(userId);
 
             return Ok(result);
         }
@@ -48,7 +48,7 @@ namespace TodoApp.API.Controllers {
         public async Task<IActionResult> GetById(int id) {
             var userId = GetCurrentUserId();
 
-            var result =await _categoryService.GetByIdAsync(userId, id);
+            var result = await _categoryService.GetByIdAsync(userId, id);
 
 
             if (result == null) {
@@ -68,21 +68,16 @@ namespace TodoApp.API.Controllers {
 
         [HttpPost]
         public async Task<IActionResult> Create(CreateCategoryRequest request) {
-            try {
-                var userId = GetCurrentUserId();
 
-                var result =await _categoryService.CreateAsync(userId, request);
+            var userId = GetCurrentUserId();
+
+            var result = await _categoryService.CreateAsync(userId, request);
 
 
-                return CreatedAtAction(
-                    nameof(GetById),
-                    new { id = result.Id },
-                    result);
-            } catch (ArgumentException ex) {
-                return BadRequest(new {
-                    message = ex.Message
-                });
-            }
+            return CreatedAtAction(
+                nameof(GetById),
+                new { id = result.Id },
+                result);
         }
 
 
@@ -92,25 +87,19 @@ namespace TodoApp.API.Controllers {
 
         [HttpPut("{id:int}")]
         public async Task<IActionResult> Update(int id, UpdateCategoryRequest request) {
-            try {
-                var userId = GetCurrentUserId();
+            var userId = GetCurrentUserId();
 
-                var result =await _categoryService.UpdateAsync(userId, id, request);
-
-
-                if (result == null) {
-                    return NotFound(new {
-                        message = "Kategori bulunamadı."
-                    });
-                }
+            var result = await _categoryService.UpdateAsync(userId, id, request);
 
 
-                return Ok(result);
-            } catch (ArgumentException ex) {
-                return BadRequest(new {
-                    message = ex.Message
+            if (result == null) {
+                return NotFound(new {
+                    message = "Kategori bulunamadı."
                 });
             }
+
+
+            return Ok(result);
         }
 
 
@@ -120,25 +109,19 @@ namespace TodoApp.API.Controllers {
 
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id) {
-            try {
-                var userId = GetCurrentUserId();
+            var userId = GetCurrentUserId();
 
-                var result =await _categoryService.DeleteAsync(userId, id);
-
-
-                if (!result) {
-                    return NotFound(new {
-                        message = "Kategori bulunamadı."
-                    });
-                }
+            var result = await _categoryService.DeleteAsync(userId, id);
 
 
-                return NoContent();
-            } catch (InvalidOperationException ex) {
-                return BadRequest(new {
-                    message = ex.Message
+            if (!result) {
+                return NotFound(new {
+                    message = "Kategori bulunamadı."
                 });
             }
+
+
+            return NoContent();
         }
     }
 }

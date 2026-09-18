@@ -1,11 +1,16 @@
-using Microsoft.EntityFrameworkCore;
-using TodoApp.Infrastructure.Data;
-using Microsoft.AspNetCore.Identity;
-using TodoApp.Infrastructure.Identity;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using TodoApp.Application.Validators.Todo;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Text;
+using TodoApp.API.Middleware;
 using TodoApp.Application.Interfaces;
+using TodoApp.Infrastructure.Data;
+using TodoApp.Infrastructure.Identity;
 using TodoApp.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,7 +20,39 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+//builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c => {
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "API Uyumlu", Version = "v1" });
+
+    // 1. Güvenlik Þemasýný Tanýmlayýn (Örn: JWT Bearer)
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme {
+        Description = "Sadece token deðerini girin. Baþýndaki 'Bearer ' ifadesi otomatik eklenecektir.",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http, // ApiKey yerine Http yapýn
+        Scheme = "bearer", // Küçük harfle 'bearer'
+        BearerFormat = "JWT"
+    });
+
+    // 2. Güvenliði Tüm API'ye veya Belirli Uç Noktalara Uygulayýn
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+});
+
+builder.Services.AddValidatorsFromAssembly(typeof(CreateTodoRequestValidator).Assembly);
+builder.Services.AddFluentValidationAutoValidation();
 
 
 // Database
@@ -59,12 +96,16 @@ builder.Services
         };
     });
 builder.Services.AddAuthorization();
+builder.Services.AddHttpContextAccessor();
+
+
 
 // Application Services
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, JwtTokenService>();
 builder.Services.AddScoped<ITodoService, TodoService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 
 
@@ -82,6 +123,8 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 
 app.UseAuthorization();
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.MapControllers();
 
