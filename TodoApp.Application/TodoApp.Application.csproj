@@ -11,7 +11,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DTOs\Category\" />
     <Folder Include="Validators\" />
     <Folder Include="Services\" />
   </ItemGroup>
