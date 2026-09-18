@@ -95,9 +95,20 @@ builder.Services
             ClockSkew = TimeSpan.Zero
         };
     });
+
+
 builder.Services.AddAuthorization();
 builder.Services.AddHttpContextAccessor();
 
+//CORS
+builder.Services.AddCors(options => {
+    options.AddPolicy("TodoAppFrontend", policy => {
+        policy
+            .AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
 
 
 // Application Services
@@ -111,6 +122,8 @@ builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 var app = builder.Build();
 
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -120,11 +133,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors("TodoAppFrontend");
+
 app.UseAuthentication();
 
 app.UseAuthorization();
-
-app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.MapControllers();
 

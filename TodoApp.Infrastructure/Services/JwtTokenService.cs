@@ -57,7 +57,7 @@ namespace TodoApp.Infrastructure.Services {
 
             var token = new JwtSecurityToken(
                 claims: claims,
-                expires: DateTime.UtcNow.AddHours(2),
+                expires: DateTime.UtcNow.AddDays(7),
                 signingCredentials: credentials);
 
 

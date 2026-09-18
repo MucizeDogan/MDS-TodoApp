@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TodoApp.Application.DTOs.Auth;
 using TodoApp.Application.Interfaces;
+using TodoApp.Application.DTOs.Common;
 
 namespace TodoApp.API.Controllers {
     [ApiController]
@@ -15,33 +16,28 @@ namespace TodoApp.API.Controllers {
 
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterRequest request) {
-            try {
-                var result =await _authService.RegisterAsync(request);
 
-                return Ok(result);
-            } catch (Exception ex) {
-                return BadRequest(new {
-                    message = ex.Message
-                });
-            }
+            var result = await _authService.RegisterAsync(request);
+
+            return Ok(
+                ApiResponse<AuthResponse>.Ok(
+                    result,
+                    "Kayıt başarılı."));
+
         }
 
 
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginRequest request) {
-            try {
-                var result =await _authService.LoginAsync(request);
 
-                return Ok(result);
-            } catch (UnauthorizedAccessException ex) {
-                return Unauthorized(new {
-                    message = ex.Message
-                });
-            } catch (Exception ex) {
-                return BadRequest(new {
-                    message = ex.Message
-                });
-            }
+            var result = await _authService.LoginAsync(request);
+
+            return Ok(
+                ApiResponse<AuthResponse>.Ok(
+                    result,
+                    "Giriş başarılı."));
+
+
         }
     }
 }

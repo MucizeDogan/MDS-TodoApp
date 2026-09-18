@@ -1,7 +1,9 @@
-﻿using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using TodoApp.Application.DTOs.Category;
+using TodoApp.Application.DTOs.Common;
+using TodoApp.Application.DTOs.Todo;
 using TodoApp.Application.Interfaces;
 
 namespace TodoApp.API.Controllers {
@@ -36,7 +38,10 @@ namespace TodoApp.API.Controllers {
 
             var result = await _categoryService.GetAllAsync(userId);
 
-            return Ok(result);
+            return Ok(
+                ApiResponse<List<CategoryResponse>>.Ok(
+                    result,
+                    "Kategoriler başarıyla getirildi."));
         }
 
 
@@ -52,13 +57,17 @@ namespace TodoApp.API.Controllers {
 
 
             if (result == null) {
-                return NotFound(new {
-                    message = "Kategori bulunamadı."
+                return NotFound(new ApiErrorResponse {
+                    Success = false,
+                    Message = "Kategori bulunamadı.",
+                    Errors = new List<string>()
                 });
             }
 
-
-            return Ok(result);
+            return Ok(
+                ApiResponse<CategoryResponse>.Ok(
+                    result,
+                    "Kategori başarıyla getirildi."));
         }
 
 
@@ -74,10 +83,15 @@ namespace TodoApp.API.Controllers {
             var result = await _categoryService.CreateAsync(userId, request);
 
 
-            return CreatedAtAction(
-                nameof(GetById),
-                new { id = result.Id },
-                result);
+            //return CreatedAtAction(
+            //    nameof(GetById),
+            //    new { id = result.Id },
+            //    result);
+
+            return Ok(
+                ApiResponse<CategoryResponse>.Ok(
+                    result,
+                    "Kategori başarıyla oluşturuldu."));
         }
 
 
@@ -93,13 +107,17 @@ namespace TodoApp.API.Controllers {
 
 
             if (result == null) {
-                return NotFound(new {
-                    message = "Kategori bulunamadı."
+                return NotFound(new ApiErrorResponse {
+                    Success = false,
+                    Message = "Kategori bulunamadı.",
+                    Errors = new List<string>()
                 });
             }
 
-
-            return Ok(result);
+            return Ok(
+                ApiResponse<CategoryResponse>.Ok(
+                    result,
+                    "Kategori başarıyla güncellendi."));
         }
 
 
@@ -115,13 +133,17 @@ namespace TodoApp.API.Controllers {
 
 
             if (!result) {
-                return NotFound(new {
-                    message = "Kategori bulunamadı."
+                return NotFound(new ApiErrorResponse {
+                    Success = false,
+                    Message = "Kategori bulunamadı.",
+                    Errors = new List<string>()
                 });
             }
 
-
-            return NoContent();
+            return Ok(
+                ApiResponse<object>.Ok(
+                    null,
+                    "Kategori başarıyla silindi."));
         }
     }
 }

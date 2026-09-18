@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TodoApp.Application.DTOs.Todo;
 using TodoApp.Application.Interfaces;
+using TodoApp.Application.DTOs.Common;
 
 namespace TodoApp.API.Controllers {
     [ApiController]
@@ -24,7 +25,10 @@ namespace TodoApp.API.Controllers {
 
             var result = await _todoService.GetAllAsync(userId);
 
-            return Ok(result);
+            return Ok(
+                ApiResponse<TodoListResponse>.Ok(
+                    result,
+                    "Todo listesi başarıyla getirildi."));
         }
 
 
@@ -36,13 +40,17 @@ namespace TodoApp.API.Controllers {
 
 
             if (result == null) {
-                return NotFound(new {
-                    message = "Todo bulunamadı."
+                return NotFound(new ApiErrorResponse {
+                    Success = false,
+                    Message = "Todo bulunamadı.",
+                    Errors = new List<string>()
                 });
             }
 
-
-            return Ok(result);
+            return Ok(
+                ApiResponse<TodoResponse>.Ok(
+                    result,
+                    "Todo başarıyla getirildi."));
         }
 
         [HttpPost]
@@ -51,10 +59,15 @@ namespace TodoApp.API.Controllers {
 
             var result = await _todoService.CreateAsync(userId, request);
 
-            return CreatedAtAction(
-                nameof(GetById),
-                new { id = result.Id },
-                result);
+            //return CreatedAtAction(
+            //    nameof(GetById),
+            //    new { id = result.Id },
+            //    result);
+
+            return Ok(
+                ApiResponse<TodoResponse>.Ok(
+                    result,
+                    "Todo başarıyla oluşturuldu."));
         }
 
 
@@ -66,12 +79,17 @@ namespace TodoApp.API.Controllers {
             var result = await _todoService.UpdateAsync(userId, id, request);
 
             if (result == null) {
-                return NotFound(new {
-                    message = "Todo bulunamadı."
+                return NotFound(new ApiErrorResponse {
+                    Success = false,
+                    Message = "Todo bulunamadı.",
+                    Errors = new List<string>()
                 });
             }
 
-            return Ok(result);
+            return Ok(
+                ApiResponse<TodoResponse>.Ok(
+                    result,
+                    "Todo başarıyla güncellendi."));
         }
 
 
@@ -83,12 +101,17 @@ namespace TodoApp.API.Controllers {
 
 
             if (!deleted) {
-                return NotFound(new {
-                    message = "Todo bulunamadı."
+                return NotFound(new ApiErrorResponse {
+                    Success = false,
+                    Message = "Todo bulunamadı.",
+                    Errors = new List<string>()
                 });
             }
 
-            return NoContent();
+            return Ok(
+                ApiResponse<object>.Ok(
+                    null,
+                    "Todo başarıyla silindi."));
         }
 
 
@@ -101,13 +124,19 @@ namespace TodoApp.API.Controllers {
             var result = await _todoService.SetCompletedAsync(userId, id, completed);
 
             if (result == null) {
-                return NotFound(new {
-                    message = "Todo bulunamadı."
+                return NotFound(new ApiErrorResponse {
+                    Success = false,
+                    Message = "Todo bulunamadı.",
+                    Errors = new List<string>()
                 });
             }
 
-
-            return Ok(result);
+            return Ok(
+                ApiResponse<TodoResponse>.Ok(
+                    result,
+                    result.IsCompleted
+                        ? "Todo tamamlandı."
+                        : "Todo tekrar bekleyen duruma getirildi."));
         }
     }
 }

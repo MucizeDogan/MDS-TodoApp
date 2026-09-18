@@ -1,0 +1,104 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>TodoApp - Giriş</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="css/site.css">
+</head>
+
+<body>
+
+    <div class="auth-container">
+
+        <div class="auth-card">
+
+            <div class="text-center mb-4">
+
+                <div class="app-logo">
+                    ✓
+                </div>
+
+                <h2 class="mt-3">TodoApp</h2>
+
+                <p class="text-muted">
+                    Görevlerini düzenle, hedeflerine ulaş.
+                </p>
+
+            </div>
+
+            <div id="errorMessage"
+                 class="alert alert-danger d-none">
+            </div>
+
+            <form id="loginForm">
+
+                <div class="mb-3">
+
+                    <label for="email"
+                           class="form-label">
+                        E-posta
+                    </label>
+
+                    <input type="email"
+                           class="form-control"
+                           id="email"
+                           placeholder="ornek@mail.com"
+                           required>
+
+                </div>
+
+                <div class="mb-3">
+
+                    <label for="password"
+                           class="form-label">
+                        Şifre
+                    </label>
+
+                    <input type="password"
+                           class="form-control"
+                           id="password"
+                           placeholder="Şifrenizi girin"
+                           required>
+
+                </div>
+
+                <button type="submit"
+                        class="btn btn-primary w-100"
+                        id="loginButton">
+
+                    Giriş Yap
+
+                </button>
+
+            </form>
+
+            <div class="text-center mt-4">
+
+                <span class="text-muted">
+                    Hesabın yok mu?
+                </span>
+
+                <a href="register.html">
+                    Kayıt Ol
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script src="/js/config.js"></script>
+    <script src="/js/auth.js"></script>
+
+</body>
+
+</html>
