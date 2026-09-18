@@ -2,19 +2,1132 @@
 <html lang="tr">
 
 <head>
+
     <meta charset="UTF-8">
 
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>TodoApp</title>
+    <meta name="theme-color"
+          content="#6c63ff">
+
+    <title>TodoApp - Dashboard</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <!-- Dashboard CSS -->
+    <link rel="stylesheet"
+          href="css/dashboard.css">
+
 </head>
 
 <body>
 
-    <h1>TodoApp</h1>
+    <div class="app-shell">
 
-    <p>Dashboard hazırlanıyor...</p>
+        <!-- ========================================================= -->
+        <!-- SIDEBAR -->
+        <!-- ========================================================= -->
+
+        <aside class="sidebar" id="sidebar">
+
+            <div class="sidebar-header">
+
+                <a href="index.html"
+                   class="brand">
+
+                    <span class="brand-icon">
+                        <i class="bi bi-check2"></i>
+                    </span>
+
+                    <span class="brand-name">
+                        Todo<span>App</span>
+                    </span>
+
+                </a>
+
+                <button class="sidebar-close"
+                        id="sidebarClose">
+
+                    <i class="bi bi-x-lg"></i>
+
+                </button>
+
+            </div>
+
+
+            <!-- Navigation -->
+
+            <nav class="sidebar-nav">
+
+                <div class="nav-section-title">
+                    MENU
+                </div>
+
+                <a href="#"
+                   class="nav-item active"
+                   data-view="all">
+
+                    <span>
+                        <i class="bi bi-grid-1x2"></i>
+                        Dashboard
+                    </span>
+
+                </a>
+
+                <a href="#"
+                   class="nav-item"
+                   data-view="pending">
+
+                    <span>
+                        <i class="bi bi-list-check"></i>
+                        My Tasks
+                    </span>
+
+                    <span class="nav-count"
+                          id="sidebarPendingCount">
+                        0
+                    </span>
+
+                </a>
+
+                <a href="#"
+                   class="nav-item"
+                   data-view="completed">
+
+                    <span>
+                        <i class="bi bi-check2-circle"></i>
+                        Completed
+                    </span>
+
+                </a>
+
+
+                <div class="nav-section-title workspace-title">
+                    WORKSPACE
+                </div>
+
+                <a href="#"
+                   class="nav-item"
+                   id="categoriesNav">
+
+                    <span>
+                        <i class="bi bi-folder2-open"></i>
+                        Categories
+                    </span>
+
+                </a>
+
+            </nav>
+
+
+            <!-- Categories -->
+
+            <div class="sidebar-categories">
+
+                <div class="category-header">
+
+                    <span>Categories</span>
+
+                    <button class="icon-button"
+                            id="addCategoryButton"
+                            title="Kategori ekle">
+
+                        <i class="bi bi-plus"></i>
+
+                    </button>
+
+                </div>
+
+                <div id="sidebarCategories">
+
+                    <div class="category-loading">
+                        Yükleniyor...
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Sidebar bottom -->
+
+            <div class="sidebar-bottom">
+
+                <button class="sidebar-bottom-item"
+                        id="darkModeButton">
+
+                    <span>
+                        <i class="bi bi-moon"></i>
+                        Dark Mode
+                    </span>
+
+                    <div class="theme-switch">
+                        <span></span>
+                    </div>
+
+                </button>
+
+            </div>
+
+        </aside>
+
+
+        <!-- ========================================================= -->
+        <!-- MAIN -->
+        <!-- ========================================================= -->
+
+        <main class="main-content">
+
+
+            <!-- TOPBAR -->
+
+            <header class="topbar">
+
+                <button class="mobile-menu-button"
+                        id="mobileMenuButton">
+
+                    <i class="bi bi-list"></i>
+
+                </button>
+
+
+                <div class="topbar-search">
+
+                    <i class="bi bi-search"></i>
+
+                    <input type="text"
+                           id="searchInput"
+                           placeholder="Görevlerde ara...">
+
+                    <span class="search-shortcut">
+                        /
+                    </span>
+
+                </div>
+
+
+                <div class="topbar-actions">
+
+                    <button class="topbar-icon-button"
+                            id="refreshButton"
+                            title="Yenile">
+
+                        <i class="bi bi-arrow-clockwise"></i>
+
+                    </button>
+
+
+                    <button class="topbar-icon-button notification-button"
+                            title="Bildirimler">
+
+                        <i class="bi bi-bell"></i>
+
+                        <span class="notification-dot"></span>
+
+                    </button>
+
+
+                    <div class="user-menu">
+
+                        <button class="user-button"
+                                id="userButton">
+
+                            <span class="user-avatar"
+                                  id="userAvatar">
+                                M
+                            </span>
+
+                            <span class="user-info">
+
+                                <strong id="topbarUserName">
+                                    Kullanıcı
+                                </strong>
+
+                                <small>
+                                    Personal
+                                </small>
+
+                            </span>
+
+                            <i class="bi bi-chevron-down"></i>
+
+                        </button>
+
+
+                        <div class="user-dropdown"
+                             id="userDropdown">
+
+                            <div class="dropdown-user-info">
+
+                                <span class="user-avatar large"
+                                      id="dropdownAvatar">
+                                    M
+                                </span>
+
+                                <div>
+
+                                    <strong id="dropdownUserName">
+                                        Kullanıcı
+                                    </strong>
+
+                                    <small id="dropdownEmail">
+                                        email@example.com
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                            <div class="dropdown-divider"></div>
+
+                            <button class="dropdown-item-custom">
+
+                                <i class="bi bi-person"></i>
+                                Profil
+
+                            </button>
+
+                            <button class="dropdown-item-custom">
+
+                                <i class="bi bi-gear"></i>
+                                Ayarlar
+
+                            </button>
+
+                            <div class="dropdown-divider"></div>
+
+                            <button class="dropdown-item-custom danger"
+                                    id="logoutButton">
+
+                                <i class="bi bi-box-arrow-right"></i>
+                                Çıkış Yap
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </header>
+
+
+            <!-- PAGE -->
+
+            <div class="page-container">
+
+
+                <!-- HERO -->
+
+                <section class="welcome-section">
+
+                    <div>
+
+                        <div class="welcome-date"
+                             id="currentDate">
+                            Bugün
+                        </div>
+
+                        <h1 id="welcomeTitle">
+                            İyi akşamlar, Kullanıcı 👋
+                        </h1>
+
+                        <p>
+                            Bugün neleri tamamlayacağız?
+                        </p>
+
+                    </div>
+
+
+                    <button class="primary-button"
+                            id="addTodoButton">
+
+                        <i class="bi bi-plus-lg"></i>
+
+                        Yeni Görev
+
+                    </button>
+
+                </section>
+
+
+                <!-- STATISTICS -->
+
+                <section class="stats-grid">
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon purple">
+                            <i class="bi bi-check2-square"></i>
+                        </div>
+
+                        <div class="stat-content">
+
+                            <span>
+                                Toplam Görev
+                            </span>
+
+                            <strong id="totalCount">
+                                0
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon orange">
+                            <i class="bi bi-hourglass-split"></i>
+                        </div>
+
+                        <div class="stat-content">
+
+                            <span>
+                                Bekleyen
+                            </span>
+
+                            <strong id="pendingCount">
+                                0
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon green">
+                            <i class="bi bi-check-circle"></i>
+                        </div>
+
+                        <div class="stat-content">
+
+                            <span>
+                                Tamamlanan
+                            </span>
+
+                            <strong id="completedCount">
+                                0
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card progress-stat">
+
+                        <div class="stat-icon blue">
+                            <i class="bi bi-graph-up-arrow"></i>
+                        </div>
+
+                        <div class="stat-content">
+
+                            <span>
+                                Tamamlanma Oranı
+                            </span>
+
+                            <strong id="completionRate">
+                                0%
+                            </strong>
+
+                        </div>
+
+                        <div class="stat-progress">
+
+                            <div class="stat-progress-bar"
+                                 id="completionProgress">
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- CONTENT GRID -->
+
+                <section class="dashboard-grid">
+
+
+                    <!-- TASK AREA -->
+
+                    <div class="tasks-panel">
+
+
+                        <div class="panel-header">
+
+                            <div>
+
+                                <h2 id="taskPanelTitle">
+                                    My Tasks
+                                </h2>
+
+                                <p id="taskPanelSubtitle">
+                                    Görevlerini yönet
+                                </p>
+
+                            </div>
+
+
+                            <div class="task-view-buttons">
+
+                                <button class="view-button active"
+                                        data-view-mode="list"
+                                        title="Liste görünümü">
+
+                                    <i class="bi bi-list"></i>
+
+                                </button>
+
+                                <button class="view-button"
+                                        data-view-mode="compact"
+                                        title="Kompakt görünüm">
+
+                                    <i class="bi bi-layout-text-sidebar"></i>
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- FILTERS -->
+
+                        <div class="task-filters">
+
+                            <div class="filter-tabs">
+
+                                <button class="filter-tab active"
+                                        data-filter="all">
+
+                                    Tümü
+
+                                </button>
+
+                                <button class="filter-tab"
+                                        data-filter="pending">
+
+                                    Bekleyen
+
+                                </button>
+
+                                <button class="filter-tab"
+                                        data-filter="completed">
+
+                                    Tamamlanan
+
+                                </button>
+
+                                <button class="filter-tab"
+                                        data-filter="high">
+
+                                    <i class="bi bi-lightning"></i>
+
+                                    Yüksek Öncelik
+
+                                </button>
+
+                            </div>
+
+
+                            <select class="category-filter"
+                                    id="categoryFilter">
+
+                                <option value="all">
+                                    Tüm Kategoriler
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- TASK LIST -->
+
+                        <div class="task-list"
+                             id="taskList">
+
+                            <div class="task-loading">
+
+                                <div class="spinner-border"
+                                     role="status">
+                                </div>
+
+                                <span>
+                                    Görevler yükleniyor...
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- EMPTY STATE -->
+
+                        <div class="empty-state d-none"
+                             id="emptyState">
+
+                            <div class="empty-icon">
+
+                                <i class="bi bi-check2-all"></i>
+
+                            </div>
+
+                            <h3>
+                                Burada henüz bir görev yok
+                            </h3>
+
+                            <p>
+                                Yeni bir görev oluşturarak başlayabilirsin.
+                            </p>
+
+                            <button class="secondary-button"
+                                    id="emptyAddButton">
+
+                                <i class="bi bi-plus-lg"></i>
+
+                                İlk Görevini Oluştur
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- RIGHT SIDEBAR -->
+
+                    <aside class="dashboard-side">
+
+
+                        <!-- TODAY -->
+
+                        <div class="side-card">
+
+                            <div class="side-card-header">
+
+                                <div>
+
+                                    <span class="side-card-label">
+                                        BUGÜN
+                                    </span>
+
+                                    <h3>
+                                        Günün Özeti
+                                    </h3>
+
+                                </div>
+
+                                <div class="today-icon">
+                                    <i class="bi bi-sun"></i>
+                                </div>
+
+                            </div>
+
+
+                            <div class="today-progress">
+
+                                <div class="progress-ring">
+
+                                    <svg viewBox="0 0 42 42">
+
+                                        <circle class="progress-ring-bg"
+                                                cx="21"
+                                                cy="21"
+                                                r="16">
+                                        </circle>
+
+                                        <circle class="progress-ring-value"
+                                                id="todayProgressRing"
+                                                cx="21"
+                                                cy="21"
+                                                r="16">
+                                        </circle>
+
+                                    </svg>
+
+                                    <span id="todayProgressText">
+                                        0%
+                                    </span>
+
+                                </div>
+
+
+                                <div class="today-stats">
+
+                                    <div>
+
+                                        <strong id="todayCompleted">
+                                            0
+                                        </strong>
+
+                                        <span>
+                                            tamamlandı
+                                        </span>
+
+                                    </div>
+
+                                    <div>
+
+                                        <strong id="todayPending">
+                                            0
+                                        </strong>
+
+                                        <span>
+                                            bekliyor
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- CATEGORIES -->
+
+                        <div class="side-card">
+
+                            <div class="side-card-header">
+
+                                <div>
+
+                                    <span class="side-card-label">
+                                        ORGANİZASYON
+                                    </span>
+
+                                    <h3>
+                                        Kategoriler
+                                    </h3>
+
+                                </div>
+
+                                <button class="side-action"
+                                        id="sideAddCategoryButton">
+
+                                    <i class="bi bi-plus"></i>
+
+                                </button>
+
+                            </div>
+
+
+                            <div class="category-list"
+                                 id="categoryList">
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- UPCOMING -->
+
+                        <div class="side-card">
+
+                            <div class="side-card-header">
+
+                                <div>
+
+                                    <span class="side-card-label">
+                                        YAKLAŞAN
+                                    </span>
+
+                                    <h3>
+                                        Yaklaşan Görevler
+                                    </h3>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="upcoming-list"
+                                 id="upcomingList">
+
+                            </div>
+
+                        </div>
+
+                    </aside>
+
+                </section>
+
+            </div>
+
+        </main>
+
+    </div>
+
+
+    <!-- ============================================================= -->
+    <!-- ADD / EDIT TODO MODAL -->
+    <!-- ============================================================= -->
+
+    <div class="modal fade"
+         id="todoModal"
+         tabindex="-1">
+
+        <div class="modal-dialog modal-dialog-centered">
+
+            <div class="modal-content modern-modal">
+
+                <div class="modal-header">
+
+                    <div>
+
+                        <span class="modal-label">
+                            GÖREV
+                        </span>
+
+                        <h5 class="modal-title"
+                            id="todoModalTitle">
+
+                            Yeni Görev
+
+                        </h5>
+
+                    </div>
+
+                    <button type="button"
+                            class="modal-close"
+                            data-bs-dismiss="modal">
+
+                        <i class="bi bi-x-lg"></i>
+
+                    </button>
+
+                </div>
+
+
+                <div class="modal-body">
+
+                    <form id="todoForm">
+
+                        <input type="hidden"
+                               id="todoId">
+
+
+                        <div class="form-group-modern">
+
+                            <label>
+                                Görev Başlığı
+                            </label>
+
+                            <input type="text"
+                                   id="todoTitle"
+                                   class="modern-input"
+                                   placeholder="Ne yapman gerekiyor?"
+                                   maxlength="200"
+                                   required>
+
+                        </div>
+
+
+                        <div class="form-group-modern">
+
+                            <label>
+                                Açıklama
+                                <span>Opsiyonel</span>
+                            </label>
+
+                            <textarea id="todoDescription"
+                                      class="modern-input"
+                                      rows="3"
+                                      maxlength="2000"
+                                      placeholder="Görev hakkında biraz daha detay...">
+                        </textarea>
+
+                        </div>
+
+
+                        <div class="form-row">
+
+
+                            <div class="form-group-modern">
+
+                                <label>
+                                    Kategori
+                                </label>
+
+                                <select id="todoCategory"
+                                        class="modern-input"
+                                        required>
+                                </select>
+
+                            </div>
+
+
+                            <div class="form-group-modern">
+
+                                <label>
+                                    Öncelik
+                                </label>
+
+                                <select id="todoPriority"
+                                        class="modern-input">
+
+                                    <option value="1">
+                                        🟢 Düşük
+                                    </option>
+
+                                    <option value="2"
+                                            selected>
+
+                                        🟡 Orta
+
+                                    </option>
+
+                                    <option value="3">
+                                        🔴 Yüksek
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="form-group-modern">
+
+                            <label>
+                                Son Tarih
+                                <span>Opsiyonel</span>
+                            </label>
+
+                            <input type="datetime-local"
+                                   id="todoDueDate"
+                                   class="modern-input">
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button type="button"
+                            class="secondary-button"
+                            data-bs-dismiss="modal">
+
+                        Vazgeç
+
+                    </button>
+
+                    <button type="button"
+                            class="primary-button"
+                            id="saveTodoButton">
+
+                        <i class="bi bi-check-lg"></i>
+
+                        Kaydet
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ============================================================= -->
+    <!-- CATEGORY MODAL -->
+    <!-- ============================================================= -->
+
+    <div class="modal fade"
+         id="categoryModal"
+         tabindex="-1">
+
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+
+            <div class="modal-content modern-modal">
+
+                <div class="modal-header">
+
+                    <div>
+
+                        <span class="modal-label">
+                            WORKSPACE
+                        </span>
+
+                        <h5 class="modal-title">
+                            Yeni Kategori
+                        </h5>
+
+                    </div>
+
+                    <button type="button"
+                            class="modal-close"
+                            data-bs-dismiss="modal">
+
+                        <i class="bi bi-x-lg"></i>
+
+                    </button>
+
+                </div>
+
+
+                <div class="modal-body">
+
+                    <div class="form-group-modern">
+
+                        <label>
+                            Kategori Adı
+                        </label>
+
+                        <input type="text"
+                               id="categoryName"
+                               class="modern-input"
+                               maxlength="100"
+                               placeholder="Örn. İş, Kişisel..."
+                               required>
+
+                    </div>
+
+
+                    <div class="form-group-modern">
+
+                        <label>
+                            Renk
+                        </label>
+
+                        <div class="color-picker-row">
+
+                            <button type="button"
+                                    class="color-option selected"
+                                    data-color="#6c63ff"
+                                    style="--category-color:#6c63ff">
+                            </button>
+
+                            <button type="button"
+                                    class="color-option"
+                                    data-color="#ef4444"
+                                    style="--category-color:#ef4444">
+                            </button>
+
+                            <button type="button"
+                                    class="color-option"
+                                    data-color="#f59e0b"
+                                    style="--category-color:#f59e0b">
+                            </button>
+
+                            <button type="button"
+                                    class="color-option"
+                                    data-color="#10b981"
+                                    style="--category-color:#10b981">
+                            </button>
+
+                            <button type="button"
+                                    class="color-option"
+                                    data-color="#3b82f6"
+                                    style="--category-color:#3b82f6">
+                            </button>
+
+                            <button type="button"
+                                    class="color-option"
+                                    data-color="#ec4899"
+                                    style="--category-color:#ec4899">
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button type="button"
+                            class="secondary-button"
+                            data-bs-dismiss="modal">
+
+                        Vazgeç
+
+                    </button>
+
+                    <button type="button"
+                            class="primary-button"
+                            id="saveCategoryButton">
+
+                        Oluştur
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ============================================================= -->
+    <!-- TOAST -->
+    <!-- ============================================================= -->
+
+    <div class="toast-container position-fixed bottom-0 end-0 p-4">
+
+        <div id="appToast"
+             class="toast modern-toast"
+             role="alert">
+
+            <div class="toast-body">
+
+                <div class="toast-icon">
+                    <i class="bi bi-check-lg"></i>
+                </div>
+
+                <div>
+
+                    <strong id="toastTitle">
+                        Başarılı
+                    </strong>
+
+                    <p id="toastMessage">
+                        İşlem başarılı.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+    </script>
+
+    <!-- Application -->
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/dashboard.js"></script>
 
 </body>
 

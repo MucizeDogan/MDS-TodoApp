@@ -20,14 +20,16 @@ async function login(event) {
 
     event.preventDefault();
 
-    const email = document
-        .getElementById("email")
-        .value
-        .trim();
+    const email =
+        document
+            .getElementById("email")
+            .value
+            .trim();
 
-    const password = document
-        .getElementById("password")
-        .value;
+    const password =
+        document
+            .getElementById("password")
+            .value;
 
     const errorMessage =
         document.getElementById("errorMessage");
@@ -38,35 +40,21 @@ async function login(event) {
     errorMessage.classList.add("d-none");
 
     loginButton.disabled = true;
-    loginButton.textContent = "Giriş yapılıyor...";
+    loginButton.textContent =
+        "Giriş yapılıyor...";
 
     try {
 
-        const response = await fetch(
-            `${API_BASE_URL}/Auth/login`,
-            {
-                method: "POST",
-
-                headers: {
-                    "Content-Type": "application/json"
-                },
-
-                body: JSON.stringify({
+        const result =
+            await api.post(
+                "/Auth/login",
+                {
                     email: email,
                     password: password
-                })
-            }
-        );
-
-        const result = await response.json();
-
-        if (!response.ok) {
-
-            showError(
-                result.message ||
-                "Giriş sırasında bir hata oluştu."
+                }
             );
 
+        if (!result) {
             return;
         }
 
@@ -90,23 +78,22 @@ async function login(event) {
             result.data.email
         );
 
-        window.location.href = "index.html";
+        window.location.href =
+            "index.html";
 
     }
     catch (error) {
 
         console.error(error);
 
-        showError(
-            "API'ye bağlanılamadı."
-        );
+        showError(error.message);
 
     }
     finally {
 
         loginButton.disabled = false;
-        loginButton.textContent = "Giriş Yap";
 
+        loginButton.textContent = "Giriş Yap";
     }
 }
 
@@ -117,21 +104,25 @@ async function register(event) {
     event.preventDefault();
 
     const fullName =
-        document.getElementById("fullName")
+        document
+            .getElementById("fullName")
             .value
             .trim();
 
     const email =
-        document.getElementById("email")
+        document
+            .getElementById("email")
             .value
             .trim();
 
     const password =
-        document.getElementById("password")
+        document
+            .getElementById("password")
             .value;
 
     const passwordConfirm =
-        document.getElementById("passwordConfirm")
+        document
+            .getElementById("passwordConfirm")
             .value;
 
     const errorMessage =
@@ -152,36 +143,23 @@ async function register(event) {
     }
 
     registerButton.disabled = true;
-    registerButton.textContent = "Kayıt oluşturuluyor...";
+
+    registerButton.textContent =
+        "Kayıt oluşturuluyor...";
 
     try {
 
-        const response = await fetch(
-            `${API_BASE_URL}/Auth/register`,
-            {
-                method: "POST",
-
-                headers: {
-                    "Content-Type": "application/json"
-                },
-
-                body: JSON.stringify({
+        const result =
+            await api.post(
+                "/Auth/register",
+                {
                     fullName: fullName,
                     email: email,
                     password: password
-                })
-            }
-        );
-
-        const result = await response.json();
-
-        if (!response.ok) {
-
-            showError(
-                result.message ||
-                "Kayıt sırasında bir hata oluştu."
+                }
             );
 
+        if (!result) {
             return;
         }
 
@@ -205,23 +183,23 @@ async function register(event) {
             result.data.email
         );
 
-        window.location.href = "index.html";
+        window.location.href =
+            "index.html";
 
     }
     catch (error) {
 
         console.error(error);
 
-        showError(
-            "API'ye bağlanılamadı."
-        );
+        showError(error.message);
 
     }
     finally {
 
         registerButton.disabled = false;
-        registerButton.textContent = "Kayıt Ol";
 
+        registerButton.textContent =
+            "Kayıt Ol";
     }
 }
 
