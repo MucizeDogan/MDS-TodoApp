@@ -7,6 +7,7 @@ let currentCategory = "all";
 
 let todoModal;
 let categoryModal;
+let selectedTodoId = null;
 
 
 /* ========================================================= */
@@ -2077,6 +2078,19 @@ function openEditTodoModal(id) {
     todoModal.show();
 }
 
+function editTodoFromDetail(todoId) {
+
+    const todo =
+        todos.find(x => Number(x.id) === Number(todoId));
+
+    if (!todo) return;
+
+    closeTodoDetail();
+
+    // Buraya mevcut edit modal fonksiyonun gelecek.
+    openEditTodoModal(todo);
+}
+
 
 /* ========================================================= */
 /* SAVE TODO */
@@ -2361,6 +2375,14 @@ async function deleteTodo(id) {
             true
         );
     }
+}
+
+function deleteTodoFromDetail(todoId) {
+
+    closeTodoDetail();
+
+    // Mevcut delete modal / delete fonksiyonunu çağır.
+    openDeleteTodoModal(todoId);
 }
 
 
@@ -2732,6 +2754,303 @@ function updatePanelTitle() {
         "Tüm görevlerini yönet";
 }
 
+//Detail Açma
+function openTodoDetail(todoId) {
+
+    const todo = todos.find(x => Number(x.id) === Number(todoId));
+
+    if (!todo) {
+        showToast("Görev bilgisi bulunamadı.", "error");
+        return;
+    }
+
+    selectedTodoId = todo.id;
+
+    renderTodoDetail(todo);
+
+    document
+        .getElementById("todoDetailOverlay")
+        ?.classList.add("active");
+
+    document
+        .getElementById("todoDetailDrawer")
+        ?.classList.add("active");
+
+    document.body.classList.add("todo-detail-open");
+}
+
+//DEtail kapatma
+function closeTodoDetail() {
+
+    document
+        .getElementById("todoDetailOverlay")
+        ?.classList.remove("active");
+
+    document
+        .getElementById("todoDetailDrawer")
+        ?.classList.remove("active");
+
+    document.body.classList.remove("todo-detail-open");
+
+    selectedTodoId = null;
+}
+
+document
+    .getElementById("closeTodoDetailBtn")
+    ?.addEventListener("click", closeTodoDetail);
+
+document
+    .getElementById("todoDetailOverlay")
+    ?.addEventListener("click", closeTodoDetail);
+
+document.addEventListener("keydown", event => {
+
+    if (event.key === "Escape") {
+        closeTodoDetail();
+    }
+
+});
+
+function renderTodoDetail(todo) {
+
+    const body = document.getElementById("todoDetailBody");
+
+    if (!body) return;
+
+    const category =
+        categories.find(x => Number(x.id) === Number(todo.categoryId));
+
+    const priorityMap = {
+        1: {
+            text: "Düşük",
+            className: "low",
+            icon: "bi-arrow-down"
+        },
+        2: {
+            text: "Orta",
+            className: "medium",
+            icon: "bi-dash"
+        },
+        3: {
+            text: "Yüksek",
+            className: "high",
+            icon: "bi-arrow-up"
+        }
+    };
+
+    const priority =
+        priorityMap[todo.priority] || priorityMap[2];
+
+    const categoryName =
+        todo.categoryName ||
+        category?.name ||
+        "Kategorisiz";
+
+    const dueDate =
+        todo.dueDate
+            ? formatTodoDate(todo.dueDate)
+            : "Tarih belirtilmemiş";
+
+    const createdDate =
+        todo.createdAt
+            ? formatTodoDate(todo.createdAt)
+            : "-";
+
+    const completedDate =
+        todo.completedAt
+            ? formatTodoDate(todo.completedAt)
+            : null;
+
+    body.innerHTML = `
+        <div class="todo-detail-title-section">
+
+            <div class="todo-detail-status-row">
+
+                <button
+                    type="button"
+                    class="todo-detail-checkbox ${todo.isCompleted ? "completed" : ""}"
+                    onclick="toggleTodoFromDetail(${todo.id})">
+
+                    ${todo.isCompleted
+            ? '<i class="bi bi-check-lg"></i>'
+            : ''
+        }
+
+                </button>
+
+                <span class="todo-priority-badge ${priority.className}">
+                    <i class="bi ${priority.icon}"></i>
+                    ${priority.text}
+                </span>
+
+            </div>
+
+            <h2 class="todo-detail-title">
+                ${escapeHtml(todo.title)}
+            </h2>
+
+            ${todo.description
+            ? `
+                        <div class="todo-detail-description">
+                            ${escapeHtml(todo.description)}
+                        </div>
+                    `
+            : `
+                        <div class="todo-detail-description text-muted">
+                            Bu görev için açıklama eklenmemiş.
+                        </div>
+                    `
+        }
+
+        </div>
+
+        <div class="todo-detail-meta">
+
+            <div class="todo-detail-meta-item">
+
+                <div class="todo-detail-meta-label">
+                    <i class="bi bi-tag"></i>
+                    Kategori
+                </div>
+
+                <div class="todo-detail-meta-value">
+                    ${escapeHtml(categoryName)}
+                </div>
+
+            </div>
+
+            <div class="todo-detail-meta-item">
+
+                <div class="todo-detail-meta-label">
+                    <i class="bi bi-calendar-event"></i>
+                    Son Tarih
+                </div>
+
+                <div class="todo-detail-meta-value">
+                    ${dueDate}
+                </div>
+
+            </div>
+
+            <div class="todo-detail-meta-item">
+
+                <div class="todo-detail-meta-label">
+                    <i class="bi bi-calendar-plus"></i>
+                    Oluşturulma
+                </div>
+
+                <div class="todo-detail-meta-value">
+                    ${createdDate}
+                </div>
+
+            </div>
+
+            ${completedDate
+            ? `
+                        <div class="todo-detail-meta-item">
+
+                            <div class="todo-detail-meta-label">
+                                <i class="bi bi-check-circle"></i>
+                                Tamamlanma
+                            </div>
+
+                            <div class="todo-detail-meta-value">
+                                ${completedDate}
+                            </div>
+
+                        </div>
+                    `
+            : ''
+        }
+
+        </div>
+
+        <div class="todo-detail-actions">
+
+            <button
+                type="button"
+                class="todo-detail-action primary"
+                onclick="editTodoFromDetail(${todo.id})">
+
+                <i class="bi bi-pencil"></i>
+                Düzenle
+
+            </button>
+
+            <button
+                type="button"
+                class="todo-detail-action secondary"
+                onclick="toggleTodoFromDetail(${todo.id})">
+
+                ${todo.isCompleted
+            ? '<i class="bi bi-arrow-counterclockwise"></i> Geri Al'
+            : '<i class="bi bi-check-lg"></i> Tamamla'
+        }
+
+            </button>
+
+        </div>
+
+        <button
+            type="button"
+            class="todo-detail-delete"
+            onclick="deleteTodoFromDetail(${todo.id})">
+
+            <i class="bi bi-trash3"></i>
+            Görevi Sil
+
+        </button>
+    `;
+}
+
+function formatTodoDate(value) {
+
+    if (!value) {
+        return "-";
+    }
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return "-";
+    }
+
+    return new Intl.DateTimeFormat("tr-TR", {
+        day: "numeric",
+        month: "long",
+        year: "numeric"
+    }).format(date);
+}
+
+function escapeHtml(value) {
+
+    if (value === null || value === undefined) {
+        return "";
+    }
+
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+async function toggleTodoFromDetail(todoId) {
+
+    const todo = todos.find(x => Number(x.id) === Number(todoId));
+
+    if (!todo) return;
+
+    await toggleTodo(todoId);
+
+    const updatedTodo =
+        todos.find(x => Number(x.id) === Number(todoId));
+
+    if (updatedTodo) {
+        renderTodoDetail(updatedTodo);
+    }
+}
 
 /* ========================================================= */
 /* DARK MODE */
