@@ -9,6 +9,18 @@ let todoModal;
 let categoryModal;
 let selectedTodoId = null;
 
+let activeSwipeItem = null;
+
+let swipeState = {
+    item: null,
+    startX: 0,
+    startY: 0,
+    currentX: 0,
+    isDragging: false,
+    isHorizontal: false,
+    didSwipe: false,
+    pointerId: null
+};
 
 /* ========================================================= */
 /* INIT */
@@ -1935,6 +1947,48 @@ function renderTask(todo) {
         }"
         data-id="${todo.id}">
 
+        <!-- SAĞA KAYDIRINCA GÖRÜNECEK -->
+        <button
+            type="button"
+            class="task-swipe-action swipe-complete"
+            data-swipe-action="complete"
+            title="Tamamla">
+
+            <i class="bi bi-check-lg"></i>
+            <span>Tamamla</span>
+
+        </button>
+
+        <!-- SOLA KAYDIRINCA GÖRÜNECEK -->
+        <div class="task-swipe-actions-right">
+
+            <button
+                type="button"
+                class="swipe-action-button swipe-edit"
+                data-swipe-action="edit"
+                title="Düzenle">
+
+                <i class="bi bi-pencil"></i>
+                <span>Düzenle</span>
+
+            </button>
+
+            <button
+                type="button"
+                class="swipe-action-button swipe-delete"
+                data-swipe-action="delete"
+                title="Sil">
+
+                <i class="bi bi-trash3"></i>
+                <span>Sil</span>
+
+            </button>
+
+        </div>
+
+
+        <!-- ASIL GÖREV KARTI -->
+        <div class="task-swipe-content">
 
             <button
                 class="task-checkbox"
@@ -1969,39 +2023,39 @@ function renderTask(todo) {
 
                     ${todo.categoryName
             ? `
+                            <span
+                                class="task-category">
+
                                 <span
-                                    class="task-category">
+                                    class="task-category-dot"
+                                    style="
+                                        --category-color:${categoryColor}
+                                    ">
+                                </span>
 
-                                    <span
-                                        class="task-category-dot"
-                                        style="
-                                            --category-color:${categoryColor}
-                                        ">
-                                    </span>
-
-                                    ${escapeHtml(
+                                ${escapeHtml(
                 todo.categoryName
             )}
 
-                                </span>
-                              `
+                            </span>
+                          `
             : ""
         }
 
 
                     ${due
             ? `
-                                <span
-                                    class="task-due ${due.className}">
+                            <span
+                                class="task-due ${due.className}">
 
-                                    <i
-                                        class="bi bi-calendar3">
-                                    </i>
+                                <i
+                                    class="bi bi-calendar3">
+                                </i>
 
-                                    ${due.text}
+                                ${due.text}
 
-                                </span>
-                              `
+                            </span>
+                          `
             : ""
         }
 
@@ -2042,7 +2096,9 @@ function renderTask(todo) {
             </div>
 
         </div>
-    `;
+
+    </div>
+`;
 }
 
 
@@ -2059,10 +2115,67 @@ function attachTaskEvents() {
             const id =
                 Number(item.dataset.id);
 
+            //item.addEventListener(
+            //    "click",
+            //    () => {
+            //        openTodoDetail(id);
+            //    }
+            //);
+
             item.addEventListener(
                 "click",
-                () => {
+                event => {
+
+                    if (
+                        item.dataset.swiped === "true"
+                    ) {
+
+                        delete item.dataset.swiped;
+
+                        return;
+                    }
+
+
+                    /*
+                     * Aynı task zaten açıksa kapat.
+                     */
+
+                    if (
+                        activeSwipeItem === item
+                    ) {
+
+                        resetSwipePosition(item);
+
+                        activeSwipeItem = null;
+
+                        return;
+
+                    }
+
+
+                    /*
+                     * Başka task açıksa önce onu kapat.
+                     */
+
+                    if (
+                        activeSwipeItem &&
+                        activeSwipeItem !== item
+                    ) {
+
+                        resetSwipePosition(
+                            activeSwipeItem
+                        );
+
+                        activeSwipeItem = null;
+
+                        openTodoDetail(id);
+
+                        return;
+                    }
+
+
                     openTodoDetail(id);
+
                 }
             );
 
@@ -2113,6 +2226,592 @@ function attachTaskEvents() {
                 });
 
         });
+
+    attachSwipeEvents();
+}
+
+/* ========================================================= */
+/* MOBILE SWIPE */
+/* ========================================================= */
+
+function isSwipeDevice() {
+
+    return window.matchMedia(
+        "(max-width: 700px)"
+    ).matches;
+
+}
+
+
+function resetSwipeState() {
+
+    swipeState.item = null;
+    swipeState.startX = 0;
+    swipeState.startY = 0;
+    swipeState.currentX = 0;
+    swipeState.isDragging = false;
+    swipeState.isHorizontal = false;
+    swipeState.didSwipe = false;
+    swipeState.pointerId = null;
+
+}
+
+
+function closeActiveSwipe(exceptItem = null) {
+
+    if (
+        activeSwipeItem &&
+        activeSwipeItem !== exceptItem
+    ) {
+
+        resetSwipePosition(
+            activeSwipeItem
+        );
+
+    }
+
+    if (exceptItem === null) {
+        activeSwipeItem = null;
+    }
+
+}
+
+
+function setSwipePosition(
+    item,
+    distance,
+    animate = false
+) {
+
+    const content =
+        item.querySelector(
+            ".task-swipe-content"
+        );
+
+    if (!content) {
+        return;
+    }
+
+
+    if (animate) {
+
+        content.style.transition =
+            "transform 0.22s ease";
+
+    }
+    else {
+
+        content.style.transition =
+            "none";
+
+    }
+
+
+    content.style.transform =
+        `translateX(${distance}px)`;
+
+}
+
+
+function resetSwipePosition(item) {
+
+    const content =
+        item.querySelector(
+            ".task-swipe-content"
+        );
+
+    if (!content) {
+        return;
+    }
+
+
+    content.style.transition =
+        "transform 0.22s ease";
+
+    content.style.transform =
+        "translateX(0)";
+
+    item.classList.remove(
+        "swipe-left",
+        "swipe-right"
+    );
+
+}
+
+
+function attachSwipeEvents() {
+
+    if (!isSwipeDevice()) {
+        return;
+    }
+
+
+    document
+        .querySelectorAll(".task-item")
+        .forEach(item => {
+
+            const content =
+                item.querySelector(
+                    ".task-swipe-content"
+                );
+
+            if (!content) {
+                return;
+            }
+
+
+            content.addEventListener(
+                "pointerdown",
+                event => {
+
+                    /*
+                     * Mouse ile swipe yapmayacağız.
+                     * Böylece desktop/tablet mouse
+                     * hareketleri yanlışlıkla swipe olmaz.
+                     */
+
+                    if (
+                        event.pointerType === "mouse"
+                        ||
+                        !isSwipeDevice()
+                    ) {
+                        return;
+                    }
+
+
+                    /*
+                     * Buton veya checkbox üzerinde
+                     * başlayan hareketleri swipe olarak
+                     * kabul etme.
+                     */
+
+                    if (
+                        event.target.closest(
+                            "button, a, input, select, textarea"
+                        )
+                    ) {
+                        return;
+                    }
+
+
+                    closeActiveSwipe(item);
+
+
+                    swipeState.item = item;
+
+                    swipeState.startX =
+                        event.clientX;
+
+                    swipeState.startY =
+                        event.clientY;
+
+                    swipeState.currentX =
+                        event.clientX;
+
+                    swipeState.isDragging = false;
+
+                    swipeState.isHorizontal = false;
+
+                    swipeState.pointerId =
+                        event.pointerId;
+
+                }
+            );
+
+
+            content.addEventListener(
+                "pointermove",
+                event => {
+
+                    if (
+                        swipeState.item !== item ||
+                        swipeState.pointerId !== event.pointerId
+                    ) {
+                        return;
+                    }
+
+
+                    const deltaX =
+                        event.clientX -
+                        swipeState.startX;
+
+                    const deltaY =
+                        event.clientY -
+                        swipeState.startY;
+
+
+                    /*
+                     * Henüz hareket yönünü
+                     * belirlemediysek küçük
+                     * hareketleri görmezden gel.
+                     */
+
+                    if (
+                        !swipeState.isHorizontal &&
+                        Math.abs(deltaX) < 8 &&
+                        Math.abs(deltaY) < 8
+                    ) {
+                        return;
+                    }
+
+
+                    /*
+                     * Dikey hareket baskınsa
+                     * sayfanın normal scroll davranışını
+                     * bozma.
+                     */
+
+                    if (
+                        !swipeState.isHorizontal &&
+                        Math.abs(deltaY) > Math.abs(deltaX)
+                    ) {
+
+                        resetSwipeState();
+
+                        return;
+                    }
+
+
+                    swipeState.isHorizontal = true;
+                    swipeState.isDragging = true;
+                    swipeState.didSwipe = true;
+
+                    let distance = deltaX;
+
+                    /*
+                     * Maksimum sağ swipe:
+                     * 100px
+                     */
+
+                    if (distance > 100) {
+                        distance = 100;
+                    }
+
+
+                    /*
+                     * Maksimum sol swipe:
+                     * 150px
+                     */
+
+                    if (distance < -150) {
+                        distance = -150;
+                    }
+
+
+                    setSwipePosition(
+                        item,
+                        distance,
+                        false
+                    );
+
+
+                    /*
+                     * Sağ / sol sınıfını
+                     * görsel olarak belirle.
+                     */
+
+                    item.classList.toggle(
+                        "swipe-right",
+                        distance > 10
+                    );
+
+                    item.classList.toggle(
+                        "swipe-left",
+                        distance < -10
+                    );
+
+
+                    /*
+                     * Yatay gesture başladıktan sonra
+                     * pointer capture kullan.
+                     */
+
+                    try {
+
+                        content.setPointerCapture(
+                            event.pointerId
+                        );
+
+                    }
+                    catch {
+                        // Desteklenmeyen cihazlarda sorun çıkarma.
+                    }
+
+
+                    event.preventDefault();
+
+                }
+            );
+
+
+            content.addEventListener(
+                "pointerup",
+                event => {
+
+                    handleSwipeEnd(
+                        item,
+                        event
+                    );
+
+                }
+            );
+
+
+            content.addEventListener(
+                "pointercancel",
+                event => {
+
+                    handleSwipeCancel(
+                        item,
+                        event
+                    );
+
+                }
+            );
+
+        });
+
+    document
+        .querySelectorAll("[data-swipe-action]")
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                async event => {
+
+                    event.stopPropagation();
+
+                    const item =
+                        button.closest(".task-item");
+
+                    if (!item) {
+                        return;
+                    }
+
+
+                    const id =
+                        Number(item.dataset.id);
+
+                    const action =
+                        button.dataset.swipeAction;
+
+
+                    /*
+                     * Önce swipe kartını kapat.
+                     */
+
+                    resetSwipePosition(item);
+
+                    if (activeSwipeItem === item) {
+                        activeSwipeItem = null;
+                    }
+
+
+                    /*
+                     * TAMAMLA
+                     */
+
+                    if (action === "complete") {
+
+                        await toggleTodo(id);
+
+                        return;
+                    }
+
+
+                    /*
+                     * DÜZENLE
+                     */
+
+                    if (action === "edit") {
+
+                        openEditTodoModal(id);
+
+                        return;
+                    }
+
+
+                    /*
+                     * SİL
+                     */
+
+                    if (action === "delete") {
+
+                        deleteTodo(id);
+
+                        return;
+                    }
+
+                }
+            );
+
+        });
+
+}
+
+
+function handleSwipeEnd(
+    item,
+    event
+) {
+
+    if (
+        swipeState.item !== item ||
+        swipeState.pointerId !== event.pointerId
+    ) {
+        return;
+    }
+
+
+    const deltaX =
+        event.clientX -
+        swipeState.startX;
+
+
+    const wasHorizontal =
+        swipeState.isHorizontal;
+
+
+    /*
+     * Gesture tamamlandı.
+     */
+
+    if (!wasHorizontal) {
+
+        resetSwipeState();
+
+        return;
+    }
+
+
+    /*
+     * Sağa yeterince kaydırıldıysa
+     * şimdilik tamamla durumunu açık bırak.
+     *
+     * API çağrısını sonraki adımda ekleyeceğiz.
+     */
+
+    if (deltaX >= 70) {
+
+        item.classList.add(
+            "swipe-right"
+        );
+
+        setSwipePosition(
+            item,
+            100,
+            true
+        );
+
+        activeSwipeItem = item;
+
+    }
+
+
+    /*
+     * Sola yeterince kaydırıldıysa
+     * Edit / Sil alanını aç.
+     */
+
+    else if (deltaX <= -70) {
+
+        item.classList.add(
+            "swipe-left"
+        );
+
+        setSwipePosition(
+            item,
+            -150,
+            true
+        );
+
+        activeSwipeItem = item;
+
+    }
+
+
+    /*
+     * Yeterince kaydırılmadıysa
+     * eski konumuna geri dön.
+     */
+
+    else {
+
+        resetSwipePosition(item);
+
+        if (activeSwipeItem === item) {
+            activeSwipeItem = null;
+        }
+
+    }
+
+
+    /*
+     * Pointer capture bırak.
+     */
+
+    try {
+
+        const content =
+            item.querySelector(
+                ".task-swipe-content"
+            );
+
+        content?.releasePointerCapture(
+            event.pointerId
+        );
+
+    }
+    catch {
+        // Güvenli şekilde devam et.
+    }
+
+
+    resetSwipeState();
+
+}
+
+
+function handleSwipeCancel(
+    item,
+    event
+) {
+
+    if (
+        swipeState.item !== item ||
+        swipeState.pointerId !== event.pointerId
+    ) {
+        return;
+    }
+
+
+    resetSwipePosition(item);
+
+
+    if (activeSwipeItem === item) {
+        activeSwipeItem = null;
+    }
+
+
+    try {
+
+        const content =
+            item.querySelector(
+                ".task-swipe-content"
+            );
+
+        content?.releasePointerCapture(
+            event.pointerId
+        );
+
+    }
+    catch {
+        // Güvenli şekilde devam et.
+    }
+
+
+    resetSwipeState();
+
 }
 
 

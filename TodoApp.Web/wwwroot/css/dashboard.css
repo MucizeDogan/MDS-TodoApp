@@ -2977,3 +2977,184 @@ body.todo-detail-open {
         gap: 10px;
     }
 }
+
+/* ========================================================= */
+/* MOBILE TASK SWIPE */
+/* ========================================================= */
+
+.task-swipe-action,
+.task-swipe-actions-right {
+    display: none;
+}
+
+.task-swipe-content {
+    display: contents;
+}
+
+
+@media (max-width: 700px) {
+
+    .task-item {
+        position: relative;
+        overflow: hidden;
+        padding: 0;
+        min-height: 69px;
+        border-radius: 11px;
+        touch-action: pan-y;
+        background: var(--surface);
+        isolation: isolate;
+    }
+
+
+    .task-swipe-content {
+        position: relative;
+        z-index: 3;
+        min-height: 69px;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        padding: 11px 9px;
+        background: var(--surface);
+        transform: translateX(0);
+        transition: transform 0.22s ease;
+        will-change: transform;
+        touch-action: pan-y;
+    }
+
+
+    /* Sağ swipe için sol taraftaki alan */
+
+    .task-swipe-action {
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 100px;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 4px;
+        background: var(--success);
+        color: white;
+        font-size: 10px;
+        font-weight: 600;
+        pointer-events: none;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.15s ease, visibility 0.15s ease;
+    }
+    .task-item.swipe-right .task-swipe-action {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+    }
+
+
+        .task-swipe-action i {
+            font-size: 20px;
+        }
+
+
+        .task-swipe-action span {
+            font-size: 9px;
+        }
+
+
+    /* Sol swipe için sağdaki alan */
+
+    .task-swipe-actions-right {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 150px;
+        z-index: 1;
+        display: flex;
+        align-items: stretch;
+        background: var(--surface-soft);
+    }
+
+
+    .swipe-action-button {
+        width: 75px;
+        border: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 4px;
+        font-size: 9px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+
+        .swipe-action-button i {
+            font-size: 18px;
+        }
+
+
+    .swipe-edit {
+        background: rgba(108, 99, 255, 0.12);
+        color: var(--primary);
+    }
+
+
+    .swipe-delete {
+        background: rgba(239, 68, 68, 0.12);
+        color: #ef4444;
+    }
+
+
+    .swipe-action-button:active {
+        filter: brightness(0.94);
+    }
+
+
+    /* Swipe açıkken */
+
+    .task-item.swipe-right
+    .task-swipe-content {
+        transform: translateX(100px);
+    }
+
+
+    .task-item.swipe-left
+    .task-swipe-content {
+        transform: translateX(-150px);
+    }
+
+
+    /* Swipe sırasında hover efektini kapat */
+
+    .task-item:hover {
+        background: var(--surface);
+        transform: none;
+        box-shadow: none;
+    }
+
+
+    /* Swipe sırasında task content hover da olmasın */
+
+    .task-swipe-content:hover {
+        background: var(--surface);
+    }
+
+
+    /* Mobilde eski sağdaki edit/delete butonlarını gizle.
+       Swipe ile yeni butonları kullanacağız. */
+
+    .task-swipe-content .task-actions {
+        display: none;
+    }
+}
+.swipe-complete {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    font-family: inherit;
+    cursor: pointer;
+}
