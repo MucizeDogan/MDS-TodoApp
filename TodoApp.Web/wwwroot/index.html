@@ -846,6 +846,242 @@
 
         </main>
 
+        <!-- ========================================================= -->
+        <!-- MOBILE BOTTOM NAVIGATION -->
+        <!-- ========================================================= -->
+
+        <nav class="mobile-bottom-nav" id="mobileBottomNav">
+
+            <!-- Dashboard -->
+            <button type="button"
+                    class="mobile-nav-item active"
+                    data-mobile-view="all">
+
+                <i class="bi bi-house"></i>
+
+                <span>
+                    Ana
+                </span>
+
+            </button>
+
+
+            <!-- Tasks -->
+            <button type="button"
+                    class="mobile-nav-item"
+                    data-mobile-view="pending">
+
+                <i class="bi bi-list-check"></i>
+
+                <span>
+                    Görevler
+                </span>
+
+            </button>
+
+
+            <!-- Add Todo -->
+            <button type="button"
+                    class="mobile-nav-add"
+                    id="mobileAddTodoButton">
+
+                <span class="mobile-nav-add-icon">
+                    <i class="bi bi-plus-lg"></i>
+                </span>
+
+                <span>
+                    Yeni
+                </span>
+
+            </button>
+
+
+            <!-- Completed -->
+            <button type="button"
+                    class="mobile-nav-item"
+                    data-mobile-view="completed">
+
+                <i class="bi bi-check2-circle"></i>
+
+                <span>
+                    Tamam
+                </span>
+
+            </button>
+
+
+            <!-- More -->
+            <button type="button"
+                    class="mobile-nav-item"
+                    id="mobileMoreButton">
+
+                <i class="bi bi-three-dots"></i>
+
+                <span>
+                    Daha
+                </span>
+
+            </button>
+
+        </nav>
+
+        <!-- ========================================================= -->
+        <!-- MOBILE MORE BOTTOM SHEET -->
+        <!-- ========================================================= -->
+
+        <div class="mobile-more-overlay"
+             id="mobileMoreOverlay">
+        </div>
+
+
+        <section class="mobile-more-sheet"
+                 id="mobileMoreSheet"
+                 aria-hidden="true">
+
+            <div class="mobile-more-handle"></div>
+
+            <div class="mobile-more-header">
+
+                <div>
+                    <span class="mobile-more-eyebrow">
+                        MENÜ
+                    </span>
+
+                    <h3>
+                        Daha Fazla
+                    </h3>
+                </div>
+
+                <button type="button"
+                        class="mobile-more-close"
+                        id="mobileMoreClose"
+                        aria-label="Menüyü kapat">
+
+                    <i class="bi bi-x-lg"></i>
+
+                </button>
+
+            </div>
+
+
+            <div class="mobile-more-content">
+
+                <!-- Profile -->
+
+                <button type="button"
+                        class="mobile-more-item"
+                        id="mobileProfileButton">
+
+                    <span class="mobile-more-icon">
+                        <i class="bi bi-person"></i>
+                    </span>
+
+                    <span class="mobile-more-item-content">
+
+                        <strong>
+                            Profil
+                        </strong>
+
+                        <small>
+                            Hesap bilgilerin
+                        </small>
+
+                    </span>
+
+                    <i class="bi bi-chevron-right mobile-more-arrow"></i>
+
+                </button>
+
+
+                <!-- Categories -->
+
+                <button type="button"
+                        class="mobile-more-item"
+                        id="mobileCategoriesButton">
+
+                    <span class="mobile-more-icon">
+                        <i class="bi bi-tags"></i>
+                    </span>
+
+                    <span class="mobile-more-item-content">
+
+                        <strong>
+                            Kategoriler
+                        </strong>
+
+                        <small>
+                            Görev kategorilerini yönet
+                        </small>
+
+                    </span>
+
+                    <i class="bi bi-chevron-right mobile-more-arrow"></i>
+
+                </button>
+
+
+                <!-- Dark Mode -->
+
+                <button type="button"
+                        class="mobile-more-item"
+                        id="mobileDarkModeButton">
+
+                    <span class="mobile-more-icon">
+                        <i class="bi bi-moon"></i>
+                    </span>
+
+                    <span class="mobile-more-item-content">
+
+                        <strong>
+                            Koyu Tema
+                        </strong>
+
+                        <small id="mobileThemeText">
+                            Koyu temaya geç
+                        </small>
+
+                    </span>
+
+                    <span class="mobile-theme-toggle"
+                          id="mobileThemeToggle">
+
+                        <i class="bi bi-check"></i>
+
+                    </span>
+
+                </button>
+
+
+                <!-- Logout -->
+
+                <button type="button"
+                        class="mobile-more-item danger"
+                        id="mobileLogoutButton">
+
+                    <span class="mobile-more-icon">
+                        <i class="bi bi-box-arrow-right"></i>
+                    </span>
+
+                    <span class="mobile-more-item-content">
+
+                        <strong>
+                            Çıkış Yap
+                        </strong>
+
+                        <small>
+                            Hesabından güvenli çıkış yap
+                        </small>
+
+                    </span>
+
+                    <i class="bi bi-chevron-right mobile-more-arrow"></i>
+
+                </button>
+
+            </div>
+
+        </section>
+
     </div>
 
 
@@ -985,9 +1221,41 @@
                                 <span>Opsiyonel</span>
                             </label>
 
-                            <input type="datetime-local"
-                                   id="todoDueDate"
-                                   class="modern-input">
+                            <div class="todo-datetime-row">
+
+                                <div class="todo-date-field">
+
+                                    <label for="todoDueDate"
+                                           class="todo-sub-label">
+
+                                        Tarih
+
+                                    </label>
+
+                                    <input type="date"
+                                           id="todoDueDate"
+                                           class="modern-input">
+
+                                </div>
+
+
+                                <div class="todo-time-field">
+
+                                    <label for="todoDueTime"
+                                           class="todo-sub-label">
+
+                                        Saat
+                                        <span>Opsiyonel</span>
+
+                                    </label>
+
+                                    <input type="time"
+                                           id="todoDueTime"
+                                           class="modern-input">
+
+                                </div>
+
+                            </div>
 
                         </div>
 

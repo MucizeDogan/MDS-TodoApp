@@ -30,6 +30,8 @@ async function initializeDashboard() {
 
     initializeUser();
 
+    updateMobileThemeText();
+
     initializeDate();
 
     initializeEvents();
@@ -475,7 +477,286 @@ function initializeEvents() {
                     .getElementById("sidebar")
                     .classList.remove("open");
             }
+    );
+
+    /* ========================================================= */
+    /* MOBILE BOTTOM NAVIGATION */
+    /* ========================================================= */
+
+    document
+        .querySelectorAll(".mobile-nav-item")
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    const view =
+                        button.dataset.mobileView;
+
+                    if (!view) {
+                        return;
+                    }
+
+
+                    /* ----------------------------------------- */
+                    /* DASHBOARD */
+                    /* ----------------------------------------- */
+
+                    if (view === "all") {
+
+                        resetTaskFilters();
+
+                    }
+
+
+                    /* ----------------------------------------- */
+                    /* PENDING TASKS */
+                    /* ----------------------------------------- */
+
+                    else if (view === "pending") {
+
+                        currentView = "pending";
+
+                        currentFilter = "all";
+
+                        currentCategory = "all";
+
+
+                        document
+                            .getElementById(
+                                "categoryFilter"
+                            )
+                            .value = "all";
+
+
+                        document
+                            .querySelectorAll(
+                                ".filter-tab"
+                            )
+                            .forEach(x =>
+                                x.classList.remove(
+                                    "active"
+                                )
+                            );
+
+
+                        document
+                            .querySelector(
+                                '[data-filter="all"]'
+                            )
+                            ?.classList.add(
+                                "active"
+                            );
+
+
+                        updatePanelTitle();
+
+                        renderTasks();
+
+                    }
+
+
+                    /* ----------------------------------------- */
+                    /* COMPLETED */
+                    /* ----------------------------------------- */
+
+                    else if (view === "completed") {
+
+                        currentView = "completed";
+
+                        currentFilter = "all";
+
+                        currentCategory = "all";
+
+
+                        document
+                            .getElementById(
+                                "categoryFilter"
+                            )
+                            .value = "all";
+
+
+                        document
+                            .querySelectorAll(
+                                ".filter-tab"
+                            )
+                            .forEach(x =>
+                                x.classList.remove(
+                                    "active"
+                                )
+                            );
+
+
+                        document
+                            .querySelector(
+                                '[data-filter="all"]'
+                            )
+                            ?.classList.add(
+                                "active"
+                            );
+
+
+                        updatePanelTitle();
+
+                        renderTasks();
+
+                    }
+
+
+                    /* ----------------------------------------- */
+                    /* ACTIVE STATE */
+                    /* ----------------------------------------- */
+
+                    document
+                        .querySelectorAll(
+                            ".mobile-nav-item"
+                        )
+                        .forEach(x =>
+                            x.classList.remove(
+                                "active"
+                            )
+                        );
+
+
+                    button.classList.add(
+                        "active"
+                    );
+
+
+                    /* ----------------------------------------- */
+                    /* SYNC DESKTOP SIDEBAR */
+                    /* ----------------------------------------- */
+
+                    document
+                        .querySelectorAll(
+                            ".nav-item"
+                        )
+                        .forEach(x =>
+                            x.classList.remove(
+                                "active"
+                            )
+                        );
+
+
+                    const desktopNav =
+                        document.querySelector(
+                            `.nav-item[data-view="${view}"]`
+                        );
+
+
+                    desktopNav?.classList.add(
+                        "active"
+                    );
+
+                }
+            );
+
+        });
+
+    document
+        .getElementById("mobileAddTodoButton")
+        .addEventListener(
+            "click",
+            openCreateTodoModal
+    );
+
+    /* ========================================================= */
+    /* MOBILE MORE SHEET */
+    /* ========================================================= */
+
+    const mobileMoreButton =
+        document.getElementById(
+            "mobileMoreButton"
         );
+
+    const mobileMoreSheet =
+        document.getElementById(
+            "mobileMoreSheet"
+        );
+
+    const mobileMoreOverlay =
+        document.getElementById(
+            "mobileMoreOverlay"
+        );
+
+    const mobileMoreClose =
+        document.getElementById(
+            "mobileMoreClose"
+        );
+
+
+    function openMobileMoreSheet() {
+
+        if (!mobileMoreSheet) {
+            return;
+        }
+
+        mobileMoreSheet.classList.add(
+            "active"
+        );
+
+        mobileMoreOverlay?.classList.add(
+            "active"
+        );
+
+        mobileMoreSheet.setAttribute(
+            "aria-hidden",
+            "false"
+        );
+
+        document.body.classList.add(
+            "mobile-sheet-open"
+        );
+    }
+
+
+    function closeMobileMoreSheet() {
+
+        if (!mobileMoreSheet) {
+            return;
+        }
+
+        mobileMoreSheet.classList.remove(
+            "active"
+        );
+
+        mobileMoreOverlay?.classList.remove(
+            "active"
+        );
+
+        mobileMoreSheet.setAttribute(
+            "aria-hidden",
+            "true"
+        );
+
+        document.body.classList.remove(
+            "mobile-sheet-open"
+        );
+    }
+
+
+    mobileMoreButton?.addEventListener(
+        "click",
+        event => {
+
+            event.stopPropagation();
+
+            openMobileMoreSheet();
+        }
+    );
+
+
+    mobileMoreClose?.addEventListener(
+        "click",
+        closeMobileMoreSheet
+    );
+
+
+    mobileMoreOverlay?.addEventListener(
+        "click",
+        closeMobileMoreSheet
+    );
 
 
     /* View buttons */
@@ -702,6 +983,18 @@ function resetTaskFilters() {
     updatePanelTitle();
 
     renderTasks();
+
+    document
+        .querySelectorAll(".mobile-nav-item")
+        .forEach(x =>
+            x.classList.remove("active")
+        );
+
+    document
+        .querySelector(
+            '.mobile-nav-item[data-mobile-view="all"]'
+        )
+        ?.classList.add("active");
 }
 
 
@@ -1635,12 +1928,12 @@ function renderTask(todo) {
 
 
     return `
-        <div
-            class="task-item ${todo.isCompleted
+    <div
+        class="task-item ${todo.isCompleted
             ? "completed"
             : ""
         }"
-            data-id="${todo.id}">
+        data-id="${todo.id}">
 
 
             <button
@@ -1765,6 +2058,13 @@ function attachTaskEvents() {
 
             const id =
                 Number(item.dataset.id);
+
+            item.addEventListener(
+                "click",
+                () => {
+                    openTodoDetail(id);
+                }
+            );
 
 
             item
@@ -1977,6 +2277,16 @@ function openCreateTodoModal() {
 
 
     todoModal.show();
+
+    setTimeout(() => {
+
+        document
+            .getElementById("todoTitle")
+            ?.focus();
+
+    }, 500);
+
+
 }
 
 
@@ -2067,12 +2377,16 @@ function openEditTodoModal(id) {
         todo.priority;
 
 
-    document.getElementById(
-        "todoDueDate"
-    ).value =
-        toDateTimeLocal(
-            todo.dueDate
-        );
+    //document.getElementById(
+    //    "todoDueDate"
+    //).value =
+    //    toDateTimeLocal(
+    //        todo.dueDate
+    //    );
+
+    setTodoDueDateFields(
+        todo.dueDate
+    );
 
 
     todoModal.show();
@@ -2081,14 +2395,17 @@ function openEditTodoModal(id) {
 function editTodoFromDetail(todoId) {
 
     const todo =
-        todos.find(x => Number(x.id) === Number(todoId));
+        todos.find(
+            x => Number(x.id) === Number(todoId)
+        );
 
-    if (!todo) return;
+    if (!todo) {
+        return;
+    }
 
     closeTodoDetail();
 
-    // Buraya mevcut edit modal fonksiyonun gelecek.
-    openEditTodoModal(todo);
+    openEditTodoModal(todo.id);
 }
 
 
@@ -2135,6 +2452,11 @@ async function saveTodo() {
     const dueDate =
         document.getElementById(
             "todoDueDate"
+        ).value;
+
+    const dueTime =
+        document.getElementById(
+            "todoDueTime"
         ).value;
 
 
@@ -2191,10 +2513,10 @@ async function saveTodo() {
             priority: priority,
 
             dueDate:
-                dueDate
-                    ? new Date(dueDate)
-                        .toISOString()
-                    : null
+                buildDueDateValue(
+                    dueDate,
+                    dueTime
+                )
 
         };
 
@@ -2381,8 +2703,7 @@ function deleteTodoFromDetail(todoId) {
 
     closeTodoDetail();
 
-    // Mevcut delete modal / delete fonksiyonunu çağır.
-    openDeleteTodoModal(todoId);
+    deleteTodo(Number(todoId));
 }
 
 
@@ -2807,9 +3128,97 @@ document.addEventListener("keydown", event => {
 
     if (event.key === "Escape") {
         closeTodoDetail();
+
+        closeMobileMoreSheet();
     }
 
 });
+
+document
+    .getElementById(
+        "mobileCategoriesButton"
+    )
+    ?.addEventListener(
+        "click",
+        () => {
+
+            closeMobileMoreSheet();
+
+            showToast(
+                "Kategoriler",
+                "Kategori yönetimi ekranını bir sonraki adımda ekleyeceğiz."
+            );
+        }
+);
+
+document
+    .getElementById(
+        "mobileDarkModeButton"
+    )
+    ?.addEventListener(
+        "click",
+        () => {
+
+            toggleDarkMode();
+
+            updateMobileThemeText();
+        }
+);
+
+function updateMobileThemeText() {
+
+    const text =
+        document.getElementById(
+            "mobileThemeText"
+        );
+
+    if (!text) {
+        return;
+    }
+
+
+    const isDark =
+        document.body.classList.contains(
+            "dark-mode"
+        );
+
+
+    text.textContent =
+        isDark
+            ? "Açık temaya geç"
+            : "Koyu temaya geç";
+}
+
+document
+    .getElementById(
+        "mobileLogoutButton"
+    )
+    ?.addEventListener(
+        "click",
+        () => {
+
+            closeMobileMoreSheet();
+
+            api.logout();
+        }
+);
+
+document
+    .getElementById(
+        "mobileProfileButton"
+    )
+    ?.addEventListener(
+        "click",
+        () => {
+
+            closeMobileMoreSheet();
+
+            showToast(
+                "Profil",
+                "Profil ekranını ilerleyen adımda ekleyeceğiz."
+            );
+        }
+    );
 
 function renderTodoDetail(todo) {
 
@@ -3009,31 +3418,48 @@ function formatTodoDate(value) {
         return "-";
     }
 
+
     const date = new Date(value);
+
 
     if (Number.isNaN(date.getTime())) {
         return "-";
     }
 
-    return new Intl.DateTimeFormat("tr-TR", {
-        day: "numeric",
-        month: "long",
-        year: "numeric"
-    }).format(date);
-}
 
-function escapeHtml(value) {
+    const dateText = new Intl.DateTimeFormat(
+            "tr-TR",
+            {
+                day: "numeric",
+                month: "long",
+                year: "numeric"
+            }
+        ).format(date);
 
-    if (value === null || value === undefined) {
-        return "";
+
+    const hours = date.getHours();
+
+    const minutes = date.getMinutes();
+
+
+    if (
+        hours === 0 &&
+        minutes === 0
+    ) {
+        return dateText;
     }
 
-    return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+
+    const timeText = new Intl.DateTimeFormat(
+            "tr-TR",
+            {
+                hour: "2-digit",
+                minute: "2-digit"
+            }
+        ).format(date);
+
+
+    return `${dateText} ${timeText}`;
 }
 
 async function toggleTodoFromDetail(todoId) {
@@ -3215,4 +3641,157 @@ function escapeHtml(value) {
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
+}
+
+function buildDueDateValue(
+    dateValue,
+    timeValue
+) {
+
+    if (!dateValue) {
+        return null;
+    }
+
+    const time =
+        timeValue || "00:00";
+
+    /*
+     * DueDate kullanıcı tarafından girilen
+     * yerel tarih/saat bilgisidir.
+     *
+     * Burada toISOString() KULLANMIYORUZ.
+     *
+     * Çünkü toISOString() Türkiye saatini
+     * UTC'ye çevirerek tarihi bir gün geriye
+     * kaydırabilir.
+     */
+
+    return `${dateValue}T${time}:00`;
+}
+
+function setTodoDueDateFields(value) {
+
+    const dateInput =
+        document.getElementById(
+            "todoDueDate"
+        );
+
+    const timeInput =
+        document.getElementById(
+            "todoDueTime"
+        );
+
+    if (!dateInput || !timeInput) {
+        return;
+    }
+
+    dateInput.value = "";
+    timeInput.value = "";
+
+    if (!value) {
+        return;
+    }
+
+    /*
+     * API'den gelen DueDate:
+     *
+     * 2026-09-20T00:00:00
+     * veya
+     * 2026-09-20T14:30:00
+     *
+     * şeklinde kullanıcı tarafından girilen
+     * local tarih/saat olarak değerlendirilir.
+     */
+
+    const text = String(value);
+
+    /*
+     * Eğer eski kayıtlar nedeniyle Z ile biten
+     * bir UTC değer gelirse mevcut JS Date
+     * davranışını kullan.
+     *
+     * Yeni kayıtlarımız Z içermeyecek.
+     */
+    if (text.endsWith("Z")) {
+
+        const date =
+            new Date(text);
+
+        if (Number.isNaN(date.getTime())) {
+            return;
+        }
+
+        const year =
+            date.getFullYear();
+
+        const month =
+            String(
+                date.getMonth() + 1
+            ).padStart(2, "0");
+
+        const day =
+            String(
+                date.getDate()
+            ).padStart(2, "0");
+
+        const hours =
+            String(
+                date.getHours()
+            ).padStart(2, "0");
+
+        const minutes =
+            String(
+                date.getMinutes()
+            ).padStart(2, "0");
+
+        dateInput.value =
+            `${year}-${month}-${day}`;
+
+        if (
+            hours !== "00" ||
+            minutes !== "00"
+        ) {
+            timeInput.value =
+                `${hours}:${minutes}`;
+        }
+
+        return;
+    }
+
+    /*
+     * Yeni kayıtlar timezone içermeyecek.
+     *
+     * Örnek:
+     * 2026-09-20T14:30:00
+     */
+
+    const match =
+        text.match(
+            /^(\d{4})-(\d{2})-(\d{2})(?:T|\s)(\d{2}):(\d{2})/
+        );
+
+    if (!match) {
+        return;
+    }
+
+    const year = match[1];
+    const month = match[2];
+    const day = match[3];
+    const hours = match[4];
+    const minutes = match[5];
+
+    dateInput.value =
+        `${year}-${month}-${day}`;
+
+    /*
+     * Saat 00:00 ise kullanıcıya
+     * saat girilmemiş gibi gösteriyoruz.
+     */
+    if (
+        hours !== "00" ||
+        minutes !== "00"
+    ) {
+        timeInput.value =
+            `${hours}:${minutes}`;
+    }
 }
