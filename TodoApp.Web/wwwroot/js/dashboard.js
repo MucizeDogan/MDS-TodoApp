@@ -4848,106 +4848,271 @@ function closeNotificationPanel() {
 /* ========================================================= */
 
 function renderNotifications() {
+    const list = document.getElementById("notificationList");
 
-    const list =
-        document.getElementById(
-            "notificationList"
-        );
+    if (!list) return;
 
-    const empty =
-        document.getElementById(
-            "notificationEmpty"
-        );
-
-    const countText =
-        document.getElementById(
-            "notificationPanelCount"
-        );
-
-
-    if (!list) {
-        return;
-    }
-
-
-    const notifications =
-        dashboardNotifications;
-
-
-    const unreadCount =
-        notifications
-            .filter(x => !x.isRead)
-            .length;
-
-
-    if (countText) {
-
-        countText.textContent =
-            unreadCount > 0
-                ? `${unreadCount} okunmamış bildirim`
-                : "Yeni bildirim bulunmuyor";
-    }
-
-
-    if (
-        notifications.length === 0
-    ) {
-
-        list.innerHTML = "";
-
-
-        if (empty) {
-
-            empty.style.display =
-                "flex";
-        }
-
+    if (!dashboardNotifications || dashboardNotifications.length === 0) {
+        list.innerHTML = `
+            <div class="notification-empty">
+                <div class="notification-empty-icon">
+                    <i class="bi bi-bell-slash"></i>
+                </div>
+                <div class="notification-empty-title">
+                    Bildirim yok
+                </div>
+                <div class="notification-empty-text">
+                    Şu anda görüntülenecek bir bildirimin bulunmuyor.
+                </div>
+            </div>
+        `;
 
         return;
     }
 
+    const overdueNotifications = dashboardNotifications.filter(
+        x => x.type === "TaskOverdue"
+    );
 
-    if (empty) {
+    const todayNotifications = dashboardNotifications.filter(
+        x => x.type === "TaskDueToday"
+    );
 
-        empty.style.display =
-            "none";
+    const tomorrowNotifications = dashboardNotifications.filter(
+        x => x.type === "TaskDueTomorrow"
+    );
+
+    let html = "";
+
+    html += renderNotificationGroup(
+        "Gecikmiş",
+        "bi-exclamation-circle",
+        "overdue",
+        overdueNotifications
+    );
+
+    html += renderNotificationGroup(
+        "Bugün",
+        "bi-calendar-event",
+        "today",
+        todayNotifications
+    );
+
+    html += renderNotificationGroup(
+        "Yarın",
+        "bi-calendar2-week",
+        "tomorrow",
+        tomorrowNotifications
+    );
+
+    if (!html) {
+        html = `
+            <div class="notification-empty">
+                <div class="notification-empty-icon">
+                    <i class="bi bi-check2-circle"></i>
+                </div>
+                <div class="notification-empty-title">
+                    Her şey yolunda
+                </div>
+                <div class="notification-empty-text">
+                    Şu anda yaklaşan veya gecikmiş görevin bulunmuyor.
+                </div>
+            </div>
+        `;
     }
 
+    list.innerHTML = html;
 
-    list.innerHTML =
-        notifications
-            .map(
-                notification =>
-                    createNotificationHtml(
-                        notification
-                    )
-            )
-            .join("");
+    attachNotificationEvents();
+}
 
-
-    list
-        .querySelectorAll(
-            ".notification-item"
-        )
+function attachNotificationEvents() {
+    document
+        .querySelectorAll(".notification-task-item")
         .forEach(item => {
 
-            item.addEventListener(
-                "click",
-                () => {
+            item.addEventListener("click", async () => {
 
-                    const id =
-                        Number(
-                            item.dataset
-                                .notificationId
-                        );
+                const notificationId =
+                    Number(item.dataset.notificationId);
 
+                const todoId =
+                    Number(item.dataset.todoId);
 
-                    handleNotificationClick(
-                        id
-                    );
+                if (!notificationId) {
+                    return;
                 }
-            );
+
+                await markNotificationAsRead(
+                    notificationId
+                );
+
+                closeNotificationPanel();
+
+                if (!todoId) {
+                    return;
+                }
+
+                openTodoDetail(todoId);
+            });
         });
+}
+
+async function markNotificationAsRead(notificationId) {
+    try {
+        await api.patch(
+            `/Notification/${notificationId}/read`
+        );
+
+        const notification =
+            dashboardNotifications.find(
+                x => x.id === notificationId
+            );
+
+        if (notification) {
+            notification.isRead = true;
+        }
+
+        renderNotificationBadge();
+        renderNotifications();
+
+    } catch (error) {
+        console.error(
+            "Bildirim okundu olarak işaretlenemedi:",
+            error
+        );
+    }
+}
+
+function renderNotificationGroup(
+    title,
+    icon,
+    cssClass,
+    notifications
+) {
+    if (!notifications || notifications.length === 0) {
+        return "";
+    }
+
+    let html = `
+        <div class="notification-group">
+            <div class="notification-group-header">
+                <div class="notification-group-title ${cssClass}">
+                    <i class="bi ${icon}"></i>
+                    <span>${title}</span>
+                </div>
+
+                <span class="notification-group-count">
+                    ${notifications.length}
+                </span>
+            </div>
+
+            <div class="notification-group-items">
+    `;
+
+    notifications.forEach(notification => {
+        html += renderNotificationItem(notification, cssClass);
+    });
+
+    html += `
+            </div>
+        </div>
+    `;
+
+    return html;
+}
+
+function renderNotificationItem(
+    notification,
+    cssClass
+) {
+    const title = escapeNotificationHtml(
+        notification.title || "Görev"
+    );
+
+    const message = escapeNotificationHtml(
+        notification.message || ""
+    );
+
+    const isRead = notification.isRead;
+    const taskId = notification.relatedEntityId;
+
+    const createdDate = formatNotificationDate(
+        notification.createdAt
+    );
+
+    return `
+        <div
+            class="notification-task-item ${cssClass} ${isRead ? "read" : "unread"}"
+            data-notification-id="${notification.id}"
+            data-todo-id="${taskId || ""}"
+        >
+            <div class="notification-task-icon">
+                ${getNotificationTaskIcon(cssClass)}
+            </div>
+
+            <div class="notification-task-content">
+
+                <div class="notification-task-top">
+                    <span class="notification-task-title">
+                        ${escapeNotificationHtml(
+        getNotificationTaskTitle(notification)
+    )}
+                    </span>
+
+                    ${!isRead
+            ? `<span class="notification-unread-dot"></span>`
+            : ""
+        }
+                </div>
+
+                <div class="notification-task-message">
+                    ${message}
+                </div>
+
+                <div class="notification-task-meta">
+                    ${createdDate}
+                </div>
+
+            </div>
+        </div>
+    `;
+}
+
+function getNotificationTaskIcon(cssClass) {
+    switch (cssClass) {
+        case "overdue":
+            return `
+                <i class="bi bi-exclamation-lg"></i>
+            `;
+
+        case "today":
+            return `
+                <i class="bi bi-clock"></i>
+            `;
+
+        case "tomorrow":
+            return `
+                <i class="bi bi-calendar-event"></i>
+            `;
+
+        default:
+            return `
+                <i class="bi bi-check2"></i>
+            `;
+    }
+}
+
+function getNotificationTaskTitle(notification) {
+    const message = notification.message || "";
+
+    const match = message.match(/^"(.+?)"/);
+
+    if (match && match[1]) {
+        return match[1];
+    }
+
+    return notification.title || "Görev";
 }
 
 
@@ -5189,35 +5354,32 @@ function getNotificationIcon(
 /* DATE */
 /* ========================================================= */
 
-function formatNotificationDate(
-    value
-) {
+function formatNotificationDate(value) {
+    if (!value) return "";
 
-    if (!value) {
-        return "";
-    }
+    let normalizedValue = value;
 
-
-    const date =
-        new Date(value);
-
-
+    // Backend DateTime.UtcNow değerinde Z bulunmuyorsa
+    // bunun UTC olduğunu açıkça belirtiyoruz.
     if (
-        Number.isNaN(
-            date.getTime()
-        )
+        typeof normalizedValue === "string" &&
+        !normalizedValue.endsWith("Z") &&
+        !normalizedValue.includes("+")
     ) {
-
-        return "";
+        normalizedValue += "Z";
     }
 
+    const date = new Date(normalizedValue);
+
+    if (Number.isNaN(date.getTime())) {
+        return "";
+    }
 
     return date.toLocaleString(
         "tr-TR",
         {
             day: "2-digit",
             month: "2-digit",
-            year: "numeric",
             hour: "2-digit",
             minute: "2-digit"
         }

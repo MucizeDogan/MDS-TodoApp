@@ -11,12 +11,13 @@ namespace TodoApp.API.Controllers {
     [Authorize]
     public class NotificationController : ControllerBase {
         private readonly INotificationService _notificationService;
+        private readonly INotificationGenerator _notificationGenerator;
 
 
         public NotificationController(
-            INotificationService notificationService) {
-            _notificationService =
-                notificationService;
+            INotificationService notificationService, INotificationGenerator notificationGenerator) {
+            _notificationService = notificationService;
+            _notificationGenerator = notificationGenerator;
         }
 
 
@@ -26,26 +27,19 @@ namespace TodoApp.API.Controllers {
 
         [HttpGet]
         public async Task<IActionResult> GetAll() {
-            var userId =
-                User.FindFirst(
-                    System.Security.Claims.ClaimTypes.NameIdentifier
-                )?.Value;
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
-
-            if (string.IsNullOrEmpty(userId)) {
+            if (string.IsNullOrEmpty(userId))
                 return Unauthorized();
-            }
 
+            await _notificationGenerator.GenerateUpcomingTaskNotificationsAsync(userId);
 
-            var result =
-                await _notificationService.GetAllAsync(
-                    userId);
-
+            var result = await _notificationService.GetAllAsync(userId);
 
             return Ok(
-                ApiResponse<List<NotificationResponse>>.Ok(
-                    result,
-                    "Bildirimler getirildi."));
+                ApiResponse<List<NotificationResponse>>
+                    .Ok(result, "Bildirimler getirildi.")
+            );
         }
 
 
