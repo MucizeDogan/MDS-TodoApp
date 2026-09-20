@@ -1,0 +1,592 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <meta name="theme-color"
+          content="#6c63ff">
+
+    <title>TodoApp - Hesabım</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <!-- Dashboard CSS -->
+    <link rel="stylesheet"
+          href="css/dashboard.css">
+
+    <!-- Profile CSS -->
+    <link rel="stylesheet"
+          href="css/profile.css">
+
+</head>
+
+<body>
+
+    <div class="profile-page">
+
+        <!-- ========================================================= -->
+        <!-- TOPBAR -->
+        <!-- ========================================================= -->
+
+        <header class="profile-topbar">
+
+            <div class="profile-topbar-left">
+
+                <a href="index.html"
+                   class="profile-back-button">
+
+                    <i class="bi bi-arrow-left"></i>
+
+                    <span>Dashboard</span>
+
+                </a>
+
+            </div>
+
+
+            <div class="profile-topbar-title">
+
+                <i class="bi bi-person-circle"></i>
+
+                <span>Hesabım</span>
+
+            </div>
+
+
+            <div class="profile-topbar-right">
+
+                <div class="profile-mini-avatar"
+                     id="profileTopAvatar">
+                    M
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- ========================================================= -->
+        <!-- CONTENT -->
+        <!-- ========================================================= -->
+
+        <main class="profile-container">
+
+            <!-- Page Header -->
+
+            <section class="profile-page-header">
+
+                <span class="profile-eyebrow">
+                    HESAP
+                </span>
+
+                <h1>
+                    Hesabım
+                </h1>
+
+                <p>
+                    Profil, güvenlik, bildirim ve görünüm tercihlerini yönet.
+                </p>
+
+            </section>
+
+
+            <!-- ===================================================== -->
+            <!-- PROFILE CARD -->
+            <!-- ===================================================== -->
+
+            <section class="profile-card">
+
+                <!-- Profile Identity -->
+
+                <div class="profile-identity">
+
+                    <div class="profile-avatar"
+                         id="profileAvatar">
+                        M
+                    </div>
+
+                    <div class="profile-identity-info">
+
+                        <h2 id="profileDisplayName">
+                            Kullanıcı
+                        </h2>
+
+                        <p id="profileDisplayEmail">
+                            email@example.com
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="profile-divider"></div>
+
+
+                <!-- ================================================= -->
+                <!-- FORM -->
+                <!-- ================================================= -->
+
+                <form id="profileForm">
+
+                    <!-- Full Name -->
+
+                    <div class="profile-form-group">
+
+                        <label for="profileFullName">
+
+                            Ad Soyad
+
+                        </label>
+
+                        <div class="profile-input-wrapper">
+
+                            <i class="bi bi-person"></i>
+
+                            <input type="text"
+                                   id="profileFullName"
+                                   class="profile-input"
+                                   placeholder="Ad Soyad"
+                                   autocomplete="name"
+                                   maxlength="100">
+
+                        </div>
+
+                        <small>
+                            Hesabınızda görüntülenecek ad soyad.
+                        </small>
+
+                    </div>
+
+
+                    <!-- Email -->
+
+                    <div class="profile-form-group">
+
+                        <label for="profileEmail">
+
+                            Email
+
+                        </label>
+
+                        <div class="profile-input-wrapper disabled">
+
+                            <i class="bi bi-envelope"></i>
+
+                            <input type="email"
+                                   id="profileEmail"
+                                   class="profile-input"
+                                   placeholder="Email adresiniz"
+                                   autocomplete="email"
+                                   readonly>
+
+                            <i class="bi bi-lock-fill profile-input-lock"></i>
+
+                        </div>
+
+                        <small>
+                            Email adresi şu anda değiştirilemez.
+                        </small>
+
+                    </div>
+
+
+                    <!-- Email Status -->
+
+                    <div class="profile-email-status"
+                         id="profileEmailStatus">
+
+                        <div class="profile-status-icon">
+
+                            <i class="bi bi-envelope-check"></i>
+
+                        </div>
+
+                        <div class="profile-status-content">
+
+                            <strong id="profileEmailStatusTitle">
+                                Email doğrulanmadı
+                            </strong>
+
+                            <span id="profileEmailStatusText">
+                                Email adresiniz henüz doğrulanmamış.
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Account Created -->
+
+                    <div class="profile-account-info">
+
+                        <div class="profile-info-icon">
+
+                            <i class="bi bi-calendar3"></i>
+
+                        </div>
+
+                        <div>
+
+                            <span>
+                                Hesap oluşturulma tarihi
+                            </span>
+
+                            <strong id="profileCreatedAt">
+                                -
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Actions -->
+
+                    <div class="profile-form-actions">
+
+                        <a href="index.html"
+                           class="profile-cancel-button">
+
+                            Vazgeç
+
+                        </a>
+
+                        <button type="submit"
+                                class="profile-save-button"
+                                id="profileSaveButton">
+
+                            <i class="bi bi-check-lg"></i>
+
+                            <span>Değişiklikleri Kaydet</span>
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </section>
+
+
+            <!-- ===================================================== -->
+            <!-- SECURITY -->
+            <!-- ===================================================== -->
+
+            <section class="account-section-card">
+                <div class="account-section-header">
+                    <div class="account-section-icon security"><i class="bi bi-shield-lock"></i></div>
+                    <div>
+                        <span class="profile-eyebrow">GÜVENLİK</span>
+                        <h3>Hesap güvenliği</h3>
+                        <p>Şifre ve email doğrulama işlemlerini yönetin.</p>
+                    </div>
+                </div>
+                <button type="button" class="account-action-row" id="changePasswordButton">
+                    <span class="account-action-icon"><i class="bi bi-key"></i></span>
+                    <span class="account-action-text"><strong>Şifre değiştir</strong><small>Hesap parolanızı güncelleyin.</small></span>
+                    <i class="bi bi-chevron-right account-action-arrow"></i>
+                </button>
+                <div class="account-action-row account-action-disabled">
+                    <span class="account-action-icon"><i class="bi bi-patch-check"></i></span>
+                    <span class="account-action-text"><strong>Email doğrulama</strong><small id="securityEmailText">Email doğrulama özelliği yakında aktif olacak.</small></span>
+                </div>
+            </section>
+
+            <!-- ===================================================== -->
+            <!-- NOTIFICATIONS -->
+            <!-- ===================================================== -->
+
+            <section class="account-section-card">
+                <div class="account-section-header">
+                    <div class="account-section-icon notification"><i class="bi bi-bell"></i></div>
+                    <div>
+                        <span class="profile-eyebrow">BİLDİRİMLER</span>
+                        <h3>Bildirim tercihleri</h3>
+                        <p>Görevlerinle ilgili hangi bildirimleri almak istediğini seç.</p>
+                    </div>
+                </div>
+                <div class="account-setting-row">
+                    <div class="account-setting-text"><strong>Uygulama bildirimleri</strong><small>Görev ve hesap bildirimlerini uygulama içinde göster.</small></div>
+                    <label class="account-switch"><input type="checkbox" id="appNotificationsToggle"><span></span></label>
+                </div>
+                <div class="account-setting-row">
+                    <div class="account-setting-text"><strong>Görev hatırlatmaları</strong><small>Yaklaşan son tarihler için hatırlatma göster.</small></div>
+                    <label class="account-switch"><input type="checkbox" id="taskRemindersToggle"><span></span></label>
+                </div>
+                <div class="account-setting-row">
+                    <div class="account-setting-text"><strong>Email bildirimleri</strong><small>Email doğrulandıktan sonra görev hatırlatmaları için kullanılacak.</small></div>
+                    <label class="account-switch"><input type="checkbox" id="emailNotificationsToggle"><span></span></label>
+                </div>
+            </section>
+
+            <!-- ===================================================== -->
+            <!-- APPEARANCE -->
+            <!-- ===================================================== -->
+
+            <section class="account-section-card">
+                <div class="account-section-header">
+                    <div class="account-section-icon appearance"><i class="bi bi-palette"></i></div>
+                    <div>
+                        <span class="profile-eyebrow">GÖRÜNÜM</span>
+                        <h3>Görünüm tercihleri</h3>
+                        <p>TodoApp görünümünü kendi kullanımına göre ayarla.</p>
+                    </div>
+                </div>
+                <div class="account-setting-row">
+                    <div class="account-setting-text"><strong>Koyu tema</strong><small>Dashboard ve Hesabım ekranında koyu temayı kullan.</small></div>
+                    <label class="account-switch"><input type="checkbox" id="darkModeToggle"><span></span></label>
+                </div>
+            </section>
+
+        </main>
+
+    </div>
+
+    <!-- ===================================================== -->
+    <!-- CHANGE PASSWORD MODAL -->
+    <!-- ===================================================== -->
+
+    <div class="password-modal-overlay"
+         id="passwordModalOverlay"
+         aria-hidden="true">
+    </div>
+
+
+    <section class="password-modal"
+             id="passwordModal"
+             aria-hidden="true"
+             role="dialog"
+             aria-modal="true"
+             aria-labelledby="passwordModalTitle">
+
+        <div class="password-modal-handle"></div>
+
+
+        <div class="password-modal-header">
+
+            <div>
+                <h2 id="passwordModalTitle">
+                    Şifre değiştir
+                </h2>
+
+                <p>
+                    Hesabınızın güvenliği için yeni bir şifre belirleyin.
+                </p>
+            </div>
+
+
+            <button type="button"
+                    class="password-modal-close"
+                    id="closePasswordModalButton"
+                    aria-label="Kapat">
+
+                <i class="bi bi-x-lg"></i>
+
+            </button>
+
+        </div>
+
+
+        <form id="changePasswordForm"
+              novalidate>
+
+            <!-- Mevcut Şifre -->
+
+            <div class="password-form-group">
+
+                <label for="currentPassword">
+                    Mevcut şifre
+                </label>
+
+                <div class="password-input-wrapper">
+
+                    <input type="password"
+                           id="currentPassword"
+                           class="password-modern-input"
+                           autocomplete="current-password"
+                           placeholder="Mevcut şifrenizi girin">
+
+                    <button type="button"
+                            class="password-visibility-button"
+                            data-password-target="currentPassword"
+                            aria-label="Şifreyi göster">
+
+                        <i class="bi bi-eye"></i>
+
+                    </button>
+
+                </div>
+
+                <div class="password-field-error"
+                     id="currentPasswordError">
+                </div>
+
+            </div>
+
+
+            <!-- Yeni Şifre -->
+
+            <div class="password-form-group">
+
+                <label for="newPassword">
+                    Yeni şifre
+                </label>
+
+                <div class="password-input-wrapper">
+
+                    <input type="password"
+                           id="newPassword"
+                           class="password-modern-input"
+                           autocomplete="new-password"
+                           placeholder="Yeni şifrenizi girin">
+
+                    <button type="button"
+                            class="password-visibility-button"
+                            data-password-target="newPassword"
+                            aria-label="Şifreyi göster">
+
+                        <i class="bi bi-eye"></i>
+
+                    </button>
+
+                </div>
+
+                <div class="password-field-error"
+                     id="newPasswordError">
+                </div>
+
+            </div>
+
+
+            <!-- Yeni Şifre Tekrar -->
+
+            <div class="password-form-group">
+
+                <label for="confirmPassword">
+                    Yeni şifre tekrar
+                </label>
+
+                <div class="password-input-wrapper">
+
+                    <input type="password"
+                           id="confirmPassword"
+                           class="password-modern-input"
+                           autocomplete="new-password"
+                           placeholder="Yeni şifrenizi tekrar girin">
+
+                    <button type="button"
+                            class="password-visibility-button"
+                            data-password-target="confirmPassword"
+                            aria-label="Şifreyi göster">
+
+                        <i class="bi bi-eye"></i>
+
+                    </button>
+
+                </div>
+
+                <div class="password-field-error"
+                     id="confirmPasswordError">
+                </div>
+
+            </div>
+
+
+            <!-- Password Rules -->
+
+            <div class="password-rules">
+
+                <div class="password-rule"
+                     id="passwordLengthRule">
+
+                    <i class="bi bi-circle"></i>
+
+                    <span>
+                        En az 6 karakter
+                    </span>
+
+                </div>
+
+
+                <div class="password-rule"
+                     id="passwordMatchRule">
+
+                    <i class="bi bi-circle"></i>
+
+                    <span>
+                        Şifreler eşleşiyor
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- Submit -->
+
+            <button type="submit"
+                    class="password-submit-button"
+                    id="changePasswordSubmitButton">
+
+                <i class="bi bi-shield-lock"></i>
+
+                <span>
+                    Şifreyi değiştir
+                </span>
+
+            </button>
+
+        </form>
+
+    </section>
+
+    <!-- ============================================================= -->
+    <!-- TOAST -->
+    <!-- ============================================================= -->
+
+    <div class="profile-toast"
+         id="profileToast">
+
+        <div class="profile-toast-icon">
+
+            <i class="bi bi-check-lg"></i>
+
+        </div>
+
+        <div>
+
+            <strong id="profileToastTitle">
+                Başarılı
+            </strong>
+
+            <span id="profileToastMessage">
+                Profil güncellendi.
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <script src="/js/config.js"></script>
+
+    <script src="/js/api.js"></script>
+
+    <script src="/js/profile.js"></script>
+
+</body>
+
+</html>

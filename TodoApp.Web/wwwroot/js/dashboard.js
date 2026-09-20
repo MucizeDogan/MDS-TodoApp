@@ -453,6 +453,18 @@ function initializeEvents() {
         }
     );
 
+    /* Profile */
+
+    document
+        .getElementById("profileButton")
+        ?.addEventListener(
+            "click",
+            () => {
+
+                window.location.href = "profile.html";
+            }
+        );
+
 
     /* Logout */
 
@@ -723,27 +735,46 @@ function initializeEvents() {
     }
 
 
+    /* ========================================================= */
+    /* MOBILE MORE SHEET */
+    /* ========================================================= */
+
     function closeMobileMoreSheet() {
 
-        if (!mobileMoreSheet) {
-            return;
+        const overlay =
+            document.getElementById(
+                "mobileMoreOverlay"
+            );
+
+        const sheet =
+            document.getElementById(
+                "mobileMoreSheet"
+            );
+
+
+        if (overlay) {
+
+            overlay.classList.remove(
+                "active"
+            );
         }
 
-        mobileMoreSheet.classList.remove(
-            "active"
-        );
 
-        mobileMoreOverlay?.classList.remove(
-            "active"
-        );
+        if (sheet) {
 
-        mobileMoreSheet.setAttribute(
-            "aria-hidden",
-            "true"
-        );
+            sheet.classList.remove(
+                "active"
+            );
+
+            sheet.setAttribute(
+                "aria-hidden",
+                "true"
+            );
+        }
+
 
         document.body.classList.remove(
-            "mobile-sheet-open"
+            "mobile-more-open"
         );
     }
 
@@ -3888,6 +3919,50 @@ function updateMobileThemeText() {
             : "Koyu temaya geç";
 }
 
+/* ========================================================= */
+/* MOBILE MORE SHEET - GLOBAL CLOSE */
+/* ========================================================= */
+
+function closeMobileMoreSheetGlobal() {
+
+    const overlay =
+        document.getElementById(
+            "mobileMoreOverlay"
+        );
+
+    const sheet =
+        document.getElementById(
+            "mobileMoreSheet"
+        );
+
+    if (overlay) {
+
+        overlay.classList.remove(
+            "active"
+        );
+    }
+
+    if (sheet) {
+
+        sheet.classList.remove(
+            "active"
+        );
+
+        sheet.setAttribute(
+            "aria-hidden",
+            "true"
+        );
+    }
+
+    document.body.classList.remove(
+        "mobile-more-open"
+    );
+
+    document.body.classList.remove(
+        "mobile-sheet-open"
+    );
+}
+
 document
     .getElementById(
         "mobileLogoutButton"
@@ -3896,26 +3971,21 @@ document
         "click",
         () => {
 
-            //closeMobileMoreSheet();
+            closeMobileMoreSheetGlobal();
 
             api.logout();
         }
 );
 
 document
-    .getElementById(
-        "mobileProfileButton"
-    )
+    .getElementById("mobileProfileButton")
     ?.addEventListener(
         "click",
         () => {
 
-            closeMobileMoreSheet();
+            closeMobileMoreSheetGlobal();
 
-            showToast(
-                "Profil",
-                "Profil ekranını ilerleyen adımda ekleyeceğiz."
-            );
+            window.location.href = "profile.html";
         }
     );
 

@@ -12,19 +12,24 @@ namespace TodoApp.Infrastructure.Services {
     public class UserService : IUserService {
         private readonly UserManager<ApplicationUser> _userManager;
 
+
         public UserService(
             UserManager<ApplicationUser> userManager) {
             _userManager = userManager;
         }
 
+
         public async Task<UserProfileResponse> GetProfileAsync(
             string userId) {
-            var user = await _userManager.FindByIdAsync(userId);
+            var user =
+                await _userManager.FindByIdAsync(userId);
+
 
             if (user == null) {
                 throw new UnauthorizedAccessException(
                     "Kullanıcı bulunamadı.");
             }
+
 
             return new UserProfileResponse {
                 Id = user.Id,
@@ -35,27 +40,38 @@ namespace TodoApp.Infrastructure.Services {
             };
         }
 
+
         public async Task<UserProfileResponse> UpdateProfileAsync(
             string userId,
             UpdateUserProfileRequest request) {
-            var user = await _userManager.FindByIdAsync(userId);
+            var user =
+                await _userManager.FindByIdAsync(userId);
+
 
             if (user == null) {
                 throw new UnauthorizedAccessException(
                     "Kullanıcı bulunamadı.");
             }
 
-            user.FullName = request.FullName.Trim();
 
-            var result = await _userManager.UpdateAsync(user);
+            user.FullName =
+                request.FullName.Trim();
+
+
+            var result =
+                await _userManager.UpdateAsync(user);
+
 
             if (!result.Succeeded) {
-                var errors = string.Join(
-                    " | ",
-                    result.Errors.Select(x => x.Description));
+                var errors =
+                    string.Join(
+                        " | ",
+                        result.Errors.Select(
+                            x => x.Description));
 
                 throw new Exception(errors);
             }
+
 
             return new UserProfileResponse {
                 Id = user.Id,
@@ -64,6 +80,42 @@ namespace TodoApp.Infrastructure.Services {
                 EmailConfirmed = user.EmailConfirmed,
                 CreatedAt = user.CreatedAt
             };
+        }
+
+
+        /* ===================================================== */
+        /* CHANGE PASSWORD */
+        /* ===================================================== */
+
+        public async Task ChangePasswordAsync(
+            string userId,
+            ChangePasswordRequest request) {
+            var user =
+                await _userManager.FindByIdAsync(userId);
+
+
+            if (user == null) {
+                throw new UnauthorizedAccessException(
+                    "Kullanıcı bulunamadı.");
+            }
+
+
+            var result =
+                await _userManager.ChangePasswordAsync(
+                    user,
+                    request.CurrentPassword,
+                    request.NewPassword);
+
+
+            if (!result.Succeeded) {
+                var errors =
+                    string.Join(
+                        " | ",
+                        result.Errors.Select(
+                            x => x.Description));
+
+                throw new ArgumentException(errors);
+            }
         }
     }
 }

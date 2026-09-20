@@ -11,5 +11,7 @@ namespace TodoApp.Application.Interfaces {
         Task<UserProfileResponse> GetProfileAsync(string userId);
 
         Task<UserProfileResponse> UpdateProfileAsync(string userId, UpdateUserProfileRequest request);
+
+        Task ChangePasswordAsync(string userId, ChangePasswordRequest request);
     }
 }
