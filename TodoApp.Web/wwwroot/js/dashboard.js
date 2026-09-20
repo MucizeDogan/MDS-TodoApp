@@ -3896,7 +3896,7 @@ document
         "click",
         () => {
 
-            closeMobileMoreSheet();
+            //closeMobileMoreSheet();
 
             api.logout();
         }
