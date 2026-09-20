@@ -21,5 +21,16 @@ namespace TodoApp.Application.DTOs.Notification {
         public string? RelatedEntityType { get; set; }
 
         public int? RelatedEntityId { get; set; }
+
+        // Todo bilgileri
+        public string? TodoTitle { get; set; }
+
+        public DateTime? TodoDueDate { get; set; }
+
+        public int? TodoPriority { get; set; }
+
+        public string? CategoryName { get; set; }
+
+        public string? CategoryColor { get; set; }
     }
 }

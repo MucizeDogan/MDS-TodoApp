@@ -4036,7 +4036,7 @@ function renderTodoDetail(todo) {
 
     const dueDate =
         todo.dueDate
-            ? formatTodoDate(todo.dueDate)
+            ? formatTodoDueDate(todo.dueDate)
             : "Tarih belirtilmemiş";
 
     const createdDate =
@@ -4197,29 +4197,34 @@ function formatTodoDate(value) {
         return "-";
     }
 
+    let normalizedValue = String(value);
 
-    const date = new Date(value);
+    // CreatedAt backend tarafından UTC olarak tutuluyor.
+    // API Z göndermiyorsa UTC olduğunu belirtiyoruz.
+    if (
+        !normalizedValue.endsWith("Z") &&
+        !normalizedValue.includes("+")
+    ) {
+        normalizedValue += "Z";
+    }
 
+    const date = new Date(normalizedValue);
 
     if (Number.isNaN(date.getTime())) {
         return "-";
     }
 
-
     const dateText = new Intl.DateTimeFormat(
-            "tr-TR",
-            {
-                day: "numeric",
-                month: "long",
-                year: "numeric"
-            }
-        ).format(date);
-
+        "tr-TR",
+        {
+            day: "numeric",
+            month: "long",
+            year: "numeric"
+        }
+    ).format(date);
 
     const hours = date.getHours();
-
     const minutes = date.getMinutes();
-
 
     if (
         hours === 0 &&
@@ -4228,17 +4233,73 @@ function formatTodoDate(value) {
         return dateText;
     }
 
-
     const timeText = new Intl.DateTimeFormat(
-            "tr-TR",
-            {
-                hour: "2-digit",
-                minute: "2-digit"
-            }
-        ).format(date);
-
+        "tr-TR",
+        {
+            hour: "2-digit",
+            minute: "2-digit"
+        }
+    ).format(date);
 
     return `${dateText} ${timeText}`;
+}
+
+function formatTodoDueDate(value) {
+
+    if (!value) {
+        return "-";
+    }
+
+    const text = String(value);
+
+    /*
+     * DueDate kullanıcı tarafından girilen
+     * yerel tarih/saat bilgisidir.
+     *
+     * Örnek:
+     * 2026-09-20T20:51:00
+     *
+     * Bu değere Z EKLENMEZ.
+     */
+
+    const match = text.match(
+        /^(\d{4})-(\d{2})-(\d{2})(?:T|\s)(\d{2}):(\d{2})/
+    );
+
+    if (match) {
+
+        const year = Number(match[1]);
+        const month = Number(match[2]);
+        const day = Number(match[3]);
+        const hours = Number(match[4]);
+        const minutes = Number(match[5]);
+
+        const dateText = new Intl.DateTimeFormat(
+            "tr-TR",
+            {
+                day: "numeric",
+                month: "long",
+                year: "numeric"
+            }
+        ).format(
+            new Date(
+                year,
+                month - 1,
+                day
+            )
+        );
+
+        if (hours === 0 && minutes === 0) {
+            return dateText;
+        }
+
+        const timeText =
+            `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+
+        return `${dateText} ${timeText}`;
+    }
+
+    return "-";
 }
 
 async function toggleTodoFromDetail(todoId) {
@@ -5034,20 +5095,41 @@ function renderNotificationItem(
     notification,
     cssClass
 ) {
-    const title = escapeNotificationHtml(
-        notification.title || "Görev"
-    );
-
-    const message = escapeNotificationHtml(
-        notification.message || ""
+    const todoTitle = escapeNotificationHtml(
+        notification.todoTitle ||
+        notification.title ||
+        "Görev"
     );
 
     const isRead = notification.isRead;
+
     const taskId = notification.relatedEntityId;
 
-    const createdDate = formatNotificationDate(
-        notification.createdAt
+    const dueDateText = formatNotificationDueDate(
+        notification.todoDueDate,
+        notification.type
     );
+
+    const priorityText =
+        getNotificationPriorityText(
+            notification.todoPriority
+        );
+
+    const priorityClass =
+        getNotificationPriorityClass(
+            notification.todoPriority
+        );
+
+    const categoryName =
+        notification.categoryName
+            ? escapeNotificationHtml(
+                notification.categoryName
+            )
+            : "";
+
+    const categoryColor =
+        notification.categoryColor ||
+        "";
 
     return `
         <div
@@ -5055,6 +5137,7 @@ function renderNotificationItem(
             data-notification-id="${notification.id}"
             data-todo-id="${taskId || ""}"
         >
+
             <div class="notification-task-icon">
                 ${getNotificationTaskIcon(cssClass)}
             </div>
@@ -5062,27 +5145,61 @@ function renderNotificationItem(
             <div class="notification-task-content">
 
                 <div class="notification-task-top">
+
                     <span class="notification-task-title">
-                        ${escapeNotificationHtml(
-        getNotificationTaskTitle(notification)
-    )}
+                        ${todoTitle}
                     </span>
 
                     ${!isRead
             ? `<span class="notification-unread-dot"></span>`
             : ""
         }
+
                 </div>
 
-                <div class="notification-task-message">
-                    ${message}
+                <div class="notification-task-due">
+                    <i class="bi bi-clock"></i>
+                    ${dueDateText}
                 </div>
 
-                <div class="notification-task-meta">
-                    ${createdDate}
+                <div class="notification-task-tags">
+
+                    ${priorityText
+            ? `
+                                <span
+                                    class="notification-task-tag ${priorityClass}"
+                                >
+                                    ${priorityText}
+                                </span>
+                              `
+            : ""
+        }
+
+                    ${categoryName
+            ? `
+                                <span
+    class="notification-task-tag notification-category-tag"
+    ${
+        categoryColor
+            ? `style="--notification-category-color:${escapeNotificationHtml(categoryColor)}"`
+            : ""
+        }
+>
+    <span class="notification-category-dot"></span>
+    ${categoryName}
+</span>
+                              `
+            : ""
+        }
+
                 </div>
 
             </div>
+
+            <div class="notification-task-arrow">
+                <i class="bi bi-chevron-right"></i>
+            </div>
+
         </div>
     `;
 }
@@ -5112,15 +5229,9 @@ function getNotificationTaskIcon(cssClass) {
 }
 
 function getNotificationTaskTitle(notification) {
-    const message = notification.message || "";
-
-    const match = message.match(/^"(.+?)"/);
-
-    if (match && match[1]) {
-        return match[1];
-    }
-
-    return notification.title || "Görev";
+    return notification.todoTitle ||
+        notification.title ||
+        "Görev";
 }
 
 
@@ -5326,6 +5437,163 @@ async function markAllNotificationsRead() {
     }
 }
 
+function formatNotificationDueDate(
+    value,
+    notificationType
+) {
+
+    if (!value) {
+        return "";
+    }
+
+    const text =
+        String(value);
+
+    let year;
+    let month;
+    let day;
+    let hours;
+    let minutes;
+
+    /*
+     * DueDate bizim sistemimizde local tarih/saat.
+     *
+     * Örnek:
+     * 2026-09-21T19:33:00
+     *
+     * Bunu UTC olarak yorumlamıyoruz.
+     */
+
+    const match =
+        text.match(
+            /^(\d{4})-(\d{2})-(\d{2})(?:T|\s)(\d{2}):(\d{2})/
+        );
+
+    if (match) {
+
+        year =
+            Number(match[1]);
+
+        month =
+            Number(match[2]);
+
+        day =
+            Number(match[3]);
+
+        hours =
+            Number(match[4]);
+
+        minutes =
+            Number(match[5]);
+
+    } else {
+
+        /*
+         * Eski UTC kayıtlar için
+         * fallback.
+         */
+        const date =
+            new Date(text);
+
+        if (
+            Number.isNaN(
+                date.getTime()
+            )
+        ) {
+            return "";
+        }
+
+        year =
+            date.getFullYear();
+
+        month =
+            date.getMonth() + 1;
+
+        day =
+            date.getDate();
+
+        hours =
+            date.getHours();
+
+        minutes =
+            date.getMinutes();
+    }
+
+    const timeText =
+        `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+
+    /*
+     * Saat 00:00 ise kullanıcı aslında
+     * saat girmemiş demektir.
+     */
+    const hasTime =
+        hours !== 0 ||
+        minutes !== 0;
+
+    if (notificationType === "TaskDueToday") {
+
+        return hasTime
+            ? `Bugün · ${timeText}`
+            : "Bugün";
+    }
+
+    if (notificationType === "TaskDueTomorrow") {
+
+        return hasTime
+            ? `Yarın · ${timeText}`
+            : "Yarın";
+    }
+
+    if (notificationType === "TaskOverdue") {
+
+        const dateText =
+            `${String(day).padStart(2, "0")}.${String(month).padStart(2, "0")}`;
+
+        return hasTime
+            ? `${dateText} · ${timeText}`
+            : dateText;
+    }
+
+    const dateText =
+        `${String(day).padStart(2, "0")}.${String(month).padStart(2, "0")}.${year}`;
+
+    return hasTime
+        ? `${dateText} · ${timeText}`
+        : dateText;
+}
+
+function getNotificationPriorityText(priority) {
+    switch (Number(priority)) {
+        case 1:
+            return "Düşük";
+
+        case 2:
+            return "Orta";
+
+        case 3:
+            return "Yüksek";
+
+        default:
+            return "";
+    }
+}
+
+function getNotificationPriorityClass(priority) {
+    switch (Number(priority)) {
+        case 1:
+            return "priority-low";
+
+        case 2:
+            return "priority-medium";
+
+        case 3:
+            return "priority-high";
+
+        default:
+            return "";
+    }
+}
+
 
 /* ========================================================= */
 /* ICON */
@@ -5363,23 +5631,39 @@ function getNotificationIcon(
 /* ========================================================= */
 
 function formatNotificationDate(value) {
-    if (!value) return "";
 
-    let normalizedValue = value;
+    if (!value) {
+        return "";
+    }
 
-    // Backend DateTime.UtcNow değerinde Z bulunmuyorsa
-    // bunun UTC olduğunu açıkça belirtiyoruz.
+    let normalizedValue = String(value);
+
+    /*
+     * CreatedAt backend tarafından UTC olarak tutuluyor.
+     *
+     * API:
+     * 2026-09-20T16:29:00
+     *
+     * Aslında:
+     * 2026-09-20 16:29 UTC
+     *
+     * Bu yüzden Z ekliyoruz.
+     */
     if (
-        typeof normalizedValue === "string" &&
         !normalizedValue.endsWith("Z") &&
         !normalizedValue.includes("+")
     ) {
         normalizedValue += "Z";
     }
 
-    const date = new Date(normalizedValue);
+    const date =
+        new Date(normalizedValue);
 
-    if (Number.isNaN(date.getTime())) {
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
         return "";
     }
 
@@ -5388,6 +5672,7 @@ function formatNotificationDate(value) {
         {
             day: "2-digit",
             month: "2-digit",
+            year: "numeric",
             hour: "2-digit",
             minute: "2-digit"
         }
