@@ -225,9 +225,15 @@
 
 
                     <button class="topbar-icon-button notification-button"
-                            title="Bildirimler">
+                            title="Bildirimler"
+                            id="notificationButton">
 
                         <i class="bi bi-bell"></i>
+                        <span class="notification-badge"
+                              id="notificationBadge"
+                              style="display:none;">
+                            0
+                        </span>
 
                         <span class="notification-dot"></span>
 
@@ -965,7 +971,6 @@
 
             </div>
 
-
             <div class="mobile-more-content">
 
                 <!-- Profile -->
@@ -1077,6 +1082,97 @@
                     </span>
 
                     <i class="bi bi-chevron-right mobile-more-arrow"></i>
+
+                </button>
+
+            </div>
+
+        </section>
+
+        <!-- ===================================================== -->
+        <!-- NOTIFICATION CENTER -->
+        <!-- ===================================================== -->
+
+        <div class="notification-overlay"
+             id="notificationOverlay">
+        </div>
+
+
+        <section class="notification-panel"
+                 id="notificationPanel"
+                 aria-hidden="true">
+
+            <div class="notification-panel-handle"></div>
+
+
+            <div class="notification-panel-header">
+
+                <div>
+                    <h3>
+                        Bildirimler
+                    </h3>
+
+                    <span id="notificationPanelCount">
+                        Bildirim bulunmuyor
+                    </span>
+                </div>
+
+
+                <button type="button"
+                        class="notification-close-button"
+                        id="notificationCloseButton"
+                        aria-label="Bildirimleri kapat">
+
+                    <i class="bi bi-x-lg"></i>
+
+                </button>
+
+            </div>
+
+
+            <div class="notification-list"
+                 id="notificationList">
+
+                <div class="notification-loading">
+                    <span class="spinner-border spinner-border-sm">
+                    </span>
+
+                    <span>
+                        Bildirimler yükleniyor...
+                    </span>
+                </div>
+
+            </div>
+
+
+            <div class="notification-empty"
+                 id="notificationEmpty"
+                 style="display:none;">
+
+                <div class="notification-empty-icon">
+                    <i class="bi bi-bell-slash"></i>
+                </div>
+
+                <strong>
+                    Bildirim yok
+                </strong>
+
+                <span>
+                    Şimdilik yeni bir bildirimin bulunmuyor.
+                </span>
+
+            </div>
+
+
+            <div class="notification-panel-footer">
+
+                <button type="button"
+                        id="markAllNotificationsReadButton"
+                        class="notification-read-all-button">
+
+                    <i class="bi bi-check2-all"></i>
+
+                    Tümünü okundu işaretle
 
                 </button>
 

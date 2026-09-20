@@ -17,6 +17,8 @@ namespace TodoApp.Infrastructure.Data {
 
         public DbSet<Category> Categories { get; set; }
 
+        public DbSet<Notification> Notifications { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder builder) {
             base.OnModelCreating(builder);

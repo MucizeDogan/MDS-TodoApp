@@ -48,6 +48,8 @@ async function initializeDashboard() {
 
     initializeEvents();
 
+    initializeNotifications();
+
     await loadDashboardData();
 }
 
@@ -4563,4 +4565,695 @@ function setTodoDueDateFields(value) {
         timeInput.value =
             `${hours}:${minutes}`;
     }
+}
+
+/* ========================================================= */
+/* NOTIFICATIONS */
+/* ========================================================= */
+
+let dashboardNotifications = [];
+
+
+/* ========================================================= */
+/* INITIALIZE */
+/* ========================================================= */
+
+function initializeNotifications() {
+
+    const notificationButton =
+        document.getElementById(
+            "notificationButton"
+        );
+
+    const closeButton =
+        document.getElementById(
+            "notificationCloseButton"
+        );
+
+    const overlay =
+        document.getElementById(
+            "notificationOverlay"
+        );
+
+    const markAllButton =
+        document.getElementById(
+            "markAllNotificationsReadButton"
+        );
+
+
+    notificationButton?.addEventListener(
+        "click",
+        toggleNotificationPanel
+    );
+
+
+    closeButton?.addEventListener(
+        "click",
+        closeNotificationPanel
+    );
+
+
+    overlay?.addEventListener(
+        "click",
+        closeNotificationPanel
+    );
+
+
+    markAllButton?.addEventListener(
+        "click",
+        markAllNotificationsRead
+    );
+
+
+    document.addEventListener(
+        "keydown",
+        event => {
+
+            if (
+                event.key === "Escape"
+            ) {
+
+                closeNotificationPanel();
+            }
+        }
+    );
+
+
+    loadNotifications();
+}
+
+
+/* ========================================================= */
+/* LOAD */
+/* ========================================================= */
+
+async function loadNotifications() {
+
+    try {
+
+        const result =
+            await api.get(
+                "/Notification"
+            );
+
+
+        if (!result) {
+            return;
+        }
+
+
+        dashboardNotifications =
+            result.data || [];
+
+
+        renderNotificationBadge();
+
+
+        renderNotifications();
+
+    }
+    catch (error) {
+
+        console.error(
+            "Bildirimler yüklenemedi:",
+            error
+        );
+    }
+}
+
+
+/* ========================================================= */
+/* BADGE */
+/* ========================================================= */
+
+function renderNotificationBadge() {
+
+    const badge =
+        document.getElementById(
+            "notificationBadge"
+        );
+
+
+    if (!badge) {
+        return;
+    }
+
+
+    const unreadCount =
+        dashboardNotifications
+            .filter(x => !x.isRead)
+            .length;
+
+
+    if (unreadCount <= 0) {
+
+        badge.style.display =
+            "none";
+
+        return;
+    }
+
+
+    badge.style.display =
+        "flex";
+
+
+    badge.textContent =
+        unreadCount > 99
+            ? "99+"
+            : unreadCount;
+}
+
+
+/* ========================================================= */
+/* PANEL */
+/* ========================================================= */
+
+function toggleNotificationPanel() {
+
+    const panel =
+        document.getElementById(
+            "notificationPanel"
+        );
+
+
+    if (!panel) {
+        return;
+    }
+
+
+    if (
+        panel.classList.contains(
+            "active"
+        )
+    ) {
+
+        closeNotificationPanel();
+
+    } else {
+
+        openNotificationPanel();
+    }
+}
+
+
+function openNotificationPanel() {
+
+    const panel =
+        document.getElementById(
+            "notificationPanel"
+        );
+
+    const overlay =
+        document.getElementById(
+            "notificationOverlay"
+        );
+
+
+    if (!panel) {
+        return;
+    }
+
+
+    panel.classList.add(
+        "active"
+    );
+
+
+    panel.setAttribute(
+        "aria-hidden",
+        "false"
+    );
+
+
+    if (overlay) {
+
+        overlay.classList.add(
+            "active"
+        );
+    }
+
+
+    document.body.classList.add(
+        "notification-panel-open"
+    );
+
+
+    renderNotifications();
+}
+
+
+function closeNotificationPanel() {
+
+    const panel =
+        document.getElementById(
+            "notificationPanel"
+        );
+
+    const overlay =
+        document.getElementById(
+            "notificationOverlay"
+        );
+
+
+    if (panel) {
+
+        panel.classList.remove(
+            "active"
+        );
+
+        panel.setAttribute(
+            "aria-hidden",
+            "true"
+        );
+    }
+
+
+    if (overlay) {
+
+        overlay.classList.remove(
+            "active"
+        );
+    }
+
+
+    document.body.classList.remove(
+        "notification-panel-open"
+    );
+}
+
+
+/* ========================================================= */
+/* RENDER */
+/* ========================================================= */
+
+function renderNotifications() {
+
+    const list =
+        document.getElementById(
+            "notificationList"
+        );
+
+    const empty =
+        document.getElementById(
+            "notificationEmpty"
+        );
+
+    const countText =
+        document.getElementById(
+            "notificationPanelCount"
+        );
+
+
+    if (!list) {
+        return;
+    }
+
+
+    const notifications =
+        dashboardNotifications;
+
+
+    const unreadCount =
+        notifications
+            .filter(x => !x.isRead)
+            .length;
+
+
+    if (countText) {
+
+        countText.textContent =
+            unreadCount > 0
+                ? `${unreadCount} okunmamış bildirim`
+                : "Yeni bildirim bulunmuyor";
+    }
+
+
+    if (
+        notifications.length === 0
+    ) {
+
+        list.innerHTML = "";
+
+
+        if (empty) {
+
+            empty.style.display =
+                "flex";
+        }
+
+
+        return;
+    }
+
+
+    if (empty) {
+
+        empty.style.display =
+            "none";
+    }
+
+
+    list.innerHTML =
+        notifications
+            .map(
+                notification =>
+                    createNotificationHtml(
+                        notification
+                    )
+            )
+            .join("");
+
+
+    list
+        .querySelectorAll(
+            ".notification-item"
+        )
+        .forEach(item => {
+
+            item.addEventListener(
+                "click",
+                () => {
+
+                    const id =
+                        Number(
+                            item.dataset
+                                .notificationId
+                        );
+
+
+                    handleNotificationClick(
+                        id
+                    );
+                }
+            );
+        });
+}
+
+
+/* ========================================================= */
+/* HTML */
+/* ========================================================= */
+
+function createNotificationHtml(
+    notification
+) {
+
+    const unreadClass =
+        notification.isRead
+            ? ""
+            : "unread";
+
+
+    const icon =
+        getNotificationIcon(
+            notification.type
+        );
+
+
+    const createdAt =
+        formatNotificationDate(
+            notification.createdAt
+        );
+
+
+    return `
+        <div
+            class="notification-item ${unreadClass}"
+            data-notification-id="${notification.id}">
+
+            <div class="notification-item-icon">
+                <i class="bi ${icon}"></i>
+            </div>
+
+
+            <div class="notification-item-content">
+
+                <div class="notification-item-title">
+                    ${escapeNotificationHtml(
+        notification.title
+    )}
+                </div>
+
+
+                <div class="notification-item-message">
+                    ${escapeNotificationHtml(
+        notification.message
+    )}
+                </div>
+
+
+                <div class="notification-item-date">
+                    ${createdAt}
+                </div>
+
+            </div>
+
+
+            ${!notification.isRead
+            ? `
+                        <span
+                            class="notification-unread-dot">
+                        </span>
+                    `
+            : ""
+        }
+
+        </div>
+    `;
+}
+
+
+/* ========================================================= */
+/* CLICK */
+/* ========================================================= */
+
+async function handleNotificationClick(
+    notificationId
+) {
+
+    const notification =
+        dashboardNotifications.find(
+            x =>
+                x.id === notificationId
+        );
+
+
+    if (!notification) {
+        return;
+    }
+
+
+    if (!notification.isRead) {
+
+        try {
+
+            await api.patch(
+                `/Notification/${notificationId}/read`
+            );
+
+
+            notification.isRead =
+                true;
+
+
+            renderNotificationBadge();
+
+            renderNotifications();
+
+        }
+        catch (error) {
+
+            console.error(
+                "Bildirim okundu yapılamadı:",
+                error
+            );
+        }
+    }
+
+
+    /*
+     * İleride RelatedEntityType /
+     * RelatedEntityId üzerinden
+     * ilgili görevi açacağız.
+     */
+}
+
+
+/* ========================================================= */
+/* MARK ALL READ */
+/* ========================================================= */
+
+async function markAllNotificationsRead() {
+
+    const unreadNotifications =
+        dashboardNotifications.filter(
+            x => !x.isRead
+        );
+
+
+    if (
+        unreadNotifications.length === 0
+    ) {
+
+        return;
+    }
+
+
+    const button =
+        document.getElementById(
+            "markAllNotificationsReadButton"
+        );
+
+
+    try {
+
+        if (button) {
+            button.disabled = true;
+        }
+
+
+        await api.patch(
+            "/Notification/read-all"
+        );
+
+
+        dashboardNotifications =
+            dashboardNotifications.map(
+                notification => ({
+                    ...notification,
+                    isRead: true
+                })
+            );
+
+
+        renderNotificationBadge();
+
+        renderNotifications();
+
+    }
+    catch (error) {
+
+        console.error(
+            "Bildirimler okunamadı:",
+            error
+        );
+
+        showToast(
+            "Hata",
+            "Bildirimler güncellenemedi."
+        );
+
+    }
+    finally {
+
+        if (button) {
+            button.disabled = false;
+        }
+    }
+}
+
+
+/* ========================================================= */
+/* ICON */
+/* ========================================================= */
+
+function getNotificationIcon(
+    type
+) {
+
+    switch (
+    String(type || "")
+        .toLowerCase()
+    ) {
+
+        case "taskreminder":
+            return "bi-calendar-event";
+
+
+        case "taskcompleted":
+            return "bi-check-circle";
+
+
+        case "test":
+            return "bi-info-circle";
+
+
+        default:
+            return "bi-bell";
+    }
+}
+
+
+/* ========================================================= */
+/* DATE */
+/* ========================================================= */
+
+function formatNotificationDate(
+    value
+) {
+
+    if (!value) {
+        return "";
+    }
+
+
+    const date =
+        new Date(value);
+
+
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+
+        return "";
+    }
+
+
+    return date.toLocaleString(
+        "tr-TR",
+        {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+        }
+    );
+}
+
+
+/* ========================================================= */
+/* HTML ESCAPE */
+/* ========================================================= */
+
+function escapeNotificationHtml(
+    value
+) {
+
+    return String(
+        value ?? ""
+    )
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
 }
