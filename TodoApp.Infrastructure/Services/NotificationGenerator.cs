@@ -1,10 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TodoApp.Application.Interfaces;
 using TodoApp.Domain.Entities;
 using TodoApp.Infrastructure.Data;
@@ -23,57 +17,7 @@ namespace TodoApp.Infrastructure.Services {
             var dayAfterTomorrow = tomorrow.AddDays(1);
 
             // ---------------------------------------------------------
-            // 1. MEVCUT AKTİF GÖREV BİLDİRİMLERİNİ GETİR
-            // ---------------------------------------------------------
-
-            var existingNotifications = await _context.Notifications
-                .Where(x =>
-                    x.UserId == userId &&
-                    x.RelatedEntityType == "TodoItem" &&
-                    x.RelatedEntityId.HasValue &&
-                    (
-                        x.Type == "TaskOverdue" ||
-                        x.Type == "TaskDueToday" ||
-                        x.Type == "TaskDueTomorrow"
-                    ))
-                .ToListAsync();
-
-            // ---------------------------------------------------------
-            // 2. TAMAMLANMIŞ GÖREVLERİN BİLDİRİMLERİNİ TEMİZLE
-            // ---------------------------------------------------------
-
-            var relatedTodoIds = existingNotifications
-                .Select(x => x.RelatedEntityId!.Value)
-                .Distinct()
-                .ToList();
-
-            var completedTodoIds = await _context.TodoItems
-                .Where(x =>
-                    relatedTodoIds.Contains(x.Id) &&
-                    x.UserId == userId &&
-                    x.IsCompleted)
-                .Select(x => x.Id)
-                .ToListAsync();
-
-            var completedNotifications = existingNotifications
-                .Where(x =>
-                    x.RelatedEntityId.HasValue &&
-                    completedTodoIds.Contains(x.RelatedEntityId.Value))
-                .ToList();
-
-            if (completedNotifications.Count > 0) {
-                _context.Notifications.RemoveRange(
-                    completedNotifications);
-
-                await _context.SaveChangesAsync();
-
-                existingNotifications = existingNotifications
-                    .Except(completedNotifications)
-                    .ToList();
-            }
-
-            // ---------------------------------------------------------
-            // 3. KULLANICININ AKTİF GÖREVLERİNİ GETİR
+            // 1. KULLANICININ AKTİF GÖREVLERİNİ GETİR
             // ---------------------------------------------------------
 
             var activeTasks = await _context.TodoItems
@@ -91,45 +35,97 @@ namespace TodoApp.Infrastructure.Services {
                 .ToListAsync();
 
             // ---------------------------------------------------------
-            // 4. HER GÖREVİN GÜNCEL DURUMUNU BELİRLE
+            // 2. MEVCUT GÖREV BİLDİRİMLERİNİ GETİR
+            // ---------------------------------------------------------
+
+            var existingNotifications = await _context.Notifications
+                .Where(x =>
+                    x.UserId == userId &&
+                    x.RelatedEntityType == "TodoItem" &&
+                    x.RelatedEntityId.HasValue &&
+                    (
+                        x.Type == "TaskOverdue" ||
+                        x.Type == "TaskDueToday" ||
+                        x.Type == "TaskDueTomorrow"
+                    ))
+                .ToListAsync();
+
+            // ---------------------------------------------------------
+            // 3. ARTIK AKTİF KAPSAMDA OLMAYAN BİLDİRİMLERİ SİL
+            //
+            // Örnek:
+            //
+            // Todo silindi
+            // Todo tamamlandı
+            // Todo'nun tarihi 25 Eylül'e taşındı
+            // Todo'nun DueDate değeri kaldırıldı
+            //
+            // Bu durumda notification artık geçerli değildir.
+            // ---------------------------------------------------------
+
+            var activeTaskIds = activeTasks
+                .Select(x => x.Id)
+                .ToHashSet();
+
+            var notificationsToRemove = existingNotifications
+                .Where(notification =>
+                    !activeTaskIds.Contains(
+                        notification.RelatedEntityId!.Value))
+                .ToList();
+
+            if (notificationsToRemove.Count > 0) {
+                _context.Notifications.RemoveRange(
+                    notificationsToRemove);
+            }
+
+            // Silinecek notification'ları mevcut listeden çıkar.
+            existingNotifications = existingNotifications
+                .Except(notificationsToRemove)
+                .ToList();
+
+            // ---------------------------------------------------------
+            // 4. AKTİF GÖREVLERİN GÜNCEL DURUMUNU SENKRONİZE ET
             // ---------------------------------------------------------
 
             foreach (var task in activeTasks) {
-                string? notificationType = null;
+                var notificationType =
+                    GetNotificationType(
+                        task.DueDate!.Value,
+                        today,
+                        tomorrow);
 
-                if (task.DueDate!.Value < today) {
-                    notificationType = "TaskOverdue";
-                } else if (task.DueDate.Value >= today &&
-                           task.DueDate.Value < tomorrow) {
-                    notificationType = "TaskDueToday";
-                } else if (task.DueDate.Value >= tomorrow &&
-                           task.DueDate.Value < dayAfterTomorrow) {
-                    notificationType = "TaskDueTomorrow";
-                }
-
+                // Bu görev bugün / yarın / gecikmiş değilse
+                // notification oluşturmuyoruz.
                 if (notificationType == null)
                     continue;
 
-                var existingNotification = existingNotifications
-                    .FirstOrDefault(x =>
+                var existingNotification =
+                    existingNotifications.FirstOrDefault(x =>
                         x.RelatedEntityId == task.Id);
 
                 // -----------------------------------------------------
-                // 5. BİLDİRİM YOKSA OLUŞTUR
+                // 5. NOTIFICATION YOKSA OLUŞTUR
                 // -----------------------------------------------------
 
                 if (existingNotification == null) {
                     var notification = new Notification {
                         UserId = userId,
+
                         Title = GetNotificationTitle(
                             notificationType),
+
                         Message = GetNotificationMessage(
                             notificationType,
                             task.Title),
+
                         Type = notificationType,
+
                         IsRead = false,
+
                         CreatedAt = DateTime.UtcNow,
+
                         RelatedEntityType = "TodoItem",
+
                         RelatedEntityId = task.Id
                     };
 
@@ -139,14 +135,16 @@ namespace TodoApp.Infrastructure.Services {
                 }
 
                 // -----------------------------------------------------
-                // 6. GÖREVİN DURUMU DEĞİŞTİYSE BİLDİRİMİ GÜNCELLE
+                // 6. NOTIFICATION'IN DURUMU DEĞİŞTİYSE GÜNCELLE
                 // -----------------------------------------------------
 
                 if (existingNotification.Type != notificationType) {
-                    existingNotification.Type = notificationType;
+                    existingNotification.Type =
+                        notificationType;
 
                     existingNotification.Title =
-                        GetNotificationTitle(notificationType);
+                        GetNotificationTitle(
+                            notificationType);
 
                     existingNotification.Message =
                         GetNotificationMessage(
@@ -154,32 +152,66 @@ namespace TodoApp.Infrastructure.Services {
                             task.Title);
 
                     existingNotification.IsRead = false;
+
                     existingNotification.CreatedAt =
                         DateTime.UtcNow;
-                } else if (existingNotification.Message !=
-                           GetNotificationMessage(
-                               notificationType,
-                               task.Title)) {
-                    existingNotification.Message =
+                } else {
+                    // Görev adı değiştirilmiş olabilir.
+                    var newMessage =
                         GetNotificationMessage(
                             notificationType,
                             task.Title);
+
+                    if (existingNotification.Message !=
+                        newMessage) {
+                        existingNotification.Message =
+                            newMessage;
+                    }
                 }
             }
 
+            // ---------------------------------------------------------
+            // 7. TÜM DEĞİŞİKLİKLERİ TEK SEFERDE KAYDET
+            // ---------------------------------------------------------
+
             await _context.SaveChangesAsync();
+        }
+
+        private static string? GetNotificationType(
+            DateTime dueDate,
+            DateTime today,
+            DateTime tomorrow) {
+            if (dueDate < today) {
+                return "TaskOverdue";
+            }
+
+            if (dueDate >= today &&
+                dueDate < tomorrow) {
+                return "TaskDueToday";
+            }
+
+            if (dueDate >= tomorrow &&
+                dueDate < tomorrow.AddDays(1)) {
+                return "TaskDueTomorrow";
+            }
+
+            return null;
         }
 
         private static string GetNotificationTitle(
             string notificationType) {
             return notificationType switch {
-                "TaskOverdue" => "Gecikmiş görev",
+                "TaskOverdue" =>
+                    "Gecikmiş görev",
 
-                "TaskDueToday" => "Bugünkü görev",
+                "TaskDueToday" =>
+                    "Bugünkü görev",
 
-                "TaskDueTomorrow" => "Yarının görevi",
+                "TaskDueTomorrow" =>
+                    "Yarının görevi",
 
-                _ => "Görev bildirimi"
+                _ =>
+                    "Görev bildirimi"
             };
         }
 
@@ -196,7 +228,8 @@ namespace TodoApp.Infrastructure.Services {
                 "TaskDueTomorrow" =>
                     $"\"{todoTitle}\" görevinin son tarihi yarın.",
 
-                _ => todoTitle
+                _ =>
+                    todoTitle
             };
         }
     }

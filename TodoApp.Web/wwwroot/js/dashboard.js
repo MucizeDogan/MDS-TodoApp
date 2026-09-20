@@ -3261,6 +3261,8 @@ async function saveTodo() {
                     data
                 );
 
+            await loadNotifications();
+
         }
         else {
 
@@ -3269,6 +3271,8 @@ async function saveTodo() {
                     "/Todo",
                     data
                 );
+
+            await loadNotifications();
         }
 
 
@@ -3337,6 +3341,8 @@ async function toggleTodo(id) {
                 }`
             );
 
+        await loadNotifications();
+
 
         if (!result) {
             return;
@@ -3403,6 +3409,8 @@ async function deleteTodo(id) {
             await api.delete(
                 `/Todo/${id}`
             );
+
+        await loadNotifications();
 
 
         if (!result) {
