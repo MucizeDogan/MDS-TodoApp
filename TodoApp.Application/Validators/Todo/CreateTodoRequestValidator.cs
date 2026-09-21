@@ -26,6 +26,18 @@ namespace TodoApp.Application.Validators.Todo {
             RuleFor(x => x.Priority)
                 .InclusiveBetween(1, 3)
                 .WithMessage("Öncelik 1 ile 3 arasında olmalıdır.");
+
+            RuleFor(x => x.EmailReminderMinutesBefore)
+                .Must(x => !x.HasValue || x > 0)
+                .WithMessage("Email hatırlatma süresi 0'dan büyük olmalıdır.");
+
+            RuleFor(x => x)
+                .Must(x =>
+                    !x.EmailReminderEnabled ||
+                    (x.DueDate.HasValue &&
+                     x.EmailReminderMinutesBefore.HasValue))
+                .WithMessage(
+                    "Email hatırlatma için son tarih ve hatırlatma süresi belirtilmelidir.");
         }
     }
 }

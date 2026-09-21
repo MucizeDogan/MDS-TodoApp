@@ -15,5 +15,8 @@ namespace TodoApp.Application.DTOs.Todo {
         public int Priority { get; set; }
 
         public DateTime? DueDate { get; set; }
+
+        public bool EmailReminderEnabled { get; set; }
+        public int? EmailReminderMinutesBefore { get; set; }
     }
 }

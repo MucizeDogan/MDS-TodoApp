@@ -1,5 +1,6 @@
 ﻿let todos = [];
 let categories = [];
+let currentUserProfile = null;
 
 let currentFilter = "all";
 let currentView = "all";
@@ -45,6 +46,8 @@ async function initializeDashboard() {
     updateMobileThemeText();
 
     initializeDate();
+
+    await loadCurrentUserProfile();
 
     initializeEvents();
 
@@ -186,6 +189,26 @@ function initializeDate() {
     ).textContent = text;
 }
 
+async function loadCurrentUserProfile() {
+    try {
+        const result = await api.get("/User/Profile");
+
+        if (!result || !result.data) {
+            return;
+        }
+
+        currentUserProfile = result.data;
+
+        updateEmailReminderAvailability();
+
+    } catch (error) {
+        console.error(
+            "Kullanıcı profili alınamadı:",
+            error
+        );
+    }
+}
+
 
 /* ========================================================= */
 /* EVENTS */
@@ -193,6 +216,7 @@ function initializeDate() {
 
 function initializeEvents() {
 
+    initializeEmailReminderEvents();
 
     /* Add Todo */
 
@@ -2939,6 +2963,167 @@ function formatDueDate(value) {
 /* CREATE TODO */
 /* ========================================================= */
 
+function isEmailReminderAvailable() {
+    return currentUserProfile?.emailConfirmed === true;
+}
+
+
+function updateEmailReminderAvailability() {
+
+    const checkbox =
+        document.getElementById(
+            "todoEmailReminder"
+        );
+
+    const settings =
+        document.getElementById(
+            "emailReminderSettings"
+        );
+
+    const verificationMessage =
+        document.getElementById(
+            "emailReminderVerificationMessage"
+        );
+
+    const dateMessage =
+        document.getElementById(
+            "emailReminderDateMessage"
+        );
+
+    const dueDate =
+        document.getElementById(
+            "todoDueDate"
+        )?.value;
+
+    const dueTime =
+        document.getElementById(
+            "todoDueTime"
+        )?.value;
+
+
+    if (
+        !checkbox ||
+        !settings ||
+        !verificationMessage ||
+        !dateMessage
+    ) {
+        return;
+    }
+
+
+    const emailVerified =
+        isEmailReminderAvailable();
+
+
+    verificationMessage.style.display =
+        emailVerified
+            ? "none"
+            : "block";
+
+
+    checkbox.disabled =
+        !emailVerified;
+
+
+    if (!emailVerified) {
+
+        checkbox.checked = false;
+
+        settings.style.display = "none";
+
+        dateMessage.style.display = "none";
+
+        return;
+    }
+
+
+    const hasDateAndTime =
+        Boolean(dueDate && dueTime);
+
+
+    if (!hasDateAndTime) {
+
+        dateMessage.style.display =
+            "block";
+
+        if (checkbox.checked) {
+            checkbox.checked = false;
+        }
+
+        settings.style.display =
+            "none";
+
+        return;
+    }
+
+
+    dateMessage.style.display =
+        "none";
+
+
+    settings.style.display =
+        checkbox.checked
+            ? "block"
+            : "none";
+}
+
+
+function initializeEmailReminderEvents() {
+
+    const checkbox =
+        document.getElementById(
+            "todoEmailReminder"
+        );
+
+    const dueDate =
+        document.getElementById(
+            "todoDueDate"
+        );
+
+    const dueTime =
+        document.getElementById(
+            "todoDueTime"
+        );
+
+
+    checkbox?.addEventListener(
+        "change",
+        () => {
+
+            if (
+                checkbox.checked &&
+                !isEmailReminderAvailable()
+            ) {
+
+                checkbox.checked = false;
+
+                showToast(
+                    "Email doğrulama gerekli",
+                    "Email hatırlatmalarını kullanabilmek için email adresinizi doğrulamanız gerekiyor.",
+                    true
+                );
+
+                return;
+            }
+
+
+            updateEmailReminderAvailability();
+        }
+    );
+
+
+    dueDate?.addEventListener(
+        "change",
+        updateEmailReminderAvailability
+    );
+
+
+    dueTime?.addEventListener(
+        "change",
+        updateEmailReminderAvailability
+    );
+}
+
 function openCreateTodoModal() {
 
     document.getElementById(
@@ -2964,6 +3149,25 @@ function openCreateTodoModal() {
         "todoPriority"
     ).value = "2";
 
+    const reminderCheckbox =
+        document.getElementById(
+            "todoEmailReminder"
+        );
+
+    const reminderMinutes =
+        document.getElementById(
+            "todoReminderMinutes"
+        );
+
+    if (reminderCheckbox) {
+        reminderCheckbox.checked = false;
+    }
+
+    if (reminderMinutes) {
+        reminderMinutes.value = "120";
+    }
+
+    updateEmailReminderAvailability();
 
     todoModal.show();
 
@@ -3066,16 +3270,36 @@ function openEditTodoModal(id) {
         todo.priority;
 
 
-    //document.getElementById(
-    //    "todoDueDate"
-    //).value =
-    //    toDateTimeLocal(
-    //        todo.dueDate
-    //    );
-
     setTodoDueDateFields(
         todo.dueDate
     );
+
+    const reminderCheckbox = document.getElementById(
+            "todoEmailReminder"
+        );
+
+    const reminderMinutes = document.getElementById(
+            "todoReminderMinutes"
+        );
+
+
+    if (reminderCheckbox) {
+
+        reminderCheckbox.checked = todo.emailReminderEnabled === true;
+    }
+
+
+    if (reminderMinutes) {
+
+        reminderMinutes.value =
+            String(
+                todo.emailReminderMinutesBefore
+                || 120
+            );
+    }
+
+
+    updateEmailReminderAvailability();
 
 
     todoModal.show();
@@ -3148,6 +3372,28 @@ async function saveTodo() {
             "todoDueTime"
         ).value;
 
+    const reminderCheckbox =
+        document.getElementById(
+            "todoEmailReminder"
+        );
+
+    const reminderMinutes =
+        document.getElementById(
+            "todoReminderMinutes"
+        );
+
+
+    const emailReminderEnabled =
+        reminderCheckbox?.checked === true;
+
+
+    const emailReminderMinutesBefore =
+        emailReminderEnabled
+            ? Number(
+                reminderMinutes?.value || 120
+            )
+            : null;
+
 
     if (!title) {
 
@@ -3205,7 +3451,13 @@ async function saveTodo() {
                 buildDueDateValue(
                     dueDate,
                     dueTime
-                )
+                ),
+
+                emailReminderEnabled:
+                emailReminderEnabled,
+
+            emailReminderMinutesBefore:
+                emailReminderMinutesBefore
 
         };
 

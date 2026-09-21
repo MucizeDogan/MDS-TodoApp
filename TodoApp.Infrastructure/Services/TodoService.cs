@@ -38,8 +38,7 @@ namespace TodoApp.Infrastructure.Services {
             var todo = new TodoItem {
                 Title = request.Title.Trim(),
 
-                Description =
-                    string.IsNullOrWhiteSpace(request.Description)
+                Description = string.IsNullOrWhiteSpace(request.Description)
                         ? null
                         : request.Description.Trim(),
 
@@ -50,6 +49,18 @@ namespace TodoApp.Infrastructure.Services {
                 IsCompleted = false,
 
                 DueDate = request.DueDate,
+
+
+                EmailReminderEnabled = request.EmailReminderEnabled,
+                EmailReminderMinutesBefore = request.EmailReminderEnabled
+                    ? request.EmailReminderMinutesBefore
+                    : null,
+                EmailReminderAt = CalculateEmailReminderAt(
+                    request.DueDate,
+                    request.EmailReminderEnabled,
+                    request.EmailReminderMinutesBefore),
+                EmailReminderSent = false,
+
 
                 CreatedAt = DateTime.UtcNow,
 
@@ -106,6 +117,11 @@ namespace TodoApp.Infrastructure.Services {
 
                     DueDate = x.DueDate,
 
+                    EmailReminderEnabled = x.EmailReminderEnabled,
+                    EmailReminderMinutesBefore = x.EmailReminderMinutesBefore,
+                    EmailReminderAt = x.EmailReminderAt,
+                    EmailReminderSent = x.EmailReminderSent,
+
                     CreatedAt = x.CreatedAt,
 
                     UpdatedAt = x.UpdatedAt,
@@ -152,6 +168,11 @@ namespace TodoApp.Infrastructure.Services {
                     IsCompleted = x.IsCompleted,
 
                     DueDate = x.DueDate,
+
+                    EmailReminderEnabled = x.EmailReminderEnabled,
+                    EmailReminderMinutesBefore = x.EmailReminderMinutesBefore,
+                    EmailReminderAt = x.EmailReminderAt,
+                    EmailReminderSent = x.EmailReminderSent,
 
                     CreatedAt = x.CreatedAt,
 
@@ -202,6 +223,22 @@ namespace TodoApp.Infrastructure.Services {
                 (Domain.Enums.TodoPriority)request.Priority;
 
             todo.DueDate = request.DueDate;
+
+
+            todo.EmailReminderEnabled = request.EmailReminderEnabled;
+
+            todo.EmailReminderMinutesBefore =
+                request.EmailReminderEnabled
+                    ? request.EmailReminderMinutesBefore
+                    : null;
+
+            todo.EmailReminderAt = CalculateEmailReminderAt(
+                request.DueDate,
+                request.EmailReminderEnabled,
+                request.EmailReminderMinutesBefore);
+
+            todo.EmailReminderSent = false;
+
 
             todo.UpdatedAt = DateTime.UtcNow;
 
@@ -263,6 +300,22 @@ namespace TodoApp.Infrastructure.Services {
 
 
             return await GetByIdAsync(userId, id);
+        }
+
+        private static DateTime? CalculateEmailReminderAt(
+        DateTime? dueDate,
+        bool reminderEnabled,
+        int? minutesBefore) {
+            if (!reminderEnabled)
+                return null;
+
+            if (!dueDate.HasValue)
+                return null;
+
+            if (!minutesBefore.HasValue || minutesBefore.Value <= 0)
+                return null;
+
+            return dueDate.Value.AddMinutes(-minutesBefore.Value);
         }
     }
 }
