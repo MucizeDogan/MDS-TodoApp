@@ -134,5 +134,31 @@ namespace TodoApp.API.Controllers {
                     null,
                     "Şifreniz başarıyla sıfırlandı."));
         }
+
+
+        [AllowAnonymous]
+        [HttpPost("GenerateEmailConfirmation")]
+        public async Task<IActionResult> GenerateEmailConfirmation(ForgotPasswordRequest request) {
+            var token =await _userService.GenerateEmailConfirmationTokenAsync(
+                    request.Email);
+
+            return Ok(
+                ApiResponse<string>.Ok(
+                    token,
+                    "Email doğrulama token'ı oluşturuldu."));
+        }
+
+        [AllowAnonymous]
+        [HttpPost("ConfirmEmail")]
+        public async Task<IActionResult> ConfirmEmail(ConfirmEmailRequest request) {
+            await _userService.ConfirmEmailAsync(
+                request.Email,
+                request.Token);
+
+            return Ok(
+                ApiResponse<object>.Ok(
+                    null,
+                    "Email adresiniz başarıyla doğrulandı."));
+        }
     }
 }

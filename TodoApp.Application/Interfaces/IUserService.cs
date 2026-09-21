@@ -20,5 +20,11 @@ namespace TodoApp.Application.Interfaces {
             string email,
             string token,
             string newPassword);
+
+        Task<string> GenerateEmailConfirmationTokenAsync(string email);
+
+        Task ConfirmEmailAsync(
+            string email,
+            string token);
     }
 }

@@ -46,3 +46,4 @@ Kategori yönetim
 Email doğrulama yapmalıyız
 
  Email doğrulama yapan kullanıcılara yeni todo girişinde ekstra bir alan checkbox ekleyip Mail hatırlatma sistemi yapmalıyız.
+ vyox ochr xqep mzom    --> todoApp google uygulama şifresi
