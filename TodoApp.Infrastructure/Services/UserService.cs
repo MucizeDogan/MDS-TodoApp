@@ -117,5 +117,42 @@ namespace TodoApp.Infrastructure.Services {
                 throw new ArgumentException(errors);
             }
         }
+
+        public async Task<string> GeneratePasswordResetTokenAsync(string email) {
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user == null) {
+                throw new ArgumentException(
+                    "Bu email adresi ile kayıtlı bir kullanıcı bulunamadı.");
+            }
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+            return token;
+        }
+
+        public async Task ResetPasswordAsync(
+            string email,
+            string token,
+            string newPassword) {
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user == null) {
+                throw new ArgumentException("Kullanıcı bulunamadı.");
+            }
+
+            var result = await _userManager.ResetPasswordAsync(
+                user,
+                token,
+                newPassword);
+
+            if (!result.Succeeded) {
+                var errors = string.Join(
+                    " | ",
+                    result.Errors.Select(x => x.Description));
+
+                throw new ArgumentException(errors);
+            }
+        }
     }
 }

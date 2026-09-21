@@ -13,5 +13,12 @@ namespace TodoApp.Application.Interfaces {
         Task<UserProfileResponse> UpdateProfileAsync(string userId, UpdateUserProfileRequest request);
 
         Task ChangePasswordAsync(string userId, ChangePasswordRequest request);
+
+        Task<string> GeneratePasswordResetTokenAsync(string email);
+
+        Task ResetPasswordAsync(
+            string email,
+            string token,
+            string newPassword);
     }
 }

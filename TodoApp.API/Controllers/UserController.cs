@@ -108,5 +108,31 @@ namespace TodoApp.API.Controllers {
                     null,
                     "Şifreniz başarıyla değiştirildi."));
         }
+
+        [AllowAnonymous]
+        [HttpPost("ForgotPassword")]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordRequest request) {
+            var token = await _userService.GeneratePasswordResetTokenAsync(
+                    request.Email);
+
+            return Ok(
+                ApiResponse<string>.Ok(
+                    token,
+                    "Şifre sıfırlama token'ı oluşturuldu."));
+        }
+
+        [AllowAnonymous]
+        [HttpPost("ResetPassword")]
+        public async Task<IActionResult> ResetPassword(ResetPasswordRequest request) {
+            await _userService.ResetPasswordAsync(
+                request.Email,
+                request.Token,
+                request.NewPassword);
+
+            return Ok(
+                ApiResponse<object>.Ok(
+                    null,
+                    "Şifreniz başarıyla sıfırlandı."));
+        }
     }
 }

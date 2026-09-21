@@ -12,6 +12,16 @@
         registerForm.addEventListener("submit", register);
     }
 
+    const forgotPasswordForm =
+        document.getElementById("forgotPasswordForm");
+
+    if (forgotPasswordForm) {
+        forgotPasswordForm.addEventListener(
+            "submit",
+            forgotPassword
+        );
+    }
+
 });
 
 
@@ -211,4 +221,72 @@ function showError(message) {
     errorMessage.textContent = message;
 
     errorMessage.classList.remove("d-none");
+}
+
+async function forgotPassword(event) {
+
+    event.preventDefault();
+
+    const email =
+        document
+            .getElementById("email")
+            .value
+            .trim();
+
+    console.log("Forgot Password çalıştı:", email);
+
+    const message =
+        document.getElementById("message");
+
+    const button =
+        document.getElementById(
+            "forgotPasswordButton"
+        );
+
+    message.className =
+        "alert d-none";
+
+    button.disabled = true;
+    button.textContent =
+        "Gönderiliyor...";
+
+    try {
+
+        const result =
+            await api.post(
+                "/User/ForgotPassword",
+                {
+                    email: email
+                }
+            );
+
+        if (!result) {
+            return;
+        }
+
+        message.textContent =
+            "Şifre sıfırlama bağlantısı oluşturuldu.";
+
+        message.className =
+            "alert alert-success";
+
+    }
+    catch (error) {
+
+        console.error(error);
+
+        message.textContent =
+            error.message;
+
+        message.className =
+            "alert alert-danger";
+
+    }
+    finally {
+
+        button.disabled = false;
+
+        button.textContent =
+            "Şifre Sıfırlama Linki Gönder";
+    }
 }

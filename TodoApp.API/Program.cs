@@ -66,7 +66,8 @@ builder.Services.AddSingleton(TimeProvider.System);
 builder.Services
     .AddIdentityCore<ApplicationUser>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddSignInManager();
+    .AddSignInManager()
+    .AddDefaultTokenProviders();
 
 // JWT Authentication
 builder.Services
