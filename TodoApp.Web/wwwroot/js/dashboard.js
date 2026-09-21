@@ -8,7 +8,14 @@ let currentCategory = "all";
 
 let todoModal;
 let categoryModal;
+let categoryManagementModal;
+
 let selectedTodoId = null;
+let editingCategoryId = null;
+
+// Kategori yönetim modalından kategori edit/create modalına
+// geçiş yapıldığını takip eder.
+let returnToCategoryManagement = false;
 
 let activeSwipeItem = null;
 
@@ -92,6 +99,40 @@ function initializeBootstrapModals() {
     categoryModal =
         new bootstrap.Modal(
             document.getElementById("categoryModal")
+        );
+
+    categoryManagementModal =
+        new bootstrap.Modal(
+            document.getElementById(
+                "categoryManagementModal"
+            )
+        );
+
+
+    /*
+     * Kategori Yönetimi modalından
+     * Yeni Kategori / Düzenle modalına geçildiğinde
+     * iki modalı aynı anda açık bırakmıyoruz.
+     *
+     * Kategori modalı kapandıktan sonra
+     * yönetim modalı tekrar açılır.
+     */
+    document
+        .getElementById("categoryModal")
+        ?.addEventListener(
+            "hidden.bs.modal",
+            () => {
+
+                if (!returnToCategoryManagement) {
+                    return;
+                }
+
+                returnToCategoryManagement = false;
+
+                renderCategoryManagement();
+
+                categoryManagementModal?.show();
+            }
         );
 }
 
@@ -261,6 +302,35 @@ function initializeEvents() {
         .addEventListener(
             "click",
             openCreateCategoryModal
+    );
+
+    /* Category Management */
+
+    document
+        .getElementById("categoriesNav")
+        ?.addEventListener(
+            "click",
+            event => {
+
+                event.preventDefault();
+
+                /*
+                 * Mobilde sidebar açıksa kapat.
+                 */
+                document
+                    .getElementById("sidebar")
+                    ?.classList.remove("open");
+
+                openCategoryManagementModal();
+            }
+        );
+
+
+    document
+        .getElementById("categoryManagementAddButton")
+        ?.addEventListener(
+            "click",
+            () => openCreateCategoryModal(true)
         );
 
 
@@ -339,6 +409,14 @@ function initializeEvents() {
     document
         .querySelectorAll(".nav-item")
         .forEach(item => {
+
+            /*
+         * Categories normal bir navigation item değildir.
+         * Kendi modal akışı vardır.
+         */
+            if (item.id === "categoriesNav") {
+                return;
+            }
 
             item.addEventListener(
                 "click",
@@ -3657,10 +3735,237 @@ function deleteTodoFromDetail(todoId) {
 
 
 /* ========================================================= */
+/* CATEGORY MANAGEMENT */
+/* ========================================================= */
+
+function openCategoryManagementModal() {
+
+    renderCategoryManagement();
+
+    categoryManagementModal.show();
+}
+
+
+function renderCategoryManagement() {
+
+    const container =
+        document.getElementById(
+            "categoryManagementList"
+        );
+
+    const countElement =
+        document.getElementById(
+            "categoryManagementCount"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    const categoryCount =
+        categories.length;
+
+
+    if (countElement) {
+
+        countElement.textContent =
+            `${categoryCount} kategori`;
+    }
+
+
+    if (!categories.length) {
+
+        container.innerHTML = `
+            <div class="category-management-empty">
+
+                <div class="category-management-empty-icon">
+                    <i class="bi bi-folder2-open"></i>
+                </div>
+
+                <strong>
+                    Henüz kategori yok
+                </strong>
+
+                <span>
+                    Görevlerini düzenlemek için
+                    ilk kategorini oluştur.
+                </span>
+
+                <button type="button"
+                        class="secondary-button"
+                        onclick="openCreateCategoryModal(true)">
+
+                    <i class="bi bi-plus-lg"></i>
+
+                    İlk Kategorini Oluştur
+
+                </button>
+
+            </div>
+        `;
+
+        return;
+    }
+
+
+    container.innerHTML =
+        categories
+            .map(category => {
+
+                const color =
+                    category.color
+                    || "#6c63ff";
+
+                const todoCount =
+                    category.todoCount || 0;
+
+
+                return `
+                    <div class="category-management-item">
+
+                        <div class="category-management-info">
+
+                            <span
+                                class="category-management-dot"
+                                style="
+                                    --category-color:${escapeHtml(color)}
+                                ">
+                            </span>
+
+                            <div class="category-management-text">
+
+                                <strong>
+                                    ${escapeHtml(category.name)}
+                                </strong>
+
+                                <span>
+                                    ${todoCount}
+                                    ${todoCount === 1
+                        ? "görev"
+                        : "görev"}
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="category-management-actions">
+
+                            <button
+                                type="button"
+                                class="category-management-action edit"
+                                title="Kategoriyi düzenle"
+                                data-category-action="edit"
+                                data-category-id="${category.id}">
+
+                                <i class="bi bi-pencil"></i>
+
+                            </button>
+
+
+                            <button
+                                type="button"
+                                class="category-management-action delete"
+                                title="Kategoriyi sil"
+                                data-category-action="delete"
+                                data-category-id="${category.id}">
+
+                                <i class="bi bi-trash3"></i>
+
+                            </button>
+
+                        </div>
+
+                    </div>
+                `;
+
+            })
+            .join("");
+
+
+    container
+        .querySelectorAll(
+            "[data-category-action]"
+        )
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    const action =
+                        button.dataset.categoryAction;
+
+                    const categoryId =
+                        Number(
+                            button.dataset.categoryId
+                        );
+
+
+                    if (action === "edit") {
+
+                        openEditCategoryModal(
+                            categoryId
+                        );
+
+                    }
+
+                    else if (
+                        action === "delete"
+                    ) {
+
+                        deleteCategory(
+                            categoryId
+                        );
+                    }
+
+                }
+            );
+
+        });
+}
+
+/* ========================================================= */
 /* CATEGORY CREATE */
 /* ========================================================= */
 
-function openCreateCategoryModal() {
+function openCreateCategoryModal(
+    fromManagement = false
+) {
+
+    editingCategoryId = null;
+
+    returnToCategoryManagement =
+        fromManagement;
+
+
+    const title =
+        document.getElementById(
+            "categoryModalTitle"
+        );
+
+    const buttonText =
+        document.getElementById(
+            "saveCategoryButtonText"
+        ); openEditCategoryModal
+
+
+    if (title) {
+
+        title.textContent =
+            "Yeni Kategori";
+    }
+
+
+    if (buttonText) {
+
+        buttonText.textContent =
+            "Oluştur";
+    }
+
 
     document.getElementById(
         "categoryName"
@@ -3669,7 +3974,7 @@ function openCreateCategoryModal() {
 
     document
         .querySelectorAll(
-            ".color-option"
+            "#categoryModal .color-option"
         )
         .forEach(x =>
             x.classList.remove(
@@ -3680,11 +3985,156 @@ function openCreateCategoryModal() {
 
     document
         .querySelector(
-            ".color-option"
+            "#categoryModal .color-option"
         )
         ?.classList.add(
             "selected"
         );
+
+
+    /*
+     * Eğer Kategori Yönetimi içinden geldiysek
+     * önce yönetim modalını kapat.
+     */
+    if (fromManagement) {
+
+        const managementElement =
+            document.getElementById(
+                "categoryManagementModal"
+            );
+
+        if (
+            managementElement?.classList.contains(
+                "show"
+            )
+        ) {
+
+            categoryManagementModal.hide();
+
+            managementElement.addEventListener(
+                "hidden.bs.modal",
+                () => {
+
+                    categoryModal.show();
+
+                },
+                { once: true }
+            );
+
+            return;
+        }
+    }
+
+
+    categoryModal.show();
+}
+
+function openEditCategoryModal(categoryId) {
+
+    const category =
+        categories.find(
+            x => x.id === categoryId
+        );
+
+
+    if (!category) {
+
+        showToast(
+            "Hata",
+            "Kategori bulunamadı.",
+            true
+        );
+
+        return;
+    }
+
+
+    editingCategoryId =
+        category.id;
+
+    returnToCategoryManagement =
+        true;
+
+
+    const title =
+        document.getElementById(
+            "categoryModalTitle"
+        );
+
+    const buttonText =
+        document.getElementById(
+            "saveCategoryButtonText"
+        );
+
+
+    if (title) {
+
+        title.textContent =
+            "Kategoriyi Düzenle";
+    }
+
+
+    if (buttonText) {
+
+        buttonText.textContent =
+            "Kaydet";
+    }
+
+
+    document.getElementById(
+        "categoryName"
+    ).value =
+        category.name || "";
+
+
+    document
+        .querySelectorAll(
+            "#categoryModal .color-option"
+        )
+        .forEach(option => {
+
+            option.classList.toggle(
+                "selected",
+                option.dataset.color ===
+                (
+                    category.color
+                    || "#6c63ff"
+                )
+            );
+
+        });
+
+
+    /*
+     * Önce Kategori Yönetimi modalını kapat,
+     * ardından Edit modalını aç.
+     */
+    const managementElement =
+        document.getElementById(
+            "categoryManagementModal"
+        );
+
+
+    if (
+        managementElement?.classList.contains(
+            "show"
+        )
+    ) {
+
+        categoryManagementModal.hide();
+
+        managementElement.addEventListener(
+            "hidden.bs.modal",
+            () => {
+
+                categoryModal.show();
+
+            },
+            { once: true }
+        );
+
+        return;
+    }
 
 
     categoryModal.show();
@@ -3715,7 +4165,7 @@ async function saveCategory() {
 
     const selectedColor =
         document.querySelector(
-            ".color-option.selected"
+            "#categoryModal .color-option.selected"
         );
 
 
@@ -3729,29 +4179,82 @@ async function saveCategory() {
             "saveCategoryButton"
         );
 
+    const buttonText =
+        document.getElementById(
+            "saveCategoryButtonText"
+        );
 
-    button.disabled = true;
 
-    button.textContent =
-        "Oluşturuluyor...";
+    if (button) {
+
+        button.disabled = true;
+    }
+
+
+    if (buttonText) {
+
+        buttonText.textContent =
+            editingCategoryId
+                ? "Kaydediliyor..."
+                : "Oluşturuluyor...";
+    }
 
 
     try {
 
-        const result =
-            await api.post(
-                "/Category",
-                {
-                    name: name,
-                    color: color,
-                    icon: null
-                }
-            );
+        let result;
+
+
+        /* =============================== */
+        /* UPDATE */
+        /* =============================== */
+
+        if (editingCategoryId) {
+
+            result =
+                await api.put(
+                    `/Category/${editingCategoryId}`,
+                    {
+                        name: name,
+                        color: color,
+                        icon: null
+                    }
+                );
+
+        }
+
+
+        /* =============================== */
+        /* CREATE */
+        /* =============================== */
+
+        else {
+
+            result =
+                await api.post(
+                    "/Category",
+                    {
+                        name: name,
+                        color: color,
+                        icon: null
+                    }
+                );
+
+        }
 
 
         if (!result) {
             return;
         }
+
+
+        const wasEditing =
+            Boolean(
+                editingCategoryId
+            );
+
+
+        editingCategoryId = null;
 
 
         categoryModal.hide();
@@ -3760,9 +4263,20 @@ async function saveCategory() {
         await loadDashboardData();
 
 
+        if (categoryManagementModal) {
+
+            renderCategoryManagement();
+        }
+
+
         showToast(
-            "Kategori oluşturuldu",
-            `"${name}" kategorisi oluşturuldu.`
+            wasEditing
+                ? "Kategori güncellendi"
+                : "Kategori oluşturuldu",
+
+            wasEditing
+                ? `"${name}" kategorisi güncellendi.`
+                : `"${name}" kategorisi oluşturuldu.`
         );
 
     }
@@ -3779,10 +4293,97 @@ async function saveCategory() {
     }
     finally {
 
-        button.disabled = false;
+        if (button) {
 
-        button.textContent =
-            "Oluştur";
+            button.disabled = false;
+        }
+
+
+        if (buttonText) {
+
+            buttonText.textContent =
+                wasEditing
+                    ? "Kaydet"
+                    : "Oluştur";
+        }
+
+    }
+}
+
+async function deleteCategory(categoryId) {
+
+    const category =
+        categories.find(
+            x => x.id === categoryId
+        );
+
+
+    if (!category) {
+
+        showToast(
+            "Hata",
+            "Kategori bulunamadı.",
+            true
+        );
+
+        return;
+    }
+
+
+    const todoCount =
+        category.todoCount || 0;
+
+
+    const message =
+        todoCount > 0
+            ? `"${category.name}" kategorisinin ${todoCount} görevi bulunuyor. Yine de silmek istiyor musun?`
+            : `"${category.name}" kategorisini silmek istediğine emin misin?`;
+
+
+    const confirmed =
+        confirm(message);
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    try {
+
+        const result =
+            await api.delete(
+                `/Category/${categoryId}`
+            );
+
+
+        if (!result) {
+            return;
+        }
+
+
+        await loadDashboardData();
+
+
+        renderCategoryManagement();
+
+
+        showToast(
+            "Kategori silindi",
+            `"${category.name}" kategorisi silindi.`
+        );
+
+    }
+    catch (error) {
+
+        console.error(error);
+
+        showToast(
+            "Kategori silinemedi",
+            error.message,
+            true
+        );
+
     }
 }
 
@@ -4106,14 +4707,24 @@ document
         "click",
         () => {
 
+            /*
+             * Önce More sheet'i kapat.
+             */
             closeMobileMoreSheetGlobal();
 
-            showToast(
-                "Kategoriler",
-                "Kategori yönetimi ekranını bir sonraki adımda ekleyeceğiz."
-            );
+
+            /*
+             * Sheet kapanma animasyonunun
+             * modal ile çakışmasını önlemek için
+             * bir frame bekliyoruz.
+             */
+            requestAnimationFrame(() => {
+
+                openCategoryManagementModal();
+
+            });
         }
-);
+    );
 
 document
     .getElementById(

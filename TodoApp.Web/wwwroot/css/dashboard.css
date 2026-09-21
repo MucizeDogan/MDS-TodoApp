@@ -3979,6 +3979,15 @@ body.notification-detail-open .todo-detail-drawer {
 
 @media (max-width: 700px) {
 
+    /*
+     * Bootstrap'ın ortak backdrop z-index'i 1990 olduğu için
+     * kategori modal'ları da backdrop'un üzerinde tutulmalı.
+     */
+    #categoryModal,
+    #categoryManagementModal {
+        z-index: 2000 !important;
+    }
+
     /* ----------------------------------------------------- */
     /* Todo modal bottom-sheet                                */
     /* ----------------------------------------------------- */
@@ -4243,5 +4252,309 @@ body.notification-detail-open .todo-detail-drawer {
     .email-reminder-option {
         min-height: 42px !important;
         padding: 9px 11px !important;
+    }
+}
+
+/* ========================================================= */
+/* CATEGORY MANAGEMENT */
+/* ========================================================= */
+
+.category-management-modal {
+    max-height: min(760px, calc(100vh - 40px));
+}
+
+
+.category-management-subtitle {
+    margin: 5px 0 0;
+    color: var(--text-secondary);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+
+.category-management-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+
+    .category-management-toolbar > div {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+    }
+
+
+    .category-management-toolbar strong {
+        color: var(--text);
+        font-size: 14px;
+    }
+
+
+    .category-management-toolbar span {
+        color: var(--text-muted);
+        font-size: 11px;
+    }
+
+
+.category-management-add-button {
+    min-height: 38px;
+    padding: 8px 14px;
+    white-space: nowrap;
+}
+
+
+.category-management-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 470px;
+    overflow-y: auto;
+    padding-right: 2px;
+}
+
+
+.category-management-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 68px;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface-soft);
+    transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
+}
+
+
+    .category-management-item:hover {
+        border-color: rgba(108, 99, 255, 0.25);
+        transform: translateY(-1px);
+    }
+
+
+.category-management-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+
+.category-management-dot {
+    width: 12px;
+    height: 12px;
+    min-width: 12px;
+    border-radius: 50%;
+    background: var(--category-color, var(--primary));
+    box-shadow: 0 0 0 4px color-mix( in srgb, var(--category-color, var(--primary)) 12%, transparent );
+}
+
+
+.category-management-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+
+    .category-management-text strong {
+        color: var(--text);
+        font-size: 13px;
+        font-weight: 700;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+
+    .category-management-text span {
+        color: var(--text-muted);
+        font-size: 10.5px;
+    }
+
+
+.category-management-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+
+.category-management-action {
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background: var(--surface);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: 0.18s ease;
+}
+
+
+    .category-management-action:hover {
+        transform: translateY(-1px);
+    }
+
+
+    .category-management-action.edit:hover {
+        color: var(--primary);
+        border-color: rgba(108, 99, 255, 0.30);
+        background: rgba(108, 99, 255, 0.06);
+    }
+
+
+    .category-management-action.delete:hover {
+        color: var(--danger);
+        border-color: rgba(220, 53, 69, 0.25);
+        background: rgba(220, 53, 69, 0.06);
+    }
+
+
+    .category-management-action i {
+        font-size: 13px;
+    }
+
+
+.category-management-loading,
+.category-management-empty {
+    min-height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 9px;
+    color: var(--text-muted);
+    text-align: center;
+}
+
+
+.category-management-loading {
+    flex-direction: row;
+}
+
+
+.category-management-empty-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    background: var(--surface-soft);
+    color: var(--primary);
+    font-size: 20px;
+    margin-bottom: 3px;
+}
+
+
+.category-management-empty strong {
+    color: var(--text);
+    font-size: 13px;
+}
+
+
+.category-management-empty span {
+    max-width: 280px;
+    color: var(--text-muted);
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+
+.category-management-empty .secondary-button {
+    margin-top: 6px;
+}
+
+
+/* ========================================================= */
+/* CATEGORY MANAGEMENT - MOBILE */
+/* ========================================================= */
+
+@media (max-width: 700px) {
+
+    #categoryManagementModal .modal-dialog {
+        width: calc(100% - 20px);
+        max-width: none;
+        margin: 10px auto;
+    }
+
+    #categoryManagementModal .modal-content {
+        max-height: calc(100dvh - 20px);
+        overflow: hidden;
+    }
+
+    #categoryModal .modal-dialog {
+        width: calc(100% - 24px);
+        max-width: 420px;
+        margin: 12px auto;
+    }
+
+    .category-management-modal {
+        max-height: calc(100dvh - 20px);
+    }
+
+
+    .category-management-list {
+        max-height: calc(100dvh - 250px);
+    }
+
+
+    .category-management-toolbar {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+
+    .category-management-add-button {
+        width: 100%;
+        justify-content: center;
+    }
+
+
+    .category-management-item {
+        min-height: 64px;
+        padding: 11px 12px;
+    }
+
+
+    .category-management-action {
+        width: 38px;
+        height: 38px;
+    }
+}
+
+
+@media (max-width: 430px) {
+
+    .category-management-modal {
+        margin: 5px;
+    }
+
+
+        .category-management-modal .modal-body {
+            padding: 14px;
+        }
+
+
+    .category-management-item {
+        gap: 10px;
+    }
+
+
+    .category-management-text strong {
+        max-width: 150px;
     }
 }

@@ -1354,7 +1354,7 @@
                                 </div>
 
                             </div>
-                            
+
                             <div class="form-group-modern email-reminder-group">
 
                                 <label>
@@ -1492,7 +1492,8 @@
                             WORKSPACE
                         </span>
 
-                        <h5 class="modal-title">
+                        <h5 class="modal-title"
+                            id="categoryModalTitle">
                             Yeni Kategori
                         </h5>
 
@@ -1592,7 +1593,123 @@
                             class="primary-button"
                             id="saveCategoryButton">
 
-                        Oluştur
+                        <span id="saveCategoryButtonText">
+                            Oluştur
+                        </span>
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ============================================================= -->
+    <!-- CATEGORY MANAGEMENT MODAL -->
+    <!-- ============================================================= -->
+
+    <div class="modal fade"
+         id="categoryManagementModal"
+         tabindex="-1">
+
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+
+            <div class="modal-content modern-modal category-management-modal">
+
+                <!-- HEADER -->
+
+                <div class="modal-header">
+
+                    <div>
+
+                        <span class="modal-label">
+                            WORKSPACE
+                        </span>
+
+                        <h5 class="modal-title">
+                            Kategori Yönetimi
+                        </h5>
+
+                        <p class="category-management-subtitle">
+                            Kategorilerini oluştur, düzenle veya sil.
+                        </p>
+
+                    </div>
+
+                    <button type="button"
+                            class="modal-close"
+                            data-bs-dismiss="modal">
+
+                        <i class="bi bi-x-lg"></i>
+
+                    </button>
+
+                </div>
+
+
+                <!-- BODY -->
+
+                <div class="modal-body">
+
+                    <div class="category-management-toolbar">
+
+                        <div>
+
+                            <strong>
+                                Kategorilerin
+                            </strong>
+
+                            <span id="categoryManagementCount">
+                                0 kategori
+                            </span>
+
+                        </div>
+
+                        <button type="button"
+                                class="primary-button category-management-add-button"
+                                id="categoryManagementAddButton">
+
+                            <i class="bi bi-plus-lg"></i>
+
+                            Yeni Kategori
+
+                        </button>
+
+                    </div>
+
+
+                    <div id="categoryManagementList"
+                         class="category-management-list">
+
+                        <div class="category-management-loading">
+
+                            <div class="spinner-border spinner-border-sm"
+                                 role="status">
+                            </div>
+
+                            <span>
+                                Kategoriler yükleniyor...
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- FOOTER -->
+
+                <div class="modal-footer">
+
+                    <button type="button"
+                            class="secondary-button"
+                            data-bs-dismiss="modal">
+
+                        Kapat
 
                     </button>
 
