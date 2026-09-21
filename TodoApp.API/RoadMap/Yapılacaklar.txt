@@ -32,3 +32,15 @@ September 2026
 Mon Tue Wed Thu Fri
       16  17  18
 şeklinde takvimde gösterebiliriz.
+
+
+
+
+
+
+
+Şifremi Unuttum yapmalıyız. 
+
+Email doğrulama yapmalıyız
+
+ Email doğrulama yapan kullanıcılara yeni todo girişinde ekstra bir alan checkbox ekleyip Mail hatırlatma sistemi yapmalıyız.

@@ -3825,6 +3825,10 @@ function openTodoDetail(todoId) {
         return;
     }
 
+    const notificationPanel = document.getElementById("notificationPanel");
+
+    const notificationPanelWasOpen = notificationPanel?.classList.contains("active");
+
     selectedTodoId = todo.id;
 
     renderTodoDetail(todo);
@@ -3838,6 +3842,11 @@ function openTodoDetail(todoId) {
         ?.classList.add("active");
 
     document.body.classList.add("todo-detail-open");
+
+    document.body.classList.toggle(
+        "notification-detail-open",
+        notificationPanelWasOpen
+    );
 }
 
 //DEtail kapatma
@@ -3851,7 +3860,13 @@ function closeTodoDetail() {
         .getElementById("todoDetailDrawer")
         ?.classList.remove("active");
 
-    document.body.classList.remove("todo-detail-open");
+    document.body.classList.remove(
+        "todo-detail-open"
+    );
+
+    document.body.classList.remove(
+        "notification-detail-open"
+    );
 
     selectedTodoId = null;
 }
@@ -5016,7 +5031,7 @@ function attachNotificationEvents() {
                     notificationId
                 );
 
-                closeNotificationPanel();
+                //closeNotificationPanel();
 
                 if (!todoId) {
                     return;
@@ -5344,6 +5359,15 @@ async function handleNotificationClick(
             renderNotificationBadge();
 
             renderNotifications();
+
+            if (
+                notification.relatedEntityType === "TodoItem" &&
+                notification.relatedEntityId
+            ) {
+                openTodoDetail(
+                    notification.relatedEntityId
+                );
+            }
 
         }
         catch (error) {
