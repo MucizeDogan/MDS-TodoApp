@@ -736,51 +736,6 @@ function initializeEvents() {
         );
     }
 
-
-    /* ========================================================= */
-    /* MOBILE MORE SHEET */
-    /* ========================================================= */
-
-    function closeMobileMoreSheet() {
-
-        const overlay =
-            document.getElementById(
-                "mobileMoreOverlay"
-            );
-
-        const sheet =
-            document.getElementById(
-                "mobileMoreSheet"
-            );
-
-
-        if (overlay) {
-
-            overlay.classList.remove(
-                "active"
-            );
-        }
-
-
-        if (sheet) {
-
-            sheet.classList.remove(
-                "active"
-            );
-
-            sheet.setAttribute(
-                "aria-hidden",
-                "true"
-            );
-        }
-
-
-        document.body.classList.remove(
-            "mobile-more-open"
-        );
-    }
-
-
     mobileMoreButton?.addEventListener(
         "click",
         event => {
@@ -794,13 +749,15 @@ function initializeEvents() {
 
     mobileMoreClose?.addEventListener(
         "click",
-        closeMobileMoreSheet
+        //closeMobileMoreSheet
+        closeMobileMoreSheetGlobal
     );
 
 
     mobileMoreOverlay?.addEventListener(
         "click",
-        closeMobileMoreSheet
+        //closeMobileMoreSheet
+        closeMobileMoreSheetGlobal
     );
 
 
@@ -3884,7 +3841,7 @@ document.addEventListener("keydown", event => {
     if (event.key === "Escape") {
         closeTodoDetail();
 
-        closeMobileMoreSheet();
+        closeMobileMoreSheetGlobal();
     }
 
 });
@@ -3897,7 +3854,7 @@ document
         "click",
         () => {
 
-            closeMobileMoreSheet();
+            closeMobileMoreSheetGlobal();
 
             showToast(
                 "Kategoriler",
@@ -5243,90 +5200,6 @@ function getNotificationTaskIcon(cssClass) {
     }
 }
 
-function getNotificationTaskTitle(notification) {
-    return notification.todoTitle ||
-        notification.title ||
-        "Görev";
-}
-
-
-/* ========================================================= */
-/* HTML */
-/* ========================================================= */
-
-function createNotificationHtml(
-    notification
-) {
-
-    const unreadClass =
-        notification.isRead
-            ? ""
-            : "unread";
-
-
-    const icon =
-        getNotificationIcon(
-            notification.type
-        );
-
-
-    const createdAt =
-        formatNotificationDate(
-            notification.createdAt
-        );
-
-
-    return `
-        <div
-            class="notification-item ${unreadClass}"
-            data-notification-id="${notification.id}">
-
-            <div class="notification-item-icon">
-                <i class="bi ${icon}"></i>
-            </div>
-
-
-            <div class="notification-item-content">
-
-                <div class="notification-item-title">
-                    ${escapeNotificationHtml(
-        notification.title
-    )}
-                </div>
-
-
-                <div class="notification-item-message">
-                    ${escapeNotificationHtml(
-        notification.message
-    )}
-                </div>
-
-
-                <div class="notification-item-date">
-                    ${createdAt}
-                </div>
-
-            </div>
-
-
-            ${!notification.isRead
-            ? `
-                        <span
-                            class="notification-unread-dot">
-                        </span>
-                    `
-            : ""
-        }
-
-        </div>
-    `;
-}
-
-
-/* ========================================================= */
-/* CLICK */
-/* ========================================================= */
-
 async function handleNotificationClick(
     notificationId
 ) {
@@ -5617,92 +5490,6 @@ function getNotificationPriorityClass(priority) {
             return "";
     }
 }
-
-
-/* ========================================================= */
-/* ICON */
-/* ========================================================= */
-
-function getNotificationIcon(
-    type
-) {
-
-    switch (
-    String(type || "")
-        .toLowerCase()
-    ) {
-
-        case "taskreminder":
-            return "bi-calendar-event";
-
-
-        case "taskcompleted":
-            return "bi-check-circle";
-
-
-        case "test":
-            return "bi-info-circle";
-
-
-        default:
-            return "bi-bell";
-    }
-}
-
-
-/* ========================================================= */
-/* DATE */
-/* ========================================================= */
-
-function formatNotificationDate(value) {
-
-    if (!value) {
-        return "";
-    }
-
-    let normalizedValue = String(value);
-
-    /*
-     * CreatedAt backend tarafından UTC olarak tutuluyor.
-     *
-     * API:
-     * 2026-09-20T16:29:00
-     *
-     * Aslında:
-     * 2026-09-20 16:29 UTC
-     *
-     * Bu yüzden Z ekliyoruz.
-     */
-    if (
-        !normalizedValue.endsWith("Z") &&
-        !normalizedValue.includes("+")
-    ) {
-        normalizedValue += "Z";
-    }
-
-    const date =
-        new Date(normalizedValue);
-
-    if (
-        Number.isNaN(
-            date.getTime()
-        )
-    ) {
-        return "";
-    }
-
-    return date.toLocaleString(
-        "tr-TR",
-        {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit"
-        }
-    );
-}
-
 
 /* ========================================================= */
 /* HTML ESCAPE */

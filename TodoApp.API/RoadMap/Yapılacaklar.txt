@@ -41,6 +41,8 @@ Mon Tue Wed Thu Fri
 
 Şifremi Unuttum yapmalıyız. 
 
+Kategori yönetim
+
 Email doğrulama yapmalıyız
 
  Email doğrulama yapan kullanıcılara yeni todo girişinde ekstra bir alan checkbox ekleyip Mail hatırlatma sistemi yapmalıyız.
