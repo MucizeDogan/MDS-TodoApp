@@ -971,6 +971,19 @@ function initializeProfileEvents() {
         "submit",
         saveProfile
     );
+
+    const resendButton =
+        document.getElementById(
+            "resendEmailConfirmationButton"
+        );
+
+    if (resendButton) {
+
+        resendButton.addEventListener(
+            "click",
+            resendEmailConfirmation
+        );
+    }
 }
 
 
@@ -1135,6 +1148,10 @@ function renderProfile(profile) {
         profile.emailConfirmed
     );
 
+    renderSecurityEmailStatus(
+        profile.emailConfirmed
+    );
+
 
     /* ------------------------------------------------------- */
     /* Created date */
@@ -1265,6 +1282,241 @@ function renderEmailStatus(
 
         text.textContent =
             "Email adresiniz henüz doğrulanmamış.";
+    }
+}
+
+/* ========================================================= */
+/* SECURITY EMAIL STATUS */
+/* ========================================================= */
+
+function renderSecurityEmailStatus(
+    emailConfirmed
+) {
+
+    const row =
+        document.getElementById(
+            "securityEmailVerification"
+        );
+
+    const iconWrapper =
+        document.getElementById(
+            "securityEmailIcon"
+        );
+
+    const icon =
+        iconWrapper?.querySelector("i");
+
+    const title =
+        document.getElementById(
+            "securityEmailTitle"
+        );
+
+    const text =
+        document.getElementById(
+            "securityEmailText"
+        );
+
+    const button =
+        document.getElementById(
+            "resendEmailConfirmationButton"
+        );
+
+
+    if (
+        !row ||
+        !iconWrapper ||
+        !icon ||
+        !title ||
+        !text
+    ) {
+        return;
+    }
+
+
+    /* ----------------------------------------------------- */
+    /* VERIFIED */
+    /* ----------------------------------------------------- */
+
+    if (emailConfirmed) {
+
+        row.classList.add(
+            "email-confirmed"
+        );
+
+        row.classList.remove(
+            "email-not-confirmed"
+        );
+
+
+        icon.className =
+            "bi bi-patch-check-fill";
+
+
+        iconWrapper.classList.add(
+            "success"
+        );
+
+        iconWrapper.classList.remove(
+            "warning"
+        );
+
+
+        title.textContent =
+            "Email doğrulandı";
+
+
+        text.textContent =
+            "Email adresiniz doğrulanmış durumda.";
+
+
+        if (button) {
+
+            button.hidden = true;
+        }
+
+    }
+
+
+    /* ----------------------------------------------------- */
+    /* NOT VERIFIED */
+    /* ----------------------------------------------------- */
+
+    else {
+
+        row.classList.add(
+            "email-not-confirmed"
+        );
+
+        row.classList.remove(
+            "email-confirmed"
+        );
+
+
+        icon.className =
+            "bi bi-envelope-exclamation";
+
+
+        iconWrapper.classList.add(
+            "warning"
+        );
+
+        iconWrapper.classList.remove(
+            "success"
+        );
+
+
+        title.textContent =
+            "Email doğrulanmadı";
+
+
+        text.textContent =
+            "Email adresinizi doğrulamanız gerekiyor.";
+
+
+        if (button) {
+
+            button.hidden = false;
+        }
+    }
+}
+
+
+/* ========================================================= */
+/* RESEND EMAIL CONFIRMATION */
+/* ========================================================= */
+
+async function resendEmailConfirmation() {
+
+    const button =
+        document.getElementById(
+            "resendEmailConfirmationButton"
+        );
+
+    const emailInput =
+        document.getElementById(
+            "profileEmail"
+        );
+
+    const email =
+        emailInput?.value?.trim();
+
+
+    if (!button || !email) {
+
+        showProfileToast(
+            "Hata",
+            "Email adresi bulunamadı.",
+            false
+        );
+
+        return;
+    }
+
+
+    const originalHtml =
+        button.innerHTML;
+
+
+    button.disabled = true;
+
+    button.innerHTML =
+        '<i class="bi bi-arrow-repeat"></i>' +
+        '<span>Gönderiliyor...</span>';
+
+    button.classList.add(
+        "loading"
+    );
+
+
+    try {
+
+        const result =
+            await api.post(
+                "/User/ResendEmailConfirmation",
+                {
+                    email: email
+                }
+            );
+
+
+        if (!result) {
+            return;
+        }
+
+
+        showProfileToast(
+            "Doğrulama maili gönderildi",
+            "Email adresinize doğrulama bağlantısı gönderildi. Gelen kutunuzu ve spam klasörünü kontrol edin.",
+            true
+        );
+
+    }
+    catch (error) {
+
+        console.error(
+            "Email doğrulama maili gönderilemedi:",
+            error
+        );
+
+
+        showProfileToast(
+            "Mail gönderilemedi",
+            error.message ||
+            "Doğrulama maili gönderilirken bir hata oluştu.",
+            false
+        );
+
+    }
+    finally {
+
+        button.disabled = false;
+
+        button.classList.remove(
+            "loading"
+        );
+
+        button.innerHTML =
+            originalHtml;
     }
 }
 

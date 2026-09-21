@@ -1151,3 +1151,136 @@ body.password-modal-open {
         font-size: 16px;
     }
 }
+
+/* ========================================================= */
+/* SECURITY - EMAIL VERIFICATION */
+/* ========================================================= */
+
+.account-email-verification-row {
+    cursor: default;
+}
+
+    .account-email-verification-row
+    .account-action-icon {
+        transition: background 0.18s ease, color 0.18s ease;
+    }
+
+
+    /* VERIFIED */
+
+    .account-email-verification-row
+    .email-confirmed
+    .account-action-icon.success {
+        background: rgba(22, 163, 74, 0.10);
+        color: var(--success);
+    }
+
+
+    /* NOT VERIFIED */
+
+    .account-email-verification-row
+    .email-not-confirmed
+    .account-action-icon.warning {
+        background: rgba(245, 158, 11, 0.10);
+        color: var(--warning);
+    }
+
+
+/* ACTION */
+
+.account-email-verification-action {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+}
+
+
+.account-email-verify-button {
+    min-height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0 11px;
+    border: 1px solid rgba(108, 99, 255, 0.18);
+    border-radius: 9px;
+    background: rgba(108, 99, 255, 0.07);
+    color: var(--primary);
+    font-size: 10px;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: 0.18s ease;
+}
+
+
+    .account-email-verify-button:hover:not(:disabled) {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: #fff;
+    }
+
+
+    .account-email-verify-button:disabled {
+        cursor: wait;
+        opacity: 0.65;
+    }
+
+
+    .account-email-verify-button.loading i {
+        animation: profileEmailVerifySpin 0.9s linear infinite;
+    }
+
+
+@keyframes profileEmailVerifySpin {
+
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* SUBTLE STATUS BACKGROUND */
+
+.account-email-verification-row.email-confirmed {
+    background: rgba(22, 163, 74, 0.025);
+}
+
+
+.account-email-verification-row.email-not-confirmed {
+    background: rgba(245, 158, 11, 0.025);
+}
+
+
+/* ========================================================= */
+/* MOBILE */
+/* ========================================================= */
+
+@media (max-width: 575px) {
+
+    .account-email-verification-row {
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+
+
+        .account-email-verification-row
+        .account-action-text {
+            padding-top: 2px;
+        }
+
+
+    .account-email-verification-action {
+        width: 100%;
+        padding-left: 45px;
+    }
+
+
+    .account-email-verify-button {
+        width: 100%;
+        min-height: 38px;
+    }
+}

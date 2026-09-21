@@ -299,9 +299,42 @@
                     <span class="account-action-text"><strong>Şifre değiştir</strong><small>Hesap parolanızı güncelleyin.</small></span>
                     <i class="bi bi-chevron-right account-action-arrow"></i>
                 </button>
-                <div class="account-action-row account-action-disabled">
-                    <span class="account-action-icon"><i class="bi bi-patch-check"></i></span>
-                    <span class="account-action-text"><strong>Email doğrulama</strong><small id="securityEmailText">Email doğrulama özelliği yakında aktif olacak.</small></span>
+                <div class="account-action-row account-email-verification-row"
+                     id="securityEmailVerification">
+
+                    <span class="account-action-icon"
+                          id="securityEmailIcon">
+                        <i class="bi bi-patch-check"></i>
+                    </span>
+
+                    <span class="account-action-text">
+
+                        <strong id="securityEmailTitle">
+                            Email doğrulama
+                        </strong>
+
+                        <small id="securityEmailText">
+                            Email doğrulama durumu yükleniyor...
+                        </small>
+
+                    </span>
+
+                    <span class="account-email-verification-action">
+
+                        <button type="button"
+                                class="account-email-verify-button"
+                                id="resendEmailConfirmationButton">
+
+                            <i class="bi bi-send"></i>
+
+                            <span>
+                                Doğrulama Mailini Gönder
+                            </span>
+
+                        </button>
+
+                    </span>
+
                 </div>
             </section>
 
