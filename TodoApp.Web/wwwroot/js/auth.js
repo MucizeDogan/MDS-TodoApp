@@ -279,7 +279,7 @@ async function forgotPassword(event) {
         }
 
         message.textContent =
-            "Şifre sıfırlama bağlantısı oluşturuldu.";
+            "Şifre sıfırlama bağlantısı email adresinize gönderildi.";
 
         message.className =
             "alert alert-success";

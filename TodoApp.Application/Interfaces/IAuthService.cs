@@ -10,5 +10,7 @@ namespace TodoApp.Application.Interfaces {
         Task<AuthResponse> RegisterAsync(RegisterRequest request);
 
         Task<AuthResponse> LoginAsync(LoginRequest request);
+
+        Task ResendEmailConfirmationAsync(string email);
     }
 }

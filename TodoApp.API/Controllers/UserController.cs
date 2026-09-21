@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-
 using TodoApp.Application.DTOs.Common;
 using TodoApp.Application.DTOs.User;
 using TodoApp.Application.Interfaces;
+using TodoApp.Infrastructure.Services;
 
 namespace TodoApp.API.Controllers {
     [ApiController]
@@ -12,11 +12,12 @@ namespace TodoApp.API.Controllers {
     [Authorize]
     public class UserController : ControllerBase {
         private readonly IUserService _userService;
-
+        private readonly IAuthService _authService;
 
         public UserController(
-            IUserService userService) {
+            IUserService userService, IAuthService authService) {
             _userService = userService;
+            _authService = authService;
         }
 
 
@@ -112,13 +113,12 @@ namespace TodoApp.API.Controllers {
         [AllowAnonymous]
         [HttpPost("ForgotPassword")]
         public async Task<IActionResult> ForgotPassword(ForgotPasswordRequest request) {
-            var token = await _userService.GeneratePasswordResetTokenAsync(
-                    request.Email);
+            await _userService.SendPasswordResetEmailAsync(request.Email);
 
             return Ok(
-                ApiResponse<string>.Ok(
-                    token,
-                    "Şifre sıfırlama token'ı oluşturuldu."));
+                ApiResponse<object>.Ok(
+                    null,
+                    "Şifre sıfırlama bağlantısı email adresinize gönderildi."));
         }
 
         [AllowAnonymous]
@@ -159,6 +159,18 @@ namespace TodoApp.API.Controllers {
                 ApiResponse<object>.Ok(
                     null,
                     "Email adresiniz başarıyla doğrulandı."));
+        }
+
+        [AllowAnonymous]
+        [HttpPost("ResendEmailConfirmation")]
+        public async Task<IActionResult> ResendEmailConfirmation(ForgotPasswordRequest request) {
+            await _authService.ResendEmailConfirmationAsync(
+                request.Email);
+
+            return Ok(
+                ApiResponse<object>.Ok(
+                    null,
+                    "Email doğrulama bağlantısı gönderildi."));
         }
     }
 }

@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>MDS_TodoApp</RootNamespace>
+    <UserSecretsId>e2c18650-cf21-464e-a704-c4cc1822fe46</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

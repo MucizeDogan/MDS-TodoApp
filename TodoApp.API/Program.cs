@@ -1,6 +1,5 @@
 using FluentValidation;
 using FluentValidation.AspNetCore;
-using TodoApp.Application.Validators.Todo;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +8,8 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using TodoApp.API.Middleware;
 using TodoApp.Application.Interfaces;
+using TodoApp.Application.Settings;
+using TodoApp.Application.Validators.Todo;
 using TodoApp.Infrastructure.Data;
 using TodoApp.Infrastructure.Identity;
 using TodoApp.Infrastructure.Services;
@@ -50,6 +51,9 @@ builder.Services.AddSwaggerGen(c => {
         }
     });
 });
+
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings")); //Mail için
+builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("AppSettings"));
 
 builder.Services.AddValidatorsFromAssembly(typeof(CreateTodoRequestValidator).Assembly);
 builder.Services.AddFluentValidationAutoValidation();
@@ -112,7 +116,7 @@ builder.Services.AddCors(options => {
 });
 
 
-// Application Services
+// Application Services DI
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, JwtTokenService>();
 builder.Services.AddScoped<ITodoService, TodoService>();
@@ -121,6 +125,7 @@ builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<INotificationGenerator, NotificationGenerator>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 
 var app = builder.Build();

@@ -1,21 +1,29 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
 using TodoApp.Application.DTOs.User;
 using TodoApp.Application.Interfaces;
+using TodoApp.Application.Settings;
 using TodoApp.Infrastructure.Identity;
 
 namespace TodoApp.Infrastructure.Services {
     public class UserService : IUserService {
         private readonly UserManager<ApplicationUser> _userManager;
-
+        private readonly IEmailService _emailService;
+        private readonly AppSettings _appSettings;
 
         public UserService(
-            UserManager<ApplicationUser> userManager) {
+            UserManager<ApplicationUser> userManager,
+            IEmailService emailService,
+            IOptions<AppSettings> appSettings) 
+        {
             _userManager = userManager;
+            _emailService = emailService;
+            _appSettings = appSettings.Value;
         }
 
 
@@ -190,5 +198,46 @@ namespace TodoApp.Infrastructure.Services {
                 throw new ArgumentException(errors);
             }
         }
+
+        public async Task SendPasswordResetEmailAsync(string email) {
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user == null) {
+                throw new ArgumentException(
+                    "Bu email adresi ile kayıtlı bir kullanıcı bulunamadı.");
+            }
+
+            var token =
+                await _userManager.GeneratePasswordResetTokenAsync(user);
+
+            var resetUrl =
+                $"{_appSettings.WebBaseUrl}/reset-password.html" +
+                $"?email={Uri.EscapeDataString(email)}" +
+                $"&token={Uri.EscapeDataString(token)}";
+
+            var subject = "MDSTodoApp - Şifre Sıfırlama";
+
+            var body =
+                $"""
+                Merhaba {user.FullName},
+
+                TodoApp hesabınız için şifre sıfırlama isteği aldık.
+
+                Şifrenizi yenilemek için aşağıdaki bağlantıya tıklayın:
+
+                {resetUrl}
+
+                Bu isteği siz yapmadıysanız bu emaili dikkate almayabilirsiniz.
+
+                İyi çalışmalar,
+                MDS TodoApp
+                """;
+
+            await _emailService.SendAsync(
+                email,
+                subject,
+                body);
+        }
+
     }
 }

@@ -26,5 +26,8 @@ namespace TodoApp.Application.Interfaces {
         Task ConfirmEmailAsync(
             string email,
             string token);
+
+        Task SendPasswordResetEmailAsync(string email);
+
     }
 }
