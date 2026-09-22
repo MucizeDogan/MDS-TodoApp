@@ -1,0 +1,15 @@
+C:\Users\mucize\source\repos\MDS-TodoApp-ProductionPrep\TodoApp.Application\bin\Debug\net8.0\TodoApp.Application.deps.json
+C:\Users\mucize\source\repos\MDS-TodoApp-ProductionPrep\TodoApp.Application\bin\Debug\net8.0\TodoApp.Application.dll
+C:\Users\mucize\source\repos\MDS-TodoApp-ProductionPrep\TodoApp.Application\bin\Debug\net8.0\TodoApp.Application.pdb
+C:\Users\mucize\source\repos\MDS-TodoApp-ProductionPrep\TodoApp.Application\bin\Debug\net8.0\TodoApp.Domain.dll
+C:\Users\mucize\source\repos\MDS-TodoApp-ProductionPrep\TodoApp.Application\bin\Debug\net8.0\TodoApp.Domain.pdb
+C:\Users\mucize\source\repos\MDS-TodoApp-ProductionPrep\TodoApp.Application\obj\Debug\net8.0\TodoApp.Application.csproj.AssemblyReference.cache
+C:\Users\mucize\source\repos\MDS-TodoApp-ProductionPrep\TodoApp.Application\obj\Debug\net8.0\TodoApp.Application.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\mucize\source\repos\MDS-TodoApp-ProductionPrep\TodoApp.Application\obj\Debug\net8.0\TodoApp.Application.AssemblyInfoInputs.cache
+C:\Users\mucize\source\repos\MDS-TodoApp-ProductionPrep\TodoApp.Application\obj\Debug\net8.0\TodoApp.Application.AssemblyInfo.cs
+C:\Users\mucize\source\repos\MDS-TodoApp-ProductionPrep\TodoApp.Application\obj\Debug\net8.0\TodoApp.Application.csproj.CoreCompileInputs.cache
+C:\Users\mucize\source\repos\MDS-TodoApp-ProductionPrep\TodoApp.Application\obj\Debug\net8.0\TodoApp..05D78BBE.Up2Date
+C:\Users\mucize\source\repos\MDS-TodoApp-ProductionPrep\TodoApp.Application\obj\Debug\net8.0\TodoApp.Application.dll
+C:\Users\mucize\source\repos\MDS-TodoApp-ProductionPrep\TodoApp.Application\obj\Debug\net8.0\refint\TodoApp.Application.dll
+C:\Users\mucize\source\repos\MDS-TodoApp-ProductionPrep\TodoApp.Application\obj\Debug\net8.0\TodoApp.Application.pdb
+C:\Users\mucize\source\repos\MDS-TodoApp-ProductionPrep\TodoApp.Application\obj\Debug\net8.0\ref\TodoApp.Application.dll

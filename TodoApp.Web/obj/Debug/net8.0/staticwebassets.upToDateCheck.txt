@@ -1,0 +1,15 @@
+wwwroot\css\dashboard.css
+wwwroot\css\profile.css
+wwwroot\css\site.css
+wwwroot\forgot-password.html
+wwwroot\index.html
+wwwroot\js\api.js
+wwwroot\js\auth.js
+wwwroot\js\config.js
+wwwroot\js\dashboard.js
+wwwroot\js\profile.js
+wwwroot\login.html
+wwwroot\profile.html
+wwwroot\register.html
+wwwroot\reset-password.html
+wwwroot\verify-email.html

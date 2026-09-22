@@ -1,0 +1,243 @@
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using TodoApp.Application.DTOs.User;
+using TodoApp.Application.Interfaces;
+using TodoApp.Application.Settings;
+using TodoApp.Infrastructure.Identity;
+
+namespace TodoApp.Infrastructure.Services {
+    public class UserService : IUserService {
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IEmailService _emailService;
+        private readonly AppSettings _appSettings;
+
+        public UserService(
+            UserManager<ApplicationUser> userManager,
+            IEmailService emailService,
+            IOptions<AppSettings> appSettings) 
+        {
+            _userManager = userManager;
+            _emailService = emailService;
+            _appSettings = appSettings.Value;
+        }
+
+
+        public async Task<UserProfileResponse> GetProfileAsync(
+            string userId) {
+            var user =
+                await _userManager.FindByIdAsync(userId);
+
+
+            if (user == null) {
+                throw new UnauthorizedAccessException(
+                    "Kullanıcı bulunamadı.");
+            }
+
+
+            return new UserProfileResponse {
+                Id = user.Id,
+                FullName = user.FullName ?? string.Empty,
+                Email = user.Email ?? string.Empty,
+                EmailConfirmed = user.EmailConfirmed,
+                CreatedAt = user.CreatedAt
+            };
+        }
+
+
+        public async Task<UserProfileResponse> UpdateProfileAsync(
+            string userId,
+            UpdateUserProfileRequest request) {
+            var user =
+                await _userManager.FindByIdAsync(userId);
+
+
+            if (user == null) {
+                throw new UnauthorizedAccessException(
+                    "Kullanıcı bulunamadı.");
+            }
+
+
+            user.FullName =
+                request.FullName.Trim();
+
+
+            var result =
+                await _userManager.UpdateAsync(user);
+
+
+            if (!result.Succeeded) {
+                var errors =
+                    string.Join(
+                        " | ",
+                        result.Errors.Select(
+                            x => x.Description));
+
+                throw new Exception(errors);
+            }
+
+
+            return new UserProfileResponse {
+                Id = user.Id,
+                FullName = user.FullName ?? string.Empty,
+                Email = user.Email ?? string.Empty,
+                EmailConfirmed = user.EmailConfirmed,
+                CreatedAt = user.CreatedAt
+            };
+        }
+
+
+        /* ===================================================== */
+        /* CHANGE PASSWORD */
+        /* ===================================================== */
+
+        public async Task ChangePasswordAsync(
+            string userId,
+            ChangePasswordRequest request) {
+            var user =
+                await _userManager.FindByIdAsync(userId);
+
+
+            if (user == null) {
+                throw new UnauthorizedAccessException(
+                    "Kullanıcı bulunamadı.");
+            }
+
+
+            var result =
+                await _userManager.ChangePasswordAsync(
+                    user,
+                    request.CurrentPassword,
+                    request.NewPassword);
+
+
+            if (!result.Succeeded) {
+                var errors =
+                    string.Join(
+                        " | ",
+                        result.Errors.Select(
+                            x => x.Description));
+
+                throw new ArgumentException(errors);
+            }
+        }
+
+        public async Task<string> GeneratePasswordResetTokenAsync(string email) {
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user == null) {
+                throw new ArgumentException(
+                    "Bu email adresi ile kayıtlı bir kullanıcı bulunamadı.");
+            }
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+            return token;
+        }
+
+        public async Task ResetPasswordAsync(
+            string email,
+            string token,
+            string newPassword) {
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user == null) {
+                throw new ArgumentException("Kullanıcı bulunamadı.");
+            }
+
+            var result = await _userManager.ResetPasswordAsync(
+                user,
+                token,
+                newPassword);
+
+            if (!result.Succeeded) {
+                var errors = string.Join(
+                    " | ",
+                    result.Errors.Select(x => x.Description));
+
+                throw new ArgumentException(errors);
+            }
+        }
+
+        public async Task<string> GenerateEmailConfirmationTokenAsync(string email) {
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user == null) {
+                throw new ArgumentException(
+                    "Bu email adresi ile kayıtlı bir kullanıcı bulunamadı.");
+            }
+
+            var token =
+                await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
+            return token;
+        }
+
+        public async Task ConfirmEmailAsync(
+            string email,
+            string token) {
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user == null) {
+                throw new ArgumentException(
+                    "Kullanıcı bulunamadı.");
+            }
+
+            var result =
+                await _userManager.ConfirmEmailAsync(user, token);
+
+            if (!result.Succeeded) {
+                var errors = string.Join(
+                    " | ",
+                    result.Errors.Select(x => x.Description));
+
+                throw new ArgumentException(errors);
+            }
+        }
+
+        public async Task SendPasswordResetEmailAsync(string email) {
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user == null) {
+                throw new ArgumentException(
+                    "Bu email adresi ile kayıtlı bir kullanıcı bulunamadı.");
+            }
+
+            var token =
+                await _userManager.GeneratePasswordResetTokenAsync(user);
+
+            var resetUrl =
+                $"{_appSettings.WebBaseUrl}/reset-password.html" +
+                $"?email={Uri.EscapeDataString(email)}" +
+                $"&token={Uri.EscapeDataString(token)}";
+
+            var subject = "MDSTodoApp - Şifre Sıfırlama";
+
+            var body =
+                $"""
+                Merhaba {user.FullName},
+
+                TodoApp hesabınız için şifre sıfırlama isteği aldık.
+
+                Şifrenizi yenilemek için aşağıdaki bağlantıya tıklayın:
+
+                {resetUrl}
+
+                Bu isteği siz yapmadıysanız bu emaili dikkate almayabilirsiniz.
+
+                İyi çalışmalar,
+                MDS TodoApp
+                """;
+
+            await _emailService.SendAsync(
+                email,
+                subject,
+                body);
+        }
+
+    }
+}

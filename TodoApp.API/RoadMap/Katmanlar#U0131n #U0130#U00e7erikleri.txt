@@ -1,0 +1,115 @@
+﻿**** TodoApp.Domain ****
+
+Sistemin kalbi.
+
+Entities
+Enums
+
+gibi veritabanı ve iş alanımızın temel modelleri bulunacak.
+
+TodoItem
+Category
+ApplicationUser
+TodoPriority
+
+Controller
+HTTP
+GET
+POST
+PUT
+DELETE
+Status Codes
+Dependency Injection
+Configuration
+appsettings.json
+Middleware
+Swagger
+
+
+
+
+
+
+
+
+
+**** TodoApp.Application ****
+
+Uygulamanın iş mantığı.
+
+Burada ileride:
+
+DTOs
+Interfaces
+Services
+Validators
+
+olacak.
+
+Örneğin:
+
+TodoService
+AuthService
+CategoryService
+
+
+
+
+
+
+
+
+
+
+**** TodoApp.Infrastructure ****
+
+Dış dünyayla / teknik altyapıyla iletişim.
+
+Entity Framework Core
+SQL Server
+DbContext
+Repository
+Identity
+JWT
+
+
+DbContext
+DbSet
+Entity
+Migration
+Relationship
+Foreign Key
+Primary Key
+One-to-Many
+LINQ
+
+
+
+
+
+
+
+
+**** TodoApp.API ****
+
+Dışarıya açılan kapımız.
+
+Burada:
+
+Controllers
+Middleware
+Program.cs
+appsettings.json
+
+
+TodoController
+AuthController
+CategoryController
+
+
+
+
+
+
+
+
