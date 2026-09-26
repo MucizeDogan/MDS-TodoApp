@@ -421,9 +421,19 @@ async function resetPassword(event) {
 
 async function verifyEmail() {
 
+    //const params =
+    //    new URLSearchParams(
+    //        window.location.search
+    //    );
+
+    //const email =
+    //    params.get("email");
+
+    //const token =
+    //    params.get("token");
     const params =
         new URLSearchParams(
-            window.location.search
+            window.location.hash.substring(1)
         );
 
     const email =

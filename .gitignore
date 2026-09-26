@@ -28,3 +28,6 @@ Thumbs.db
 
 # Visual Studio launch settings
 *.slnLaunch.user
+
+# Local publish output
+Publish/

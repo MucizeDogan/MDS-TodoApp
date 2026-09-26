@@ -63,9 +63,13 @@ namespace TodoApp.Infrastructure.Services {
             //E-mail confirmation token
             var emailConfirmationToken =await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
+            //var verificationUrl =
+            //    $"{_appSettings.WebBaseUrl}/verify-email.html" +
+            //    $"?email={Uri.EscapeDataString(user.Email!)}" +
+            //    $"&token={Uri.EscapeDataString(emailConfirmationToken)}";
             var verificationUrl =
                 $"{_appSettings.WebBaseUrl}/verify-email.html" +
-                $"?email={Uri.EscapeDataString(user.Email!)}" +
+                $"#email={Uri.EscapeDataString(user.Email!)}" +
                 $"&token={Uri.EscapeDataString(emailConfirmationToken)}";
 
             var emailBody =
@@ -74,11 +78,21 @@ namespace TodoApp.Infrastructure.Services {
 
                 TodoApp hesabınızı oluşturduğunuz için teşekkür ederiz.
 
-                Ekleyeceğiniz görevlerde hatırlatma özelliğini kullanmak isterseniz Email doğrulama işlemi gerekli bu yüzden doğrulamanızı tavsiye ediyoruz.
+                Hesabınızı kullanmaya devam edebilmek ve Email ile görev hatırlatmalarından yararlanabilmek için Email adresinizi doğrulamanız gerekmektedir.
 
                 Email adresinizi doğrulamak için aşağıdaki bağlantıya tıklayın:
 
                 {verificationUrl}
+
+                ÖNEMLİ - iPhone / Gmail kullanıcıları için:
+
+                Eğer iPhone kullanıyorsanız ve doğrulama bağlantısına Gmail uygulaması üzerinden tıkladığınızda "Hangi uygulamayla açılsın?" şeklinde bir seçim ekranı görüyorsanız, doğrulama bağlantısının Varsayılan uygulama tarayıcısı ile         açıldığından emin olun.
+
+                Gmail uygulamasında bağlantıya her tıkladığınızda uygulama seçimi soruluyorsa, mümkünse bu seçeneği kapatıp Safari'yi varsayılan tarayıcı olarak kullanmanız önerilir.
+
+                Doğrulama sayfası Safari'de açıldıktan sonra işlemin tamamlanmasını bekleyin.
+
+                Bağlantıyı açarken bir hata alırsanız endişelenmeyin. Hesabınızdaki "Email doğrulama bağlantısını yeniden gönder" seçeneğini kullanarak yeni bir doğrulama bağlantısı isteyebilirsiniz veya bu mail hesabıyla iletişime geçerek kısa sürede işleminizi gerçekleştirebiliriz.
 
                 Bu hesabı siz oluşturmadıysanız bu emaili dikkate almayabilirsiniz.
 
@@ -156,22 +170,36 @@ namespace TodoApp.Infrastructure.Services {
             var emailConfirmationToken =
                 await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
+            //var verificationUrl =
+            //    $"{_appSettings.WebBaseUrl}/verify-email.html" +
+            //    $"?email={Uri.EscapeDataString(user.Email!)}" +
+            //    $"&token={Uri.EscapeDataString(emailConfirmationToken)}";
             var verificationUrl =
                 $"{_appSettings.WebBaseUrl}/verify-email.html" +
-                $"?email={Uri.EscapeDataString(user.Email!)}" +
+                $"#email={Uri.EscapeDataString(user.Email!)}" +
                 $"&token={Uri.EscapeDataString(emailConfirmationToken)}";
 
             var emailBody =
                 $"""
                 Merhaba {user.FullName},
 
-                TodoApp email doğrulama bağlantınızı yeniledik.
+                MDSTodoApp email doğrulama bağlantınızı yeniledik.
 
                 Ekleyeceğiniz görevlerde hatırlatma özelliğini kullanmak isterseniz Email doğrulama işlemi gerekli bu yüzden doğrulamanızı tavsiye ediyoruz.
 
                 Email adresinizi doğrulamak için aşağıdaki bağlantıya tıklayın:
 
                 {verificationUrl}
+
+                ÖNEMLİ - iPhone / Gmail kullanıcıları için:
+                
+                Eğer iPhone kullanıyorsanız ve bağlantıya Gmail uygulaması üzerinden tıkladığınızda "Hangi uygulamayla açılsın?" şeklinde bir seçim ekranı görüyorsanız, doğrulama bağlantısının Safari ile açıldığından emin olun.
+
+                Gmail uygulamasında her seferinde uygulama seçmeniz isteniyorsa, mümkünse uygulama seçimi istemini kapatıp Safari'yi varsayılan tarayıcı olarak kullanmanız önerilir.
+
+                Doğrulama sayfası Safari'de açıldıktan sonra işlemin tamamlanmasını bekleyin.
+
+                Bağlantıyı açarken hata alırsanız, bu emaildeki bağlantıyı tekrar tekrar açmak yerine yeni bir doğrulama bağlantısı istemeniz önerilir veya bu mail hesabıyla iletişime geçerek kısa sürede işleminiz gerçekleştirebiliriz.
 
                 Bu hesabı siz oluşturmadıysanız bu emaili dikkate almayabilirsiniz.
 
