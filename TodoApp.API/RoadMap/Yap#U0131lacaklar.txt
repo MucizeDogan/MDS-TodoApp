@@ -1,29 +1,14 @@
 ﻿SONRADAN YAPILACAKLAR;
-- Dark Mode
-- Responsive
-- Toast mesajları
-✅ Görev başarıyla eklendi.🗑️ Görev silindi.⚠️ Son tarih geçmiş!
+Hesabım kısmındaki bildirimler gerçek uygulanmalı
 
-- Email doğrulama
-Register   ↓Email gönder ↓Link↓Account Activated
-
-- Şifremi unuttum
-Forgot Password       ↓Email      ↓Reset Password
 
 -Kullanıcı arkadaş sistemi
-
 👥 Shared Todo
-
 Bir Todo'yu arkadaşınla paylaş:
-
 "Hafta sonu mangal"
-
 👤 Cristdoan
 👤 Ahmet
 👤 Mehmet
-
-- Notification
-Yarın son tarihli 3 görevin var.
 
 -TAKVİM Todo'ları:
 
@@ -33,17 +18,20 @@ Mon Tue Wed Thu Fri
       16  17  18
 şeklinde takvimde gösterebiliriz.
 
+-Alt Kategori sistemi
+İş - X firma 
 
 
 
+Teknik yapılacaklar;
 
+- Production hardening --> Geniş CORS yapılandırmasını daraltmak
 
+- Profesyonel bir monitoring sistemi -> LOG sistemi
 
-Şifremi Unuttum yapmalıyız. 
-
-Kategori yönetim
-
-Email doğrulama yapmalıyız
-
- Email doğrulama yapan kullanıcılara yeni todo girişinde ekstra bir alan checkbox ekleyip Mail hatırlatma sistemi yapmalıyız.
- vyox ochr xqep mzom    --> todoApp google uygulama şifresi
+- Account management
+    şifre değiştir
+    email değiştir
+    hesabı sil
+    tüm görevleri sil
+    logout all sessions

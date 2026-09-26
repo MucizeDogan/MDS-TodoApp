@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="tr">
 
 <head>
@@ -23,7 +23,7 @@
 
     <!-- Dashboard CSS -->
     <link rel="stylesheet"
-          href="css/dashboard.css">
+          href="/css/dashboard.css?v=20260926-2">
 
 </head>
 
@@ -874,15 +874,16 @@
             </button>
 
 
-            <!-- Tasks -->
+            <!-- Categories -->
             <button type="button"
                     class="mobile-nav-item"
-                    data-mobile-view="pending">
+                    id="mobileCategoriesNavButton"
+                    data-mobile-action="categories">
 
-                <i class="bi bi-list-check"></i>
+                <i class="bi bi-tags"></i>
 
                 <span>
-                    Görevler
+                    Kategoriler
                 </span>
 
             </button>
@@ -1258,8 +1259,7 @@
                                       class="modern-input"
                                       rows="3"
                                       maxlength="2000"
-                                      placeholder="Görev hakkında biraz daha detay...">
-                        </textarea>
+                                      placeholder="Görev hakkında biraz daha detay..."></textarea>
 
                         </div>
 
@@ -1387,13 +1387,13 @@
                                     <select id="todoReminderMinutes"
                                             class="modern-input">
 
-                                        <option value="15">
-                                            15 dakika önce
-                                        </option>
+                                        <!--<option value="15">
+                                             15 dakika önce
+                                         </option>
 
-                                        <option value="30">
-                                            30 dakika önce
-                                        </option>
+                                         <option value="30">
+                                             30 dakika önce
+                                         </option>-->
 
                                         <option value="60">
                                             1 saat önce
@@ -1402,6 +1402,10 @@
                                         <option value="120"
                                                 selected>
                                             2 saat önce
+                                        </option>
+
+                                        <option value="180">
+                                            3 saat önce
                                         </option>
 
                                         <option value="1440">
@@ -1496,6 +1500,14 @@
                             id="categoryModalTitle">
                             Yeni Kategori
                         </h5>
+
+                        <p class="category-create-intro"
+                           id="categoryCreateIntro"
+                           style="display:none;">
+                            Görev oluşturabilmek için önce en az bir kategori
+                            oluşturmalısın. Bir kategori ekledikten sonra görev
+                            ekranı otomatik olarak açılacak.
+                        </p>
 
                     </div>
 
@@ -1726,7 +1738,7 @@
     <!-- TOAST -->
     <!-- ============================================================= -->
 
-    <div class="toast-container position-fixed bottom-0 end-0 p-4">
+    <div class="toast-container app-toast-container position-fixed bottom-0 end-0 p-4">
 
         <div id="appToast"
              class="toast modern-toast"
@@ -1789,9 +1801,9 @@
     </script>
 
     <!-- Application -->
-    <script src="js/config.js"></script>
-    <script src="js/api.js"></script>
-    <script src="js/dashboard.js"></script>
+    <script src="js/config.js?v=20260926"></script>
+    <script src="js/api.js?v=20260926"></script>
+    <script src="js/dashboard.js?v=20260926-2"></script>
 
 </body>
 

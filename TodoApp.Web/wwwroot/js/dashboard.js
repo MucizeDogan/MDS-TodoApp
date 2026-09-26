@@ -1,4 +1,4 @@
-﻿let todos = [];
+let todos = [];
 let categories = [];
 let currentUserProfile = null;
 
@@ -16,6 +16,10 @@ let editingCategoryId = null;
 // Kategori yönetim modalından kategori edit/create modalına
 // geçiş yapıldığını takip eder.
 let returnToCategoryManagement = false;
+
+// Yeni görev akışında kategori yoksa, kategori oluşturulduktan
+// sonra görev modalını otomatik açmak için kullanılır.
+let returnToTodoCreation = false;
 
 let activeSwipeItem = null;
 
@@ -135,6 +139,28 @@ function initializeBootstrapModals() {
             }
         );
 }
+
+
+document
+    .getElementById("categoryManagementModal")
+    ?.addEventListener(
+        "hidden.bs.modal",
+        () => {
+
+            /* Modal kapandığında Ana sekmesi tekrar aktif olsun. */
+            document
+                .querySelectorAll(".mobile-nav-item")
+                .forEach(x =>
+                    x.classList.remove("active")
+                );
+
+            document
+                .querySelector(
+                    '.mobile-nav-item[data-mobile-view="all"]'
+                )
+                ?.classList.add("active");
+        }
+    );
 
 
 /* ========================================================= */
@@ -618,6 +644,31 @@ function initializeEvents() {
             button.addEventListener(
                 "click",
                 () => {
+
+                    const action =
+                        button.dataset.mobileAction;
+
+                    /*
+                     * Kategoriler bir görünüm değil, modal açan
+                     * bir aksiyondur. Mobilde Görevler yerine
+                     * kategori yönetimine doğrudan erişim sağlıyoruz.
+                     */
+                    if (action === "categories") {
+
+                        document
+                            .querySelectorAll(".mobile-nav-item")
+                            .forEach(x =>
+                                x.classList.remove("active")
+                            );
+
+                        closeMobileMoreSheetGlobal();
+
+                        requestAnimationFrame(() => {
+                            openCategoryManagementModal();
+                        });
+
+                        return;
+                    }
 
                     const view =
                         button.dataset.mobileView;
@@ -3204,6 +3255,17 @@ function initializeEmailReminderEvents() {
 
 function openCreateTodoModal() {
 
+    // Kullanıcının henüz hiç kategorisi yoksa görev formunu açmak
+    // yerine önce kategori oluşturmasını sağlıyoruz.
+    if (!categories || categories.length === 0) {
+
+        openCreateCategoryModal(false, true);
+
+        return;
+    }
+
+    returnToTodoCreation = false;
+
     document.getElementById(
         "todoModalTitle"
     ).textContent =
@@ -4015,10 +4077,13 @@ function renderCategoryManagement() {
 /* ========================================================= */
 
 function openCreateCategoryModal(
-    fromManagement = false
+    fromManagement = false,
+    fromTodoCreation = false
 ) {
 
     editingCategoryId = null;
+
+    returnToTodoCreation = fromTodoCreation;
 
     returnToCategoryManagement =
         fromManagement;
@@ -4032,13 +4097,15 @@ function openCreateCategoryModal(
     const buttonText =
         document.getElementById(
             "saveCategoryButtonText"
-        ); openEditCategoryModal
+        );
 
 
     if (title) {
 
         title.textContent =
-            "Yeni Kategori";
+            fromTodoCreation
+                ? "Önce Bir Kategori Oluşturalım"
+                : "Yeni Kategori";
     }
 
 
@@ -4046,6 +4113,14 @@ function openCreateCategoryModal(
 
         buttonText.textContent =
             "Oluştur";
+    }
+
+    const categoryIntro =
+        document.getElementById("categoryCreateIntro");
+
+    if (categoryIntro) {
+        categoryIntro.style.display =
+            fromTodoCreation ? "block" : "none";
     }
 
 
@@ -4137,6 +4212,8 @@ function openEditCategoryModal(categoryId) {
     returnToCategoryManagement =
         true;
 
+    returnToTodoCreation = false;
+
 
     const title =
         document.getElementById(
@@ -4160,6 +4237,13 @@ function openEditCategoryModal(categoryId) {
 
         buttonText.textContent =
             "Kaydet";
+    }
+
+    const categoryIntro =
+        document.getElementById("categoryCreateIntro");
+
+    if (categoryIntro) {
+        categoryIntro.style.display = "none";
     }
 
 
@@ -4281,6 +4365,10 @@ async function saveCategory() {
                 : "Oluşturuluyor...";
     }
 
+    const wasEditing = Boolean(editingCategoryId);
+    const shouldOpenTodoAfterCreate =
+        !wasEditing && returnToTodoCreation;
+
 
     try {
 
@@ -4330,20 +4418,27 @@ async function saveCategory() {
         }
 
 
-        const wasEditing =
-            Boolean(
-                editingCategoryId
-            );
-
-
         editingCategoryId = null;
 
-
-        categoryModal.hide();
-
-
+        // Önce yeni kategoriyi belleğe alalım. Böylece görev modalı
+        // açıldığında kategori select'i kesinlikle dolu olur.
         await loadDashboardData();
 
+        if (shouldOpenTodoAfterCreate) {
+            const categoryModalElement =
+                document.getElementById("categoryModal");
+
+            categoryModalElement?.addEventListener(
+                "hidden.bs.modal",
+                () => {
+                    returnToTodoCreation = false;
+                    openCreateTodoModal();
+                },
+                { once: true }
+            );
+        }
+
+        categoryModal.hide();
 
         if (categoryManagementModal) {
 
@@ -4951,6 +5046,14 @@ function renderTodoDetail(todo) {
         category?.name ||
         "Kategorisiz";
 
+    // Textarea / API kaynaklı satır sonu ve girintilerin
+    // detay ekranında açıklamanın ortasından başlamasına neden
+    // olmasını önlemek için baştaki/sondaki boşlukları temizliyoruz.
+    const descriptionText =
+        typeof todo.description === "string"
+            ? todo.description.trim()
+            : "";
+
     const dueDate =
         todo.dueDate
             ? formatTodoDueDate(todo.dueDate)
@@ -4994,18 +5097,27 @@ function renderTodoDetail(todo) {
                 ${escapeHtml(todo.title)}
             </h2>
 
-            ${todo.description
+            <div class="todo-detail-description-block">
+
+                <div class="todo-detail-description-label">
+                    <i class="bi bi-text-left"></i>
+                    Açıklama
+                </div>
+
+                ${descriptionText
             ? `
                         <div class="todo-detail-description">
-                            ${escapeHtml(todo.description)}
+                            ${escapeHtml(descriptionText)}
                         </div>
                     `
             : `
-                        <div class="todo-detail-description text-muted">
-                            Bu görev için açıklama eklenmemiş.
+                        <div class="todo-detail-description is-empty">
+                            Bu görev için henüz bir açıklama eklenmemiş.
                         </div>
                     `
         }
+
+            </div>
 
         </div>
 
