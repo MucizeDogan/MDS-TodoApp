@@ -46,3 +46,18 @@
 a {
     text-decoration: none;
 }
+
+.password-requirements {
+    font-size: 0.85rem;
+}
+
+.requirement-item {
+    margin-top: 3px;
+    transition: color 0.2s ease;
+}
+
+.requirement-icon {
+    display: inline-block;
+    width: 20px;
+    font-weight: 600;
+}

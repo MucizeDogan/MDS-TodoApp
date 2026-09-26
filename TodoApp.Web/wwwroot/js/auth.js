@@ -36,24 +36,108 @@
         verifyEmail();
     }
 
+    initializeAuthValidation();
+
 });
 
 
+
+//async function login(event) {
+
+//    event.preventDefault();
+
+//    const email =
+//        document
+//            .getElementById("email")
+//            .value
+//            .trim();
+
+//    const password =
+//        document
+//            .getElementById("password")
+//            .value;
+
+//    const errorMessage =
+//        document.getElementById("errorMessage");
+
+//    const loginButton =
+//        document.getElementById("loginButton");
+
+//    errorMessage.classList.add("d-none");
+
+//    loginButton.disabled = true;
+//    loginButton.textContent =
+//        "Giriş yapılıyor...";
+
+//    try {
+
+//        const result =
+//            await api.post(
+//                "/Auth/login",
+//                {
+//                    email: email,
+//                    password: password
+//                }
+//            );
+
+//        if (!result) {
+//            return;
+//        }
+
+//        localStorage.setItem(
+//            "token",
+//            result.data.token
+//        );
+
+//        localStorage.setItem(
+//            "userId",
+//            result.data.userId
+//        );
+
+//        localStorage.setItem(
+//            "fullName",
+//            result.data.fullName
+//        );
+
+//        localStorage.setItem(
+//            "email",
+//            result.data.email
+//        );
+
+//        window.location.href =
+//            "index.html";
+
+//    }
+//    catch (error) {
+
+//        console.error(error);
+
+//        showError(error.message);
+
+//    }
+//    finally {
+
+//        loginButton.disabled = false;
+
+//        loginButton.textContent = "Giriş Yap";
+//    }
+//}
 
 async function login(event) {
 
     event.preventDefault();
 
+    const emailInput =
+        document.getElementById("email");
+
+    const passwordInput =
+        document.getElementById("password");
+
     const email =
-        document
-            .getElementById("email")
-            .value
-            .trim();
+        emailInput.value.trim();
 
     const password =
-        document
-            .getElementById("password")
-            .value;
+        passwordInput.value;
 
     const errorMessage =
         document.getElementById("errorMessage");
@@ -62,8 +146,56 @@ async function login(event) {
         document.getElementById("loginButton");
 
     errorMessage.classList.add("d-none");
+    errorMessage.textContent = "";
+
+    emailInput.classList.remove("is-invalid");
+    passwordInput.classList.remove("is-invalid");
+
+    /* ========================= */
+    /* LOCAL VALIDATION */
+    /* ========================= */
+
+    if (!email) {
+
+        emailInput.classList.add("is-invalid");
+
+        showError(
+            "Lütfen e-posta adresinizi girin."
+        );
+
+        emailInput.focus();
+
+        return;
+    }
+
+    if (!isValidEmail(email)) {
+
+        emailInput.classList.add("is-invalid");
+
+        showError(
+            "Lütfen geçerli bir e-posta adresi girin."
+        );
+
+        emailInput.focus();
+
+        return;
+    }
+
+    if (!password) {
+
+        passwordInput.classList.add("is-invalid");
+
+        showError(
+            "Lütfen şifrenizi girin."
+        );
+
+        passwordInput.focus();
+
+        return;
+    }
 
     loginButton.disabled = true;
+
     loginButton.textContent =
         "Giriş yapılıyor...";
 
@@ -110,44 +242,162 @@ async function login(event) {
 
         console.error(error);
 
-        showError(error.message);
+        emailInput.classList.add(
+            "is-invalid"
+        );
+
+        passwordInput.classList.add(
+            "is-invalid"
+        );
+
+        showError(
+            error.message ||
+            "Giriş yapılamadı. Bilgilerinizi kontrol edip tekrar deneyin."
+        );
 
     }
     finally {
 
         loginButton.disabled = false;
 
-        loginButton.textContent = "Giriş Yap";
+        loginButton.textContent =
+            "Giriş Yap";
     }
 }
 
 
 
+//async function register(event) {
+
+//    event.preventDefault();
+
+//    const fullName =
+//        document
+//            .getElementById("fullName")
+//            .value
+//            .trim();
+
+//    const email =
+//        document
+//            .getElementById("email")
+//            .value
+//            .trim();
+
+//    const password =
+//        document
+//            .getElementById("password")
+//            .value;
+
+//    const passwordConfirm =
+//        document
+//            .getElementById("passwordConfirm")
+//            .value;
+
+//    const errorMessage =
+//        document.getElementById("errorMessage");
+
+//    const registerButton =
+//        document.getElementById("registerButton");
+
+//    errorMessage.classList.add("d-none");
+
+//    if (password !== passwordConfirm) {
+
+//        showError(
+//            "Şifreler birbiriyle aynı değil."
+//        );
+
+//        return;
+//    }
+
+//    registerButton.disabled = true;
+
+//    registerButton.textContent =
+//        "Kayıt oluşturuluyor...";
+
+//    try {
+
+//        const result =
+//            await api.post(
+//                "/Auth/register",
+//                {
+//                    fullName: fullName,
+//                    email: email,
+//                    password: password
+//                }
+//            );
+
+//        if (!result) {
+//            return;
+//        }
+
+//        localStorage.setItem(
+//            "token",
+//            result.data.token
+//        );
+
+//        localStorage.setItem(
+//            "userId",
+//            result.data.userId
+//        );
+
+//        localStorage.setItem(
+//            "fullName",
+//            result.data.fullName
+//        );
+
+//        localStorage.setItem(
+//            "email",
+//            result.data.email
+//        );
+
+//        window.location.href =
+//            "index.html";
+
+//    }
+//    catch (error) {
+
+//        console.error(error);
+
+//        showError(error.message);
+
+//    }
+//    finally {
+
+//        registerButton.disabled = false;
+
+//        registerButton.textContent =
+//            "Kayıt Ol";
+//    }
+//}
+
 async function register(event) {
 
     event.preventDefault();
 
+    const fullNameInput =
+        document.getElementById("fullName");
+
+    const emailInput =
+        document.getElementById("email");
+
+    const passwordInput =
+        document.getElementById("password");
+
+    const passwordConfirmInput =
+        document.getElementById("passwordConfirm");
+
     const fullName =
-        document
-            .getElementById("fullName")
-            .value
-            .trim();
+        fullNameInput.value.trim();
 
     const email =
-        document
-            .getElementById("email")
-            .value
-            .trim();
+        emailInput.value.trim();
 
     const password =
-        document
-            .getElementById("password")
-            .value;
+        passwordInput.value;
 
     const passwordConfirm =
-        document
-            .getElementById("passwordConfirm")
-            .value;
+        passwordConfirmInput.value;
 
     const errorMessage =
         document.getElementById("errorMessage");
@@ -156,12 +406,129 @@ async function register(event) {
         document.getElementById("registerButton");
 
     errorMessage.classList.add("d-none");
+    errorMessage.textContent = "";
+
+    [
+        fullNameInput,
+        emailInput,
+        passwordInput,
+        passwordConfirmInput
+    ].forEach(input => {
+
+        input.classList.remove(
+            "is-invalid"
+        );
+
+    });
+
+    /* ========================= */
+    /* LOCAL VALIDATION */
+    /* ========================= */
+
+    if (!fullName) {
+
+        fullNameInput.classList.add(
+            "is-invalid"
+        );
+
+        showError(
+            "Lütfen ad soyad bilginizi girin."
+        );
+
+        fullNameInput.focus();
+
+        return;
+    }
+
+    if (!email) {
+
+        emailInput.classList.add(
+            "is-invalid"
+        );
+
+        showError(
+            "Lütfen e-posta adresinizi girin."
+        );
+
+        emailInput.focus();
+
+        return;
+    }
+
+    if (!isValidEmail(email)) {
+
+        emailInput.classList.add(
+            "is-invalid"
+        );
+
+        showError(
+            "Lütfen geçerli bir e-posta adresi girin."
+        );
+
+        emailInput.focus();
+
+        return;
+    }
+
+    if (!password) {
+
+        passwordInput.classList.add(
+            "is-invalid"
+        );
+
+        showError(
+            "Lütfen bir şifre oluşturun."
+        );
+
+        passwordInput.focus();
+
+        return;
+    }
+
+    const passwordValid =
+        validatePasswordLive();
+
+    if (!passwordValid) {
+
+        passwordInput.classList.add(
+            "is-invalid"
+        );
+
+        showError(
+            "Şifreniz tüm gereksinimleri karşılamıyor."
+        );
+
+        passwordInput.focus();
+
+        return;
+    }
+
+    if (!passwordConfirm) {
+
+        passwordConfirmInput.classList.add(
+            "is-invalid"
+        );
+
+        showError(
+            "Lütfen şifrenizi tekrar girin."
+        );
+
+        passwordConfirmInput.focus();
+
+        return;
+    }
 
     if (password !== passwordConfirm) {
+
+        passwordConfirmInput.classList.add(
+            "is-invalid"
+        );
 
         showError(
             "Şifreler birbiriyle aynı değil."
         );
+
+        passwordConfirmInput.focus();
 
         return;
     }
@@ -215,7 +582,10 @@ async function register(event) {
 
         console.error(error);
 
-        showError(error.message);
+        showError(
+            error.message ||
+            "Kayıt oluşturulamadı. Lütfen bilgilerinizi kontrol edip tekrar deneyin."
+        );
 
     }
     finally {
@@ -224,6 +594,202 @@ async function register(event) {
 
         registerButton.textContent =
             "Kayıt Ol";
+    }
+}
+
+function isValidEmail(email) {
+
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        .test(email);
+}
+
+function initializeAuthValidation() {
+
+    const password =
+        document.getElementById("password");
+
+    const passwordConfirm =
+        document.getElementById(
+            "passwordConfirm"
+        );
+
+    if (!password || !passwordConfirm) {
+        return;
+    }
+
+    password.addEventListener(
+        "input",
+        () => {
+
+            validatePasswordLive();
+
+            validatePasswordConfirmLive();
+
+        }
+    );
+
+    passwordConfirm.addEventListener(
+        "input",
+        () => {
+
+            validatePasswordConfirmLive();
+
+        }
+    );
+}
+
+function validatePasswordLive() {
+
+    const password =
+        document.getElementById("password");
+
+    if (!password) {
+        return;
+    }
+
+    const value = password.value;
+
+    const lengthValid =
+        value.length >= 6;
+
+    const uppercaseValid =
+        /[A-ZÇĞİÖŞÜ]/.test(value);
+
+    const lowercaseValid =
+        /[a-zçğıöşü]/.test(value);
+
+    const digitValid =
+        /[0-9]/.test(value);
+
+    const specialValid =
+        /[^A-Za-zÇĞİÖŞÜçğıöşü0-9]/.test(value);
+
+    updatePasswordRequirement(
+        "passwordLength",
+        lengthValid
+    );
+
+    updatePasswordRequirement(
+        "passwordUppercase",
+        uppercaseValid
+    );
+
+    updatePasswordRequirement(
+        "passwordLowercase",
+        lowercaseValid
+    );
+
+    updatePasswordRequirement(
+        "passwordDigit",
+        digitValid
+    );
+
+    updatePasswordRequirement(
+        "passwordSpecial",
+        specialValid
+    );
+
+    return (
+        lengthValid &&
+        uppercaseValid &&
+        lowercaseValid &&
+        digitValid &&
+        specialValid
+    );
+}
+
+function updatePasswordRequirement(
+    elementId,
+    valid
+) {
+
+    const element =
+        document.getElementById(elementId);
+
+    if (!element) {
+        return;
+    }
+
+    const icon =
+        element.querySelector(".requirement-icon");
+
+    if (valid) {
+
+        element.classList.remove(
+            "text-danger"
+        );
+
+        element.classList.add(
+            "text-success"
+        );
+
+        icon.textContent = "✓";
+
+    }
+    else {
+
+        element.classList.remove(
+            "text-success"
+        );
+
+        element.classList.add(
+            "text-danger"
+        );
+
+        icon.textContent = "✕";
+    }
+}
+
+function validatePasswordConfirmLive() {
+
+    const password =
+        document.getElementById("password");
+
+    const passwordConfirm =
+        document.getElementById(
+            "passwordConfirm"
+        );
+
+    const passwordConfirmHint =
+        document.getElementById(
+            "passwordConfirmHint"
+        );
+
+    if (
+        !password ||
+        !passwordConfirm ||
+        !passwordConfirmHint
+    ) {
+        return;
+    }
+
+    if (!passwordConfirm.value) {
+
+        passwordConfirmHint.textContent =
+            "";
+
+        return;
+    }
+
+    if (
+        password.value ===
+        passwordConfirm.value
+    ) {
+
+        passwordConfirmHint.textContent =
+            "✓ Şifreler eşleşiyor.";
+
+        passwordConfirmHint.className =
+            "form-text text-success";
+
+    }
+    else {
+
+        passwordConfirmHint.textContent =
+            "✕ Şifreler eşleşmiyor.";
+
+        passwordConfirmHint.className =
+            "form-text text-danger";
     }
 }
 

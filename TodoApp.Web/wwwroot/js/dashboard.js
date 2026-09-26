@@ -3380,6 +3380,83 @@ function openEditTodoModal(id) {
     updateEmailReminderAvailability();
 
 
+    const todoModalElement =
+        document.getElementById("todoModal");
+
+    const notificationPanelIsOpen =
+        document.body.classList.contains(
+            "notification-panel-open"
+        );
+
+    if (notificationPanelIsOpen) {
+
+        todoModalElement.addEventListener(
+            "shown.bs.modal",
+            () => {
+
+                /*
+                 * Bootstrap modalın kendisini
+                 * notification panelinin üzerine çıkar.
+                 */
+                todoModalElement.style.zIndex = "1300";
+
+                /*
+                 * Bootstrap'ın oluşturduğu backdrop'u
+                 * notification panelinin üzerine,
+                 * fakat modalın altına çıkar.
+                 */
+                const backdrops =
+                    document.querySelectorAll(
+                        ".modal-backdrop"
+                    );
+
+                const backdrop =
+                    backdrops[backdrops.length - 1];
+
+                if (backdrop) {
+
+                    backdrop.style.zIndex =
+                        "1290";
+                }
+
+            },
+            {
+                once: true
+            }
+        );
+
+        todoModalElement.addEventListener(
+            "hidden.bs.modal",
+            () => {
+
+                todoModalElement.style.removeProperty(
+                    "z-index"
+                );
+
+                const backdrops =
+                    document.querySelectorAll(
+                        ".modal-backdrop"
+                    );
+
+                backdrops.forEach(backdrop => {
+
+                    backdrop.style.removeProperty(
+                        "z-index"
+                    );
+
+                });
+
+            },
+            {
+                once: true
+            }
+        );
+    }
+
+    todoModal.show();
+
+
+
     todoModal.show();
 }
 

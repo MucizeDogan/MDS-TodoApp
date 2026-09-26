@@ -30,12 +30,21 @@
             result = null;
         }
 
+        //if (response.status === 401) {
+
+        //    this.logout();
+
+        //    return null;
+        //}
         if (response.status === 401) {
 
-            this.logout();
+            const message =
+                result?.message ||
+                "E-posta adresi veya şifre hatalı.";
 
-            return null;
+            throw new Error(message);
         }
+
 
         if (!response.ok) {
 
