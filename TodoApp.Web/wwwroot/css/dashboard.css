@@ -2222,7 +2222,13 @@ body.dark-mode {
     color: var(--text-secondary);
     font-size: 14px;
     line-height: 1.7;
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
     white-space: pre-wrap;
+    text-align: left !important;
+    text-indent: 0 !important;
+    direction: ltr !important;
     overflow-wrap: anywhere;
     word-break: break-word;
 }

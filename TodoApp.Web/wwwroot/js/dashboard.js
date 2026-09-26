@@ -5011,6 +5011,24 @@ document
         }
     );
 
+function normalizeTodoDescription(value) {
+
+    if (typeof value !== "string") {
+        return "";
+    }
+
+    const normalized = value
+        .replace(/\u00A0/g, " ")
+        .replace(/\r\n?/g, "\n");
+
+    const lines = normalized
+        .split("\n")
+        .map(line => line.trim());
+
+    return lines.join("\n").trim();
+}
+
+
 function renderTodoDetail(todo) {
 
     const body = document.getElementById("todoDetailBody");
@@ -5046,13 +5064,11 @@ function renderTodoDetail(todo) {
         category?.name ||
         "Kategorisiz";
 
-    // Textarea / API kaynaklı satır sonu ve girintilerin
-    // detay ekranında açıklamanın ortasından başlamasına neden
-    // olmasını önlemek için baştaki/sondaki boşlukları temizliyoruz.
-    const descriptionText =
-        typeof todo.description === "string"
-            ? todo.description.trim()
-            : "";
+    // Açıklama API/DB'den temiz gelse bile render sırasında
+    // satır başlarındaki boşluklar ve NBSP karakterleri korunabilir.
+    // Her satırı ayrı normalize ederek drawer'da metnin ortadan
+    // başlamasına neden olabilecek görünmez girintileri kaldırıyoruz.
+    const descriptionText = normalizeTodoDescription(todo.description);
 
     const dueDate =
         todo.dueDate
@@ -5106,12 +5122,10 @@ function renderTodoDetail(todo) {
 
                 ${descriptionText
             ? `
-                        <div class="todo-detail-description">
-                            ${escapeHtml(descriptionText)}
-                        </div>
+                        <div class="todo-detail-description" id="todoDetailDescriptionText"></div>
                     `
             : `
-                        <div class="todo-detail-description is-empty">
+                        <div class="todo-detail-description is-empty" id="todoDetailDescriptionText">
                             Bu görev için henüz bir açıklama eklenmemiş.
                         </div>
                     `
@@ -5218,6 +5232,13 @@ function renderTodoDetail(todo) {
 
         </button>
     `;
+
+    // Açıklamayı template literal içindeki whitespace'den bağımsız olarak yaz.
+    // Böylece HTML şablonunun girintileri metnin başına taşınamaz.
+    const descriptionElement = document.getElementById("todoDetailDescriptionText");
+    if (descriptionElement && descriptionText) {
+        descriptionElement.textContent = descriptionText;
+    }
 }
 
 function formatTodoDate(value) {
