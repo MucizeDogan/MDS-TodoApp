@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using TodoApp.Application.Interfaces;
 using TodoApp.Domain.Entities;
 using TodoApp.Infrastructure.Data;
@@ -15,6 +15,31 @@ namespace TodoApp.Infrastructure.Services {
             var today = DateTime.Today;
             var tomorrow = today.AddDays(1);
             var dayAfterTomorrow = tomorrow.AddDays(1);
+
+            var preferences = await _context.Users
+                .Where(x => x.Id == userId)
+                .Select(x => new { x.TaskRemindersEnabled })
+                .FirstOrDefaultAsync();
+
+            if (preferences == null)
+                return;
+
+            // Uygulama bildirimleri ayrı bir "göster/gizle" tercihidir.
+            // Görev hatırlatmaları ise task bildirimlerinin üretilip üretilmeyeceğini belirler.
+            if (!preferences.TaskRemindersEnabled) {
+                var staleNotifications = await _context.Notifications
+                    .Where(x => x.UserId == userId &&
+                                x.RelatedEntityType == "TodoItem" &&
+                                (x.Type == "TaskOverdue" || x.Type == "TaskDueToday" || x.Type == "TaskDueTomorrow"))
+                    .ToListAsync();
+
+                if (staleNotifications.Count > 0) {
+                    _context.Notifications.RemoveRange(staleNotifications);
+                    await _context.SaveChangesAsync();
+                }
+
+                return;
+            }
 
             // ---------------------------------------------------------
             // 1. KULLANICININ AKTİF GÖREVLERİNİ GETİR

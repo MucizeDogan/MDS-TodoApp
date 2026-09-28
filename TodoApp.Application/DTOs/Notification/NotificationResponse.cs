@@ -31,6 +31,8 @@ namespace TodoApp.Application.DTOs.Notification {
 
         public string? CategoryName { get; set; }
 
+        public string? CategoryDisplayName { get; set; }
+
         public string? CategoryColor { get; set; }
     }
 }

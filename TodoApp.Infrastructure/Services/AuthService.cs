@@ -109,7 +109,8 @@ namespace TodoApp.Infrastructure.Services {
             var token = _tokenService.GenerateToken(
                 user.Id,
                 user.Email!,
-                user.FullName);
+                user.FullName,
+                user.SecurityStamp ?? string.Empty);
 
 
             return new AuthResponse {
@@ -143,7 +144,8 @@ namespace TodoApp.Infrastructure.Services {
             var token = _tokenService.GenerateToken(
                 user.Id,
                 user.Email!,
-                user.FullName);
+                user.FullName,
+                user.SecurityStamp ?? string.Empty);
 
 
             return new AuthResponse {

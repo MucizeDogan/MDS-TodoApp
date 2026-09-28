@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="tr">
 
 <head>
@@ -23,7 +23,7 @@
 
     <!-- Dashboard CSS -->
     <link rel="stylesheet"
-          href="/css/dashboard.css?v=20260926-4">
+          href="/css/dashboard.css?v=20260928-1">
 
 </head>
 
@@ -1537,6 +1537,30 @@
                                placeholder="Örn. İş, Kişisel..."
                                required>
 
+                        <small class="form-hint-modern" id="categoryNameHint">Ana kategoriler bağımsız başlıklar olarak kullanılır.</small>
+
+                    </div>
+
+
+                    <div class="category-type-picker" id="categoryTypePicker">
+                        <button type="button" class="category-type-option active" data-category-type="root">
+                            <i class="bi bi-folder2-open"></i>
+                            <span>Yeni ana kategori</span>
+                            <small>Bağımsız bir kategori oluştur</small>
+                        </button>
+                        <button type="button" class="category-type-option" data-category-type="child">
+                            <i class="bi bi-diagram-3"></i>
+                            <span>Alt kategori</span>
+                            <small>Bir ana kategoriye bağla</small>
+                        </button>
+                    </div>
+
+                    <div class="form-group-modern category-parent-group" id="categoryParentGroup" hidden>
+                        <label for="categoryParent">Bağlanacağı ana kategori</label>
+                        <select id="categoryParent" class="modern-input">
+                            <option value="">Ana kategori seçin</option>
+                        </select>
+                        <small class="form-hint-modern">Alt kategoriler yalnızca ana kategorilere bağlanabilir.</small>
                     </div>
 
 
@@ -1803,7 +1827,7 @@
     <!-- Application -->
     <script src="js/config.js?v=20260926"></script>
     <script src="js/api.js?v=20260926"></script>
-    <script src="js/dashboard.js?v=20260926-4"></script>
+    <script src="js/dashboard.js?v=20260928-1"></script>
 
 </body>
 

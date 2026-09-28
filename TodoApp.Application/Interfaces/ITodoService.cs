@@ -18,6 +18,8 @@ namespace TodoApp.Application.Interfaces {
 
         Task<bool> DeleteAsync(string userId, int id);
 
+        Task DeleteAllAsync(string userId);
+
         Task<TodoResponse?> SetCompletedAsync(string userId, int id, bool isCompleted);
     }
 }

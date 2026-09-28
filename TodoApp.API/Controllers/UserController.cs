@@ -172,5 +172,53 @@ namespace TodoApp.API.Controllers {
                     null,
                     "Email doğrulama bağlantısı gönderildi."));
         }
+        [HttpPut("NotificationPreferences")]
+        public async Task<IActionResult> UpdateNotificationPreferences(UpdateNotificationPreferencesRequest request) {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+            var result = await _userService.UpdateNotificationPreferencesAsync(userId, request);
+            return Ok(ApiResponse<UserProfileResponse>.Ok(result, "Bildirim tercihleri güncellendi."));
+        }
+
+        [HttpPost("RequestEmailChange")]
+        public async Task<IActionResult> RequestEmailChange(ChangeEmailRequest request) {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+            await _userService.RequestEmailChangeAsync(userId, request);
+            return Ok(ApiResponse<object>.Ok(null, "Yeni email adresinize onay bağlantısı gönderildi."));
+        }
+
+        [AllowAnonymous]
+        [HttpPost("ConfirmEmailChange")]
+        public async Task<IActionResult> ConfirmEmailChange(ConfirmEmailChangeRequest request) {
+            if (string.IsNullOrWhiteSpace(request.UserId)) return Unauthorized();
+            await _userService.ConfirmEmailChangeAsync(request.UserId, request);
+            return Ok(ApiResponse<object>.Ok(null, "Email adresiniz başarıyla değiştirildi."));
+        }
+
+        [HttpDelete("AllTodos")]
+        public async Task<IActionResult> DeleteAllTodos() {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+            await _userService.DeleteAllTodosAsync(userId);
+            return Ok(ApiResponse<object>.Ok(null, "Tüm görevleriniz silindi."));
+        }
+
+        [HttpDelete("Account")]
+        public async Task<IActionResult> DeleteAccount() {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+            await _userService.DeleteAccountAsync(userId);
+            return Ok(ApiResponse<object>.Ok(null, "Hesabınız silindi."));
+        }
+
+        [HttpPost("LogoutAllSessions")]
+        public async Task<IActionResult> LogoutAllSessions() {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+            await _userService.LogoutAllSessionsAsync(userId);
+            return Ok(ApiResponse<object>.Ok(null, "Tüm oturumlarınız sonlandırıldı."));
+        }
+
     }
 }

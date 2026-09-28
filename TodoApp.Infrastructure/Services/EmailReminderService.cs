@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TodoApp.Application.Interfaces;
 using TodoApp.Infrastructure.Data;
@@ -34,6 +34,7 @@ namespace TodoApp.Infrastructure.Services {
                     join user in _context.Users
                         on todo.UserId equals user.Id
                     where todo.EmailReminderEnabled
+                        && user.EmailNotificationsEnabled
                         && !todo.EmailReminderSent
                         && !todo.IsCompleted
                         && todo.EmailReminderAt.HasValue

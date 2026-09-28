@@ -110,6 +110,25 @@ builder.Services
 
             ClockSkew = TimeSpan.Zero
         };
+
+        options.Events = new JwtBearerEvents {
+            OnTokenValidated = async context => {
+                var userId = context.Principal?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                var tokenStamp = context.Principal?.FindFirst("security_stamp")?.Value;
+
+                if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(tokenStamp)) {
+                    context.Fail("Oturum gecersiz. Lutfen tekrar giris yapin.");
+                    return;
+                }
+
+                var userManager = context.HttpContext.RequestServices.GetRequiredService<UserManager<ApplicationUser>>();
+                var user = await userManager.FindByIdAsync(userId);
+
+                if (user == null || !string.Equals(user.SecurityStamp, tokenStamp, StringComparison.Ordinal)) {
+                    context.Fail("Oturum sonlandirilmis. Lutfen tekrar giris yapin.");
+                }
+            }
+        };
     });
 
 

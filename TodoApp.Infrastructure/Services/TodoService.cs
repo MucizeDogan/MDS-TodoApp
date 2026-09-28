@@ -92,6 +92,13 @@ namespace TodoApp.Infrastructure.Services {
         }
 
 
+        public async Task DeleteAllAsync(string userId) {
+            var todos = await _context.TodoItems.Where(x => x.UserId == userId).ToListAsync();
+            _context.TodoItems.RemoveRange(todos);
+            await _context.SaveChangesAsync();
+        }
+
+
         public async Task<TodoListResponse> GetAllAsync(
             string userId) {
             var query = _context.TodoItems
@@ -123,6 +130,10 @@ namespace TodoApp.Infrastructure.Services {
                     CategoryId = x.CategoryId,
 
                     CategoryName = x.Category.Name,
+
+                    CategoryDisplayName = x.Category.ParentCategory != null
+                        ? x.Category.ParentCategory.Name + " › " + x.Category.Name
+                        : x.Category.Name,
 
                     Priority = (int)x.Priority,
 
@@ -175,6 +186,10 @@ namespace TodoApp.Infrastructure.Services {
                     CategoryId = x.CategoryId,
 
                     CategoryName = x.Category.Name,
+
+                    CategoryDisplayName = x.Category.ParentCategory != null
+                        ? x.Category.ParentCategory.Name + " › " + x.Category.Name
+                        : x.Category.Name,
 
                     Priority = (int)x.Priority,
 

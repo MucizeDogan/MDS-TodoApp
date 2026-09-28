@@ -15,5 +15,9 @@ namespace TodoApp.Application.DTOs.Category {
         public string? Icon { get; set; }
 
         public int TodoCount { get; set; }
+        public int? ParentCategoryId { get; set; }
+        public string? ParentCategoryName { get; set; }
+
+        public string DisplayName { get; set; } = string.Empty;
     }
 }

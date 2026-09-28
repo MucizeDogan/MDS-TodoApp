@@ -15,5 +15,9 @@ namespace TodoApp.Application.DTOs.User {
         public bool EmailConfirmed { get; set; }
 
         public DateTime CreatedAt { get; set; }
+
+        public bool AppNotificationsEnabled { get; set; }
+        public bool TaskRemindersEnabled { get; set; }
+        public bool EmailNotificationsEnabled { get; set; }
     }
 }

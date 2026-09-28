@@ -35,6 +35,11 @@ namespace TodoApp.Domain.Entities {
 
         public string UserId { get; set; } = string.Empty;
 
+        // Alt kategori desteği
+        public int? ParentCategoryId { get; set; }
+        public Category? ParentCategory { get; set; }
+        public ICollection<Category> ChildCategories { get; set; } = new List<Category>();
+
         public ICollection<TodoItem> TodoItems { get; set; }
             = new List<TodoItem>();
     }

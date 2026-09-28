@@ -21,7 +21,8 @@ namespace TodoApp.Infrastructure.Services {
         public string GenerateToken(
             string userId,
             string email,
-            string? fullName) {
+            string? fullName,
+            string securityStamp) {
             var jwtKey = _configuration["Jwt:Key"];
 
             if (string.IsNullOrWhiteSpace(jwtKey)) {
@@ -42,7 +43,11 @@ namespace TodoApp.Infrastructure.Services {
 
                 new Claim(
                     ClaimTypes.Name,
-                    fullName ?? string.Empty)
+                    fullName ?? string.Empty),
+
+                new Claim(
+                    "security_stamp",
+                    securityStamp)
             };
 
 

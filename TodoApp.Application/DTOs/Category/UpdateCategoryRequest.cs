@@ -11,5 +11,7 @@ namespace TodoApp.Application.DTOs.Category {
         public string? Color { get; set; }
 
         public string? Icon { get; set; }
+
+        public int? ParentCategoryId { get; set; }
     }
 }

@@ -14,6 +14,18 @@ namespace TodoApp.Application.Interfaces {
 
         Task ChangePasswordAsync(string userId, ChangePasswordRequest request);
 
+        Task<UserProfileResponse> UpdateNotificationPreferencesAsync(string userId, UpdateNotificationPreferencesRequest request);
+
+        Task RequestEmailChangeAsync(string userId, ChangeEmailRequest request);
+
+        Task ConfirmEmailChangeAsync(string userId, ConfirmEmailChangeRequest request);
+
+        Task DeleteAccountAsync(string userId);
+
+        Task DeleteAllTodosAsync(string userId);
+
+        Task LogoutAllSessionsAsync(string userId);
+
         Task<string> GeneratePasswordResetTokenAsync(string email);
 
         Task ResetPasswordAsync(

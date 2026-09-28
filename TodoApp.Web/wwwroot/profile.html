@@ -23,11 +23,11 @@
 
     <!-- Dashboard CSS -->
     <link rel="stylesheet"
-          href="css/dashboard.css?v=20260926">
+          href="css/dashboard.css?v=20260928-1">
 
     <!-- Profile CSS -->
     <link rel="stylesheet"
-          href="css/profile.css">
+          href="css/profile.css?v=20260928-1">
 
 </head>
 
@@ -181,23 +181,22 @@
                         </label>
 
                         <div class="profile-input-wrapper disabled">
-
                             <i class="bi bi-envelope"></i>
-
                             <input type="email"
                                    id="profileEmail"
                                    class="profile-input"
                                    placeholder="Email adresiniz"
                                    autocomplete="email"
                                    readonly>
-
                             <i class="bi bi-lock-fill profile-input-lock"></i>
-
                         </div>
 
-                        <small>
-                            Email adresi şu anda değiştirilemez.
-                        </small>
+                        <div class="profile-email-actions">
+                            <small id="profileEmailHelp">Email adresinizi değiştirmek için doğrulama bağlantısı gönderilir.</small>
+                            <button type="button" class="profile-inline-action" id="changeEmailButton">
+                                <i class="bi bi-pencil"></i> Email değiştir
+                            </button>
+                        </div>
 
                     </div>
 
@@ -339,6 +338,39 @@
             </section>
 
             <!-- ===================================================== -->
+            <!-- ACCOUNT MANAGEMENT -->
+            <!-- ===================================================== -->
+
+            <section class="account-section-card">
+                <div class="account-section-header">
+                    <div class="account-section-icon management"><i class="bi bi-person-gear"></i></div>
+                    <div>
+                        <span class="profile-eyebrow">HESAP YÖNETİMİ</span>
+                        <h3>Hesabınızı yönetin</h3>
+                        <p>Oturumları, görevleri ve hesabınızı güvenli şekilde yönetin.</p>
+                    </div>
+                </div>
+
+                <button type="button" class="account-action-row" id="deleteAllTodosButton">
+                    <span class="account-action-icon"><i class="bi bi-check2-square"></i></span>
+                    <span class="account-action-text"><strong>Tüm görevleri sil</strong><small>Hesabınızdaki tüm görevleri ve görev bildirimlerini siler.</small></span>
+                    <i class="bi bi-chevron-right account-action-arrow"></i>
+                </button>
+
+                <button type="button" class="account-action-row" id="logoutAllSessionsButton">
+                    <span class="account-action-icon"><i class="bi bi-shield-exclamation"></i></span>
+                    <span class="account-action-text"><strong>Logout all sessions</strong><small>Bu cihaz dahil tüm aktif oturumları sonlandırır.</small></span>
+                    <i class="bi bi-chevron-right account-action-arrow"></i>
+                </button>
+
+                <button type="button" class="account-action-row account-danger-row" id="deleteAccountButton">
+                    <span class="account-action-icon"><i class="bi bi-trash3"></i></span>
+                    <span class="account-action-text"><strong>Hesabı sil</strong><small>Hesabınızı, görevlerinizi ve kategorilerinizi kalıcı olarak siler.</small></span>
+                    <i class="bi bi-chevron-right account-action-arrow"></i>
+                </button>
+            </section>
+
+            <!-- ===================================================== -->
             <!-- NOTIFICATIONS -->
             <!-- ===================================================== -->
 
@@ -352,17 +384,18 @@
                     </div>
                 </div>
                 <div class="account-setting-row">
-                    <div class="account-setting-text"><strong>Uygulama bildirimleri</strong><small>Görev ve hesap bildirimlerini uygulama içinde göster.</small></div>
+                    <div class="account-setting-text"><strong>Uygulama içi bildirimler</strong><small>Bildirim merkezini açar. Kapatırsanız uygulamadaki bildirimler gizlenir.</small></div>
                     <label class="account-switch"><input type="checkbox" id="appNotificationsToggle"><span></span></label>
                 </div>
                 <div class="account-setting-row">
-                    <div class="account-setting-text"><strong>Görev hatırlatmaları</strong><small>Yaklaşan son tarihler için hatırlatma göster.</small></div>
+                    <div class="account-setting-text"><strong>Görev son tarih hatırlatmaları</strong><small>Bugün, yarın ve geciken görevler için uygulama içi bildirim üretir.</small></div>
                     <label class="account-switch"><input type="checkbox" id="taskRemindersToggle"><span></span></label>
                 </div>
                 <div class="account-setting-row">
-                    <div class="account-setting-text"><strong>Email bildirimleri</strong><small>Email doğrulandıktan sonra görev hatırlatmaları için kullanılacak.</small></div>
-                    <label class="account-switch"><input type="checkbox" id="emailNotificationsToggle"><span></span></label>
+                    <div class="account-setting-text"><strong>Email görev hatırlatmaları</strong><small id="emailNotificationsHelp">Doğrulanmış email adresinize görev son tarih hatırlatmaları gönderir.</small></div>
+                    <label class="account-switch" id="emailNotificationsSwitchWrap"><input type="checkbox" id="emailNotificationsToggle"><span></span></label>
                 </div>
+                <div class="notification-preference-note"><i class="bi bi-info-circle"></i><span>Uygulama içi bildirimler bildirim merkezinin görünürlüğünü, görev hatırlatmaları ise hangi görev uyarılarının üretileceğini kontrol eder.</span></div>
             </section>
 
             <!-- ===================================================== -->
@@ -387,6 +420,29 @@
         </main>
 
     </div>
+
+    <!-- ===================================================== -->
+    <!-- CHANGE EMAIL MODAL -->
+    <!-- ===================================================== -->
+    <div class="password-modal-overlay" id="emailChangeModalOverlay" aria-hidden="true"></div>
+    <section class="password-modal account-management-modal" id="emailChangeModal" aria-hidden="true" role="dialog" aria-modal="true">
+        <div class="password-modal-handle"></div>
+        <div class="password-modal-header">
+            <div>
+                <h2>Email değiştir</h2>
+                <p>Yeni adresinize doğrulama bağlantısı gönderilir. Bağlantıyı onayladığınızda değişiklik hesabınıza otomatik kaydedilir.</p>
+            </div>
+            <button type="button" class="password-modal-close" id="closeEmailChangeModalButton"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <form id="changeEmailForm" novalidate>
+            <div class="password-form-group">
+                <label for="newEmail">Yeni email adresi</label>
+                <input type="email" id="newEmail" class="password-modern-input" autocomplete="email" placeholder="ornek@mail.com">
+                <div class="password-field-error" id="newEmailError"></div>
+            </div>
+            <button type="submit" class="password-submit-button" id="changeEmailSubmitButton"><i class="bi bi-send"></i><span>Onay bağlantısı gönder</span></button>
+        </form>
+    </section>
 
     <!-- ===================================================== -->
     <!-- CHANGE PASSWORD MODAL -->
@@ -542,27 +598,34 @@
 
             <div class="password-rules">
 
-                <div class="password-rule"
-                     id="passwordLengthRule">
-
+                <div class="password-rule" id="passwordLengthRule">
                     <i class="bi bi-circle"></i>
-
-                    <span>
-                        En az 6 karakter
-                    </span>
-
+                    <span>En az 6 karakter</span>
                 </div>
 
-
-                <div class="password-rule"
-                     id="passwordMatchRule">
-
+                <div class="password-rule" id="passwordUppercaseRule">
                     <i class="bi bi-circle"></i>
+                    <span>En az 1 büyük harf</span>
+                </div>
 
-                    <span>
-                        Şifreler eşleşiyor
-                    </span>
+                <div class="password-rule" id="passwordLowercaseRule">
+                    <i class="bi bi-circle"></i>
+                    <span>En az 1 küçük harf</span>
+                </div>
 
+                <div class="password-rule" id="passwordDigitRule">
+                    <i class="bi bi-circle"></i>
+                    <span>En az 1 rakam</span>
+                </div>
+
+                <div class="password-rule" id="passwordSpecialRule">
+                    <i class="bi bi-circle"></i>
+                    <span>En az 1 özel karakter</span>
+                </div>
+
+                <div class="password-rule" id="passwordMatchRule">
+                    <i class="bi bi-circle"></i>
+                    <span>Şifreler eşleşiyor</span>
                 </div>
 
             </div>
@@ -616,9 +679,9 @@
 
     <script src="/js/config.js"></script>
 
-    <script src="/js/api.js"></script>
+    <script src="/js/api.js?v=20260928-1"></script>
 
-    <script src="/js/profile.js"></script>
+    <script src="/js/profile.js?v=20260928-1"></script>
 
 </body>
 

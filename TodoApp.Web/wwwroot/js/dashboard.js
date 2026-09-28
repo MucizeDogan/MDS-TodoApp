@@ -1,4 +1,4 @@
-let todos = [];
+﻿let todos = [];
 let categories = [];
 let currentUserProfile = null;
 
@@ -368,6 +368,8 @@ function initializeEvents() {
             "click",
             saveCategory
         );
+
+    initializeCategoryTypePicker();
 
 
     /* Search */
@@ -1472,42 +1474,17 @@ function renderCategories() {
 
 
     container.innerHTML =
-        categories
-            .map(category => {
-
-                const color =
-                    category.color
-                    || "#6c63ff";
-
+        getCategoryTree()
+            .map(item => {
+                const category = item.category;
+                const color = category.color || "#6c63ff";
                 return `
-                    <div class="dashboard-category">
-
-                        <span
-                            class="category-dot"
-                            style="
-                                --category-color:${color}
-                            ">
-                        </span>
-
-                        <span
-                            class="dashboard-category-name">
-
-                            ${escapeHtml(
-                    category.name
-                )}
-
-                        </span>
-
-                        <span
-                            class="dashboard-category-count">
-
-                            ${category.todoCount || 0}
-
-                        </span>
-
+                    <div class="dashboard-category ${item.depth > 0 ? "dashboard-category-child" : ""}">
+                        <span class="category-dot" style="--category-color:${color}"></span>
+                        <span class="dashboard-category-name">${escapeHtml(getCategoryDisplayName(category))}</span>
+                        <span class="dashboard-category-count">${category.todoCount || 0}</span>
                     </div>
                 `;
-
             })
             .join("");
 }
@@ -1534,41 +1511,21 @@ function renderSidebarCategories() {
 
 
     container.innerHTML =
-        categories
-            .map(category => {
-
-                const color =
-                    category.color
-                    || "#6c63ff";
+        getCategoryTree()
+            .map(item => {
+                const category = item.category;
+                const color = category.color || "#6c63ff";
+                const label = getCategoryDisplayName(category);
 
                 return `
                     <button
-                        class="sidebar-category"
+                        class="sidebar-category ${item.depth > 0 ? "sidebar-category-child" : ""}"
                         data-category-id="${category.id}">
-
-                        <span
-                            class="category-dot"
-                            style="
-                                --category-color:${color}
-                            ">
-                        </span>
-
-                        <span>
-                            ${escapeHtml(
-                    category.name
-                )}
-                        </span>
-
-                        <span
-                            class="sidebar-category-count">
-
-                            ${category.todoCount || 0}
-
-                        </span>
-
+                        <span class="category-dot" style="--category-color:${color}"></span>
+                        <span>${escapeHtml(label)}</span>
+                        <span class="sidebar-category-count">${category.todoCount || 0}</span>
                     </button>
                 `;
-
             })
             .join("");
 
@@ -1703,17 +1660,10 @@ function renderCategoryFilter() {
     `;
 
 
-    categories.forEach(category => {
-
-        const option =
-            document.createElement("option");
-
-        option.value =
-            category.id;
-
-        option.textContent =
-            category.name;
-
+    getCategoryTree().forEach(item => {
+        const option = document.createElement("option");
+        option.value = item.category.id;
+        option.textContent = getCategoryDisplayName(item.category);
         select.appendChild(option);
     });
 
@@ -2075,6 +2025,10 @@ function renderTask(todo) {
         category?.color
         || "#6c63ff";
 
+    const categoryDisplayName =
+        todo.categoryDisplayName ||
+        getCategoryDisplayName(category);
+
 
     const due =
         formatDueDate(
@@ -2164,7 +2118,7 @@ function renderTask(todo) {
 
                 <div class="task-meta">
 
-                    ${todo.categoryName
+                    ${categoryDisplayName
             ? `
                             <span
                                 class="task-category">
@@ -2177,7 +2131,7 @@ function renderTask(todo) {
                                 </span>
 
                                 ${escapeHtml(
-                todo.categoryName
+                categoryDisplayName
             )}
 
                             </span>
@@ -3323,35 +3277,67 @@ function openCreateTodoModal() {
 }
 
 
+function getCategoryRoots(excludeId = null) {
+    const excludedId = excludeId == null ? null : Number(excludeId);
+    return categories
+        .filter(category => !category.parentCategoryId && Number(category.id) !== excludedId)
+        .sort((a,b) => String(a.name).localeCompare(String(b.name), "tr", { sensitivity: "base" }));
+}
+
+function getCategoryChildren(parentId, excludeId = null) {
+    const excludedId = excludeId == null ? null : Number(excludeId);
+    return categories
+        .filter(category => Number(category.parentCategoryId) === Number(parentId) && Number(category.id) !== excludedId)
+        .sort((a,b) => String(a.name).localeCompare(String(b.name), "tr", { sensitivity: "base" }));
+}
+
+function getCategoryDisplayName(category) {
+    if (!category) return "";
+    if (category.displayName) return category.displayName;
+    const parent = categories.find(x => Number(x.id) === Number(category.parentCategoryId));
+    return parent ? `${parent.name} › ${category.name}` : category.name;
+}
+
 function populateTodoCategories() {
-
-    const select =
-        document.getElementById(
-            "todoCategory"
-        );
-
-
-    select.innerHTML = `
-        <option value="">
-            Kategori seçin
-        </option>
-    `;
-
-
-    categories.forEach(category => {
-
-        const option =
-            document.createElement("option");
-
-        option.value =
-            category.id;
-
-        option.textContent =
-            category.name;
-
-        select.appendChild(option);
+    const select = document.getElementById("todoCategory");
+    if (!select) return;
+    select.innerHTML = `<option value="">Kategori seçin</option>`;
+    getCategoryRoots().forEach(root => {
+        const rootOption = document.createElement("option");
+        rootOption.value = root.id;
+        rootOption.textContent = root.name;
+        select.appendChild(rootOption);
+        getCategoryChildren(root.id).forEach(child => {
+            const option = document.createElement("option");
+            option.value = child.id;
+            option.textContent = `   ${root.name} › ${child.name}`;
+            select.appendChild(option);
+        });
     });
 }
+
+function getCategoryTree(excludeId = null) {
+    const result = [];
+    getCategoryRoots(excludeId).forEach(root => {
+        result.push({ category: root, depth: 0 });
+        getCategoryChildren(root.id, excludeId).forEach(child => result.push({ category: child, depth: 1 }));
+    });
+    return result;
+}
+
+function populateCategoryParentSelect(excludeId = null, selectedId = null) {
+    const select = document.getElementById("categoryParent");
+    if (!select) return;
+    select.innerHTML = `<option value="">Ana kategori seçin</option>`;
+    getCategoryRoots(excludeId).forEach(root => {
+        const option = document.createElement("option");
+        option.value = root.id;
+        option.textContent = root.name;
+        select.appendChild(option);
+    });
+    if (selectedId != null) select.value = String(selectedId);
+}
+
 
 
 /* ========================================================= */
@@ -3954,80 +3940,30 @@ function renderCategoryManagement() {
     }
 
 
-    container.innerHTML =
-        categories
-            .map(category => {
-
-                const color =
-                    category.color
-                    || "#6c63ff";
-
-                const todoCount =
-                    category.todoCount || 0;
-
-
-                return `
-                    <div class="category-management-item">
-
-                        <div class="category-management-info">
-
-                            <span
-                                class="category-management-dot"
-                                style="
-                                    --category-color:${escapeHtml(color)}
-                                ">
-                            </span>
-
-                            <div class="category-management-text">
-
-                                <strong>
-                                    ${escapeHtml(category.name)}
-                                </strong>
-
-                                <span>
-                                    ${todoCount}
-                                    ${todoCount === 1
-                        ? "görev"
-                        : "görev"}
-                                </span>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="category-management-actions">
-
-                            <button
-                                type="button"
-                                class="category-management-action edit"
-                                title="Kategoriyi düzenle"
-                                data-category-action="edit"
-                                data-category-id="${category.id}">
-
-                                <i class="bi bi-pencil"></i>
-
-                            </button>
-
-
-                            <button
-                                type="button"
-                                class="category-management-action delete"
-                                title="Kategoriyi sil"
-                                data-category-action="delete"
-                                data-category-id="${category.id}">
-
-                                <i class="bi bi-trash3"></i>
-
-                            </button>
-
-                        </div>
-
+    const roots = getCategoryRoots();
+    container.innerHTML = roots.map(root => {
+        const color = root.color || "#6c63ff";
+        const children = getCategoryChildren(root.id);
+        const todoCount = root.todoCount || 0;
+        return `
+            <section class="category-management-group">
+                <div class="category-management-item category-management-root">
+                    <div class="category-management-info">
+                        <span class="category-management-dot" style="--category-color:${escapeHtml(color)}"></span>
+                        <div class="category-management-text"><strong>${escapeHtml(root.name)}</strong><span>Ana kategori • ${todoCount} görev • ${children.length} alt kategori</span></div>
                     </div>
-                `;
-
-            })
-            .join("");
+                    <div class="category-management-actions">
+                        <button type="button" class="category-management-action child-add" title="Alt kategori ekle" data-category-action="add-child" data-category-id="${root.id}"><i class="bi bi-folder-plus"></i></button>
+                        <button type="button" class="category-management-action edit" title="Kategoriyi düzenle" data-category-action="edit" data-category-id="${root.id}"><i class="bi bi-pencil"></i></button>
+                        <button type="button" class="category-management-action delete" title="Kategoriyi sil" data-category-action="delete" data-category-id="${root.id}"><i class="bi bi-trash3"></i></button>
+                    </div>
+                </div>
+                ${children.length ? children.map(child => {
+                    const childColor = child.color || color;
+                    return `<div class="category-management-item category-management-child"><div class="category-management-info"><span class="category-management-branch"><i class="bi bi-arrow-return-right"></i></span><span class="category-management-dot" style="--category-color:${escapeHtml(childColor)}"></span><div class="category-management-text"><strong>${escapeHtml(child.name)}</strong><span>Alt kategori • ${escapeHtml(root.name)} • ${child.todoCount || 0} görev</span></div></div><div class="category-management-actions"><button type="button" class="category-management-action edit" title="Alt kategoriyi düzenle" data-category-action="edit" data-category-id="${child.id}"><i class="bi bi-pencil"></i></button><button type="button" class="category-management-action delete" title="Alt kategoriyi sil" data-category-action="delete" data-category-id="${child.id}"><i class="bi bi-trash3"></i></button></div></div>`;
+                }).join("") : `<button type="button" class="category-management-empty-child" data-category-action="add-child" data-category-id="${root.id}"><i class="bi bi-plus-circle"></i> Bu ana kategoriye alt kategori ekle</button>`}
+            </section>`;
+    }).join("");
 
 
     container
@@ -4049,7 +3985,15 @@ function renderCategoryManagement() {
                         );
 
 
-                    if (action === "edit") {
+                    if (action === "add-child") {
+
+                        openCreateChildCategoryModal(
+                            categoryId
+                        );
+
+                    }
+
+                    else if (action === "edit") {
 
                         openEditCategoryModal(
                             categoryId
@@ -4075,6 +4019,24 @@ function renderCategoryManagement() {
 /* ========================================================= */
 /* CATEGORY CREATE */
 /* ========================================================= */
+
+function setCategoryType(type, selectedParentId = null) {
+    const normalizedType = type === "child" ? "child" : "root";
+    const picker = document.getElementById("categoryTypePicker");
+    const parentGroup = document.getElementById("categoryParentGroup");
+    const parentSelect = document.getElementById("categoryParent");
+    const nameHint = document.getElementById("categoryNameHint");
+    picker?.querySelectorAll("[data-category-type]").forEach(button => button.classList.toggle("active", button.dataset.categoryType === normalizedType));
+    if (parentGroup) parentGroup.hidden = normalizedType !== "child";
+    if (parentSelect) parentSelect.required = normalizedType === "child";
+    if (nameHint) nameHint.textContent = normalizedType === "child" ? "Alt kategori yalnızca bir ana kategoriye bağlanabilir." : "Ana kategori bağımsız bir çalışma alanıdır.";
+    if (normalizedType === "child") populateCategoryParentSelect(editingCategoryId, selectedParentId);
+    else if (parentSelect) parentSelect.value = "";
+}
+
+function initializeCategoryTypePicker() {
+    document.getElementById("categoryTypePicker")?.querySelectorAll("[data-category-type]").forEach(button => button.addEventListener("click", () => setCategoryType(button.dataset.categoryType)));
+}
 
 function openCreateCategoryModal(
     fromManagement = false,
@@ -4127,6 +4089,8 @@ function openCreateCategoryModal(
     document.getElementById(
         "categoryName"
     ).value = "";
+
+    setCategoryType("root");
 
 
     document
@@ -4183,6 +4147,31 @@ function openCreateCategoryModal(
     }
 
 
+    categoryModal.show();
+}
+
+function openCreateChildCategoryModal(parentCategoryId) {
+    const parent = categories.find(x => Number(x.id) === Number(parentCategoryId));
+    if (!parent || parent.parentCategoryId) {
+        showToast("Ana kategori seçin", "Yalnızca ana kategorilere alt kategori eklenebilir.", true);
+        return;
+    }
+    editingCategoryId = null;
+    returnToCategoryManagement = true;
+    returnToTodoCreation = false;
+    document.getElementById("categoryModalTitle").textContent = "Alt Kategori Ekle";
+    document.getElementById("saveCategoryButtonText").textContent = "Oluştur";
+    document.getElementById("categoryCreateIntro").style.display = "none";
+    document.getElementById("categoryName").value = "";
+    setCategoryType("child", parent.id);
+    document.querySelectorAll("#categoryModal .color-option").forEach(x => x.classList.remove("selected"));
+    document.querySelector("#categoryModal .color-option")?.classList.add("selected");
+    const managementElement = document.getElementById("categoryManagementModal");
+    if (managementElement?.classList.contains("show")) {
+        categoryManagementModal.hide();
+        managementElement.addEventListener("hidden.bs.modal", () => categoryModal.show(), { once: true });
+        return;
+    }
     categoryModal.show();
 }
 
@@ -4251,6 +4240,11 @@ function openEditCategoryModal(categoryId) {
         "categoryName"
     ).value =
         category.name || "";
+
+    setCategoryType(
+        category.parentCategoryId ? "child" : "root",
+        category.parentCategoryId ?? null
+    );
 
 
     document
@@ -4334,6 +4328,16 @@ async function saveCategory() {
             "#categoryModal .color-option.selected"
         );
 
+    const parentSelect =
+        document.getElementById("categoryParent");
+
+    const categoryType = document.querySelector("#categoryTypePicker .category-type-option.active")?.dataset.categoryType || "root";
+    const parentCategoryId = categoryType === "child" && parentSelect?.value ? Number(parentSelect.value) : null;
+    if (categoryType === "child" && !parentCategoryId) {
+        showToast("Ana kategori seçin", "Alt kategori oluşturmak için önce bir ana kategori seçmelisiniz.", true);
+        return;
+    }
+
 
     const color =
         selectedColor?.dataset.color
@@ -4387,7 +4391,8 @@ async function saveCategory() {
                     {
                         name: name,
                         color: color,
-                        icon: null
+                        icon: null,
+                        parentCategoryId: parentCategoryId
                     }
                 );
 
@@ -4406,7 +4411,8 @@ async function saveCategory() {
                     {
                         name: name,
                         color: color,
-                        icon: null
+                        icon: null,
+                        parentCategoryId: parentCategoryId
                     }
                 );
 
@@ -4740,7 +4746,8 @@ function renderUpcoming() {
                             </strong>
 
                             <span>
-                                ${todo.categoryName
+                                ${todo.categoryDisplayName
+                    || getCategoryDisplayName(categories.find(x => Number(x.id) === Number(todo.categoryId)))
                     || "Kategori yok"
                     }
                             </span>
@@ -5060,8 +5067,8 @@ function renderTodoDetail(todo) {
         priorityMap[todo.priority] || priorityMap[2];
 
     const categoryName =
-        todo.categoryName ||
-        category?.name ||
+        todo.categoryDisplayName ||
+        getCategoryDisplayName(category) ||
         "Kategorisiz";
 
     // Açıklama API/DB'den temiz gelse bile render sırasında
@@ -6170,12 +6177,8 @@ function renderNotificationItem(
             notification.todoPriority
         );
 
-    const categoryName =
-        notification.categoryName
-            ? escapeNotificationHtml(
-                notification.categoryName
-            )
-            : "";
+    const categoryName = notification.categoryDisplayName || notification.categoryName || "";
+    const safeCategoryName = escapeNotificationHtml(categoryName);
 
     const categoryColor =
         notification.categoryColor ||
@@ -6236,7 +6239,7 @@ function renderNotificationItem(
         }
 >
     <span class="notification-category-dot"></span>
-    ${categoryName}
+    ${safeCategoryName}
 </span>
                               `
             : ""

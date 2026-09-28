@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using TodoApp.Application.DTOs.Common;
 using TodoApp.Application.DTOs.Notification;
 using TodoApp.Application.Interfaces;
+using TodoApp.Infrastructure.Identity;
 
 namespace TodoApp.API.Controllers {
     [ApiController]
@@ -12,12 +14,16 @@ namespace TodoApp.API.Controllers {
     public class NotificationController : ControllerBase {
         private readonly INotificationService _notificationService;
         private readonly INotificationGenerator _notificationGenerator;
+        private readonly UserManager<ApplicationUser> _userManager;
 
 
         public NotificationController(
-            INotificationService notificationService, INotificationGenerator notificationGenerator) {
+            INotificationService notificationService,
+            INotificationGenerator notificationGenerator,
+            UserManager<ApplicationUser> userManager) {
             _notificationService = notificationService;
             _notificationGenerator = notificationGenerator;
+            _userManager = userManager;
         }
 
 
@@ -31,6 +37,20 @@ namespace TodoApp.API.Controllers {
 
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized();
+
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user == null)
+                return Unauthorized();
+
+            // Uygulama bildirimleri kapalıysa bildirim merkezini boş döndürürüz.
+            // Kayıtları silmeyiz; tekrar açıldığında geçerli bildirimler görünür.
+            if (!user.AppNotificationsEnabled)
+            {
+                return Ok(
+                    ApiResponse<List<NotificationResponse>>
+                        .Ok(new List<NotificationResponse>(), "Uygulama bildirimleri kapalı."));
+            }
 
             await _notificationGenerator.GenerateUpcomingTaskNotificationsAsync(userId);
 

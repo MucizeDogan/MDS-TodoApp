@@ -1,4 +1,4 @@
-﻿class ApiClient {
+class ApiClient {
 
     async request(url, options = {}) {
 
@@ -37,6 +37,10 @@
         //    return null;
         //}
         if (response.status === 401) {
+            if (!this.isPublicAuthRequest(url)) {
+                this.logout("Oturumunuz sonlandırıldı. Lütfen tekrar giriş yapın.");
+                return null;
+            }
 
             const message =
                 result?.message ||
@@ -116,12 +120,32 @@
     }
 
 
-    logout() {
+    isPublicAuthRequest(url) {
+        const publicPrefixes = [
+            "/Auth/login",
+            "/Auth/register",
+            "/User/ForgotPassword",
+            "/User/ResetPassword",
+            "/User/ConfirmEmail",
+            "/User/GenerateEmailConfirmation",
+            "/User/ResendEmailConfirmation",
+            "/User/ConfirmEmailChange"
+        ];
 
+        return publicPrefixes.some(prefix =>
+            String(url).toLowerCase().startsWith(prefix.toLowerCase())
+        );
+    }
+
+    logout(message = null) {
         localStorage.removeItem("token");
         localStorage.removeItem("userId");
         localStorage.removeItem("fullName");
         localStorage.removeItem("email");
+
+        if (message) {
+            sessionStorage.setItem("authRedirectMessage", message);
+        }
 
         window.location.href = "login.html";
     }

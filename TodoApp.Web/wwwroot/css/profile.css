@@ -738,6 +738,15 @@ body.dark-mode .profile-account-info {
     opacity: .78
 }
 
+ .notification-preference-note {
+    display:flex; align-items:flex-start; gap:8px; margin-top:12px; padding:10px 11px;
+    border:1px solid var(--border); border-radius:10px; background:var(--surface-soft);
+    color:var(--text-secondary); font-size:10px; line-height:1.5;
+}
+.notification-preference-note i { flex:0 0 auto; color:var(--primary); margin-top:1px; }
+#emailNotificationsSwitchWrap.is-disabled { cursor:not-allowed; opacity:.68; }
+#emailNotificationsSwitchWrap.is-disabled span { cursor:not-allowed; }
+
 .account-switch {
     position: relative;
     width: 46px;
@@ -1283,4 +1292,177 @@ body.password-modal-open {
         width: 100%;
         min-height: 38px;
     }
+}
+/* ========================================================= */
+/* ACCOUNT MANAGEMENT / EMAIL CHANGE */
+/* ========================================================= */
+.account-section-icon.management {
+    background: rgba(34,197,94,.10);
+    color: #16a34a;
+}
+
+.profile-email-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 6px;
+}
+
+.profile-inline-action {
+    flex: 0 0 auto;
+    border: 0;
+    background: transparent;
+    color: var(--primary);
+    font-size: 10px;
+    font-weight: 700;
+    padding: 4px 0;
+    cursor: pointer;
+}
+
+.account-danger-row {
+    color: #ef4444 !important;
+}
+
+.account-danger-row .account-action-icon {
+    color: #ef4444;
+    background: rgba(239,68,68,.08);
+}
+
+.account-danger-row:hover {
+    color: #dc2626 !important;
+}
+
+.account-management-modal {
+    z-index: 1310;
+}
+
+#emailChangeModalOverlay {
+    z-index: 1305;
+}
+
+@media (max-width: 575.98px) {
+    .profile-email-actions {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 3px;
+    }
+}
+
+
+/* ========================================================= */
+/* EMAIL CHANGE MODAL - ROBUST LAYER                         */
+/* ========================================================= */
+
+#emailChangeModalOverlay {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 1500 !important;
+    background: rgba(15, 16, 24, 0.58);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity .22s ease, visibility .22s ease;
+    backdrop-filter: blur(3px);
+}
+
+#emailChangeModalOverlay.active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+#emailChangeModal {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 1510 !important;
+    display: block !important;
+    width: auto !important;
+    max-height: 92dvh;
+    overflow-y: auto;
+    padding: 10px 18px calc(18px + env(safe-area-inset-bottom));
+    border-radius: 24px 24px 0 0;
+    background: var(--surface);
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, .18);
+    transform: translateY(105%);
+    opacity: 1;
+    visibility: hidden;
+    pointer-events: none;
+    transition: transform .28s ease, visibility .28s ease;
+}
+
+#emailChangeModal.active {
+    transform: translateY(0);
+    visibility: visible;
+    pointer-events: auto;
+}
+
+body.email-change-modal-open {
+    overflow: hidden;
+}
+
+@media (min-width: 701px) {
+    #emailChangeModal {
+        top: 50% !important;
+        left: 50% !important;
+        right: auto !important;
+        bottom: auto !important;
+        width: min(460px, calc(100vw - 40px)) !important;
+        max-height: calc(100vh - 40px);
+        border-radius: 20px;
+        padding: 24px;
+        transform: translate(-50%, -45%);
+        opacity: 0;
+        visibility: hidden;
+        transition: transform .25s ease, opacity .25s ease, visibility .25s ease;
+    }
+
+    #emailChangeModal.active {
+        transform: translate(-50%, -50%);
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
+@media (max-width: 430px) {
+    #emailChangeModal {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+}
+
+
+/* Full-card account actions */
+.account-action-row {
+    box-sizing: border-box;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    min-height: 66px;
+    margin: 0;
+    padding: 11px 0;
+    text-decoration: none;
+}
+
+button.account-action-row {
+    appearance: none;
+    -webkit-appearance: none;
+    font: inherit;
+    border-left: 0;
+    border-right: 0;
+    border-bottom: 0;
+}
+
+button.account-action-row:focus-visible {
+    outline: 0;
+    box-shadow: 0 0 0 3px rgba(108, 99, 255, .14);
+    border-radius: 10px;
+}
+
+button.account-action-row .account-action-text,
+button.account-action-row .account-action-icon,
+button.account-action-row .account-action-arrow {
+    pointer-events: none;
 }

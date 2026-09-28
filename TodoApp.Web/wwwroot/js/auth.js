@@ -1,9 +1,17 @@
-﻿document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", () => {
 
     const loginForm = document.getElementById("loginForm");
 
     if (loginForm) {
         loginForm.addEventListener("submit", login);
+
+        const redirectMessage =
+            sessionStorage.getItem("authRedirectMessage");
+
+        if (redirectMessage) {
+            sessionStorage.removeItem("authRedirectMessage");
+            showError(redirectMessage);
+        }
     }
 
     const registerForm = document.getElementById("registerForm");

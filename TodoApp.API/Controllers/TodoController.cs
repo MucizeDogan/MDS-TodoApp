@@ -93,6 +93,14 @@ namespace TodoApp.API.Controllers {
         }
 
 
+
+        [HttpDelete("all")]
+        public async Task<IActionResult> DeleteAll() {
+            var userId = _currentUser.UserId!;
+            await _todoService.DeleteAllAsync(userId);
+            return Ok(ApiResponse<object>.Ok(null, "Tüm görevleriniz silindi."));
+        }
+
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id) {
             var userId = _currentUser.UserId!;

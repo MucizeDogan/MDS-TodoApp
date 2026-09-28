@@ -87,6 +87,17 @@ namespace TodoApp.Infrastructure.Services {
                             .FirstOrDefault()
                         : null,
 
+                    CategoryDisplayName = x.RelatedEntityId.HasValue
+                        ? _context.TodoItems
+                            .Where(t =>
+                                t.Id == x.RelatedEntityId.Value &&
+                                t.UserId == userId)
+                            .Select(t => t.Category.ParentCategory != null
+                                ? t.Category.ParentCategory.Name + " › " + t.Category.Name
+                                : t.Category.Name)
+                            .FirstOrDefault()
+                        : null,
+
                     CategoryColor = x.RelatedEntityId.HasValue
                         ? _context.TodoItems
                             .Where(t =>

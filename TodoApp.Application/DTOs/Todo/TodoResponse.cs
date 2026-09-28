@@ -16,6 +16,8 @@ namespace TodoApp.Application.DTOs.Todo {
 
         public string CategoryName { get; set; } = string.Empty;
 
+        public string CategoryDisplayName { get; set; } = string.Empty;
+
         public int Priority { get; set; }
 
         public bool IsCompleted { get; set; }

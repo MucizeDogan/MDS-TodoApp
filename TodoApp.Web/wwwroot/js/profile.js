@@ -123,44 +123,20 @@ function initializeAccountSettings() {
     }
 
 
-    /* ------------------------------------------------------- */
-    /* App Notifications */
-    /* ------------------------------------------------------- */
-
-    initializeLocalToggle(
+    initializeNotificationPreferences(
         appNotificationsToggle,
-        "appNotificationsEnabled",
-        true
-    );
-
-
-    /* ------------------------------------------------------- */
-    /* Task Reminders */
-    /* ------------------------------------------------------- */
-
-    initializeLocalToggle(
         taskRemindersToggle,
-        "taskRemindersEnabled",
-        true
+        emailNotificationsToggle
     );
 
 
     /* ------------------------------------------------------- */
-    /* Email Notifications */
-    /* ------------------------------------------------------- */
-
-    initializeLocalToggle(
-        emailNotificationsToggle,
-        "emailNotificationsEnabled",
-        false
-    );
-
-
-    /* ------------------------------------------------------- */
-    /* Change Password */
+    /* Change Password / Email / Account Management */
     /* ------------------------------------------------------- */
 
     initializeChangePassword();
+    initializeEmailChange();
+    initializeAccountManagement();
 }
 
 
@@ -577,80 +553,56 @@ function updatePasswordRules(
     newPassword,
     confirmPassword
 ) {
+    const rules = [
+        {
+            id: "passwordLengthRule",
+            valid: newPassword.length >= 6
+        },
+        {
+            id: "passwordUppercaseRule",
+            valid: /[A-ZÇĞİÖŞÜ]/.test(newPassword)
+        },
+        {
+            id: "passwordLowercaseRule",
+            valid: /[a-zçğıöşü]/.test(newPassword)
+        },
+        {
+            id: "passwordDigitRule",
+            valid: /[0-9]/.test(newPassword)
+        },
+        {
+            id: "passwordSpecialRule",
+            valid: /[^A-Za-zÇĞİÖŞÜçğıöşü0-9]/.test(newPassword)
+        },
+        {
+            id: "passwordMatchRule",
+            valid: confirmPassword.length > 0 &&
+                   newPassword === confirmPassword
+        }
+    ];
 
-    const lengthRule =
-        document.getElementById(
-            "passwordLengthRule"
-        );
+    rules.forEach(rule => {
+        const element = document.getElementById(rule.id);
+        if (!element) return;
 
-    const matchRule =
-        document.getElementById(
-            "passwordMatchRule"
-        );
-
-
-    const lengthValid =
-        newPassword.length >= 6;
-
-    const matchValid =
-        confirmPassword.length > 0 &&
-        newPassword === confirmPassword;
-
-
-    if (lengthRule) {
-
-        lengthRule.classList.toggle(
-            "valid",
-            lengthValid
-        );
-
-        lengthRule.classList.toggle(
-            "invalid",
+        const shouldShowInvalid =
             newPassword.length > 0 &&
-            !lengthValid
-        );
+            (rule.id !== "passwordMatchRule"
+                ? !rule.valid
+                : confirmPassword.length > 0 && !rule.valid);
 
-        const icon =
-            lengthRule.querySelector(
-                "i"
-            );
+        element.classList.toggle("valid", rule.valid);
+        element.classList.toggle("invalid", shouldShowInvalid);
 
+        const icon = element.querySelector("i");
         if (icon) {
-
-            icon.className =
-                lengthValid
-                    ? "bi bi-check-circle-fill"
-                    : "bi bi-circle";
+            icon.className = rule.valid
+                ? "bi bi-check-circle-fill"
+                : "bi bi-circle";
         }
-    }
+    });
 
-
-    if (matchRule) {
-
-        matchRule.classList.toggle(
-            "valid",
-            matchValid
-        );
-
-        matchRule.classList.toggle(
-            "invalid",
-            confirmPassword.length > 0 &&
-            !matchValid
-        );
-
-        const icon =
-            matchRule.querySelector(
-                "i"
-            );
-
-        if (icon) {
-
-            icon.className =
-                matchValid
-                    ? "bi bi-check-circle-fill"
-                    : "bi bi-circle";
-        }
-    }
+    return rules.every(x => x.valid);
 }
 
 
@@ -736,13 +688,13 @@ async function submitChangePassword(
     }
 
 
-    if (
-        newPassword.value.length < 6
-    ) {
-
+    if (!updatePasswordRules(
+        newPassword.value,
+        confirmPassword.value
+    )) {
         setPasswordError(
             "newPasswordError",
-            "Yeni şifre en az 6 karakter olmalıdır.",
+            "Yeni şifreniz kayıt kurallarının tamamını karşılamalıdır.",
             newPassword
         );
 
@@ -831,10 +783,11 @@ async function submitChangePassword(
 
         showProfileToast(
             "Şifre güncellendi",
-            result.message ||
-            "Şifreniz başarıyla değiştirildi.",
+            "Şifreniz değiştirildi. Güvenlik nedeniyle tekrar giriş yapmanız gerekiyor.",
             true
         );
+
+        setTimeout(() => api.logout(), 900);
 
     }
     catch (error) {
@@ -1050,6 +1003,11 @@ function renderProfile(profile) {
         profile.email ||
         "";
 
+    window.__mdsProfile = profile;
+    renderEmailStatus(profile.emailConfirmed);
+    renderSecurityEmailStatus(profile.emailConfirmed);
+    syncNotificationPreferences(profile);
+
     const firstLetter =
         fullName
             .charAt(0)
@@ -1143,15 +1101,6 @@ function renderProfile(profile) {
     /* ------------------------------------------------------- */
     /* Email status */
     /* ------------------------------------------------------- */
-
-    renderEmailStatus(
-        profile.emailConfirmed
-    );
-
-    renderSecurityEmailStatus(
-        profile.emailConfirmed
-    );
-
 
     /* ------------------------------------------------------- */
     /* Created date */
@@ -1713,6 +1662,199 @@ function formatProfileDate(
     );
 }
 
+
+/* ========================================================= */
+/* SERVER-SIDE NOTIFICATION PREFERENCES */
+/* ========================================================= */
+
+function initializeNotificationPreferences(appToggle, taskToggle, emailToggle) {
+    [appToggle, taskToggle, emailToggle].filter(Boolean).forEach(toggle => {
+        toggle.addEventListener("change", async () => {
+            const previous = !toggle.checked;
+            const emailConfirmed = getProfileEmailConfirmed();
+            if (toggle === emailToggle && toggle.checked && !emailConfirmed) {
+                toggle.checked = false;
+                updateEmailPreferenceState(emailToggle, false);
+                showProfileToast("Email doğrulaması gerekli", "Email görev hatırlatmalarını açmak için önce email adresinizi doğrulayın.", false);
+                return;
+            }
+            toggle.disabled = true;
+            try {
+                const result = await api.put("/User/NotificationPreferences", {
+                    appNotificationsEnabled: appToggle?.checked === true,
+                    taskRemindersEnabled: taskToggle?.checked === true,
+                    emailNotificationsEnabled: emailToggle?.checked === true
+                });
+                if (result?.data) syncNotificationPreferences(result.data);
+                showProfileToast("Bildirim tercihi güncellendi", "Tercihiniz hesabınıza kaydedildi.", true);
+            } catch (error) {
+                toggle.checked = previous;
+                showProfileToast("Kaydedilemedi", error.message || "Bildirim tercihi güncellenemedi.", false);
+            } finally {
+                toggle.disabled = false;
+                updateEmailPreferenceState(emailToggle, getProfileEmailConfirmed());
+            }
+        });
+    });
+}
+
+function getProfileEmailConfirmed() {
+    const value = window.__mdsProfile?.emailConfirmed;
+    return value === true || value === 1 || value === "true" || value === "1";
+}
+
+function syncNotificationPreferences(profile) {
+    window.__mdsProfile = profile || {};
+    const appToggle = document.getElementById("appNotificationsToggle");
+    const taskToggle = document.getElementById("taskRemindersToggle");
+    const emailToggle = document.getElementById("emailNotificationsToggle");
+    if (!appToggle || !taskToggle || !emailToggle) return;
+    const emailConfirmed = getProfileEmailConfirmed();
+    appToggle.checked = profile.appNotificationsEnabled !== false;
+    taskToggle.checked = profile.taskRemindersEnabled !== false;
+    emailToggle.checked = emailConfirmed && profile.emailNotificationsEnabled === true;
+    updateEmailPreferenceState(emailToggle, emailConfirmed);
+}
+
+function updateEmailPreferenceState(toggle, emailConfirmed = null) {
+    if (!toggle) return;
+    const confirmed = emailConfirmed === null ? getProfileEmailConfirmed() : !!emailConfirmed;
+    toggle.disabled = !confirmed;
+    document.getElementById("emailNotificationsSwitchWrap")?.classList.toggle("is-disabled", !confirmed);
+    const help = document.getElementById("emailNotificationsHelp");
+    if (help) help.textContent = confirmed ? "Doğrulanmış email adresinize görev son tarih hatırlatmaları gönderir." : "Email bildirimlerini açmak için önce email adresinizi doğrulayın.";
+    if (!confirmed) toggle.checked = false;
+}
+
+
+/* ========================================================= */
+/* EMAIL CHANGE */
+/* ========================================================= */
+
+function initializeEmailChange() {
+    const openButton = document.getElementById("changeEmailButton");
+    const closeButton = document.getElementById("closeEmailChangeModalButton");
+    const overlay = document.getElementById("emailChangeModalOverlay");
+    const form = document.getElementById("changeEmailForm");
+
+    openButton?.addEventListener("click", openEmailChangeModal);
+    closeButton?.addEventListener("click", closeEmailChangeModal);
+    overlay?.addEventListener("click", closeEmailChangeModal);
+    form?.addEventListener("submit", submitEmailChange);
+
+    document.addEventListener("keydown", event => {
+        if (event.key !== "Escape") return;
+
+        const modal = document.getElementById("emailChangeModal");
+        if (modal?.classList.contains("active")) {
+            closeEmailChangeModal();
+        }
+    });
+}
+
+function openEmailChangeModal() {
+    const modal = document.getElementById("emailChangeModal");
+    const overlay = document.getElementById("emailChangeModalOverlay");
+    const input = document.getElementById("newEmail");
+    const error = document.getElementById("newEmailError");
+
+    if (!modal || !overlay || !input) return;
+
+    input.disabled = false;
+    input.readOnly = false;
+    input.value = "";
+    if (error) error.textContent = "";
+
+    overlay.classList.add("active");
+    modal.classList.add("active");
+    overlay.setAttribute("aria-hidden", "false");
+    modal.setAttribute("aria-hidden", "false");
+    document.body.classList.add("email-change-modal-open");
+
+    window.setTimeout(() => {
+        input.focus();
+    }, 180);
+}
+
+function closeEmailChangeModal() {
+    const modal = document.getElementById("emailChangeModal");
+    const overlay = document.getElementById("emailChangeModalOverlay");
+
+    modal?.classList.remove("active");
+    overlay?.classList.remove("active");
+    modal?.setAttribute("aria-hidden", "true");
+    overlay?.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("email-change-modal-open");
+}
+
+async function submitEmailChange(event) {
+    event.preventDefault();
+    const input = document.getElementById("newEmail");
+    const button = document.getElementById("changeEmailSubmitButton");
+    const email = input?.value?.trim();
+    if (!email || !email.includes("@")) {
+        document.getElementById("newEmailError").textContent = "Geçerli bir email adresi girin.";
+        return;
+    }
+
+    const original = button.innerHTML;
+    button.disabled = true;
+    button.innerHTML = '<span class="spinner-border spinner-border-sm"></span><span>Gönderiliyor...</span>';
+    try {
+        await api.post("/User/RequestEmailChange", { newEmail: email });
+        closeEmailChangeModal();
+        showProfileToast("Onay bağlantısı gönderildi", "Yeni email adresinizin gelen kutusundaki bağlantıyı açarak değişikliği tamamlayın.", true);
+    } catch (error) {
+        document.getElementById("newEmailError").textContent = error.message || "Email değişikliği başlatılamadı.";
+    } finally {
+        button.disabled = false;
+        button.innerHTML = original;
+    }
+}
+
+/* ========================================================= */
+/* ACCOUNT MANAGEMENT */
+/* ========================================================= */
+
+function initializeAccountManagement() {
+    document.getElementById("deleteAllTodosButton")?.addEventListener("click", deleteAllTodosFromAccount);
+    document.getElementById("logoutAllSessionsButton")?.addEventListener("click", logoutAllSessions);
+    document.getElementById("deleteAccountButton")?.addEventListener("click", deleteAccount);
+}
+
+async function deleteAllTodosFromAccount() {
+    if (!confirm("Hesabınızdaki tüm görevler kalıcı olarak silinecek. Devam etmek istiyor musunuz?")) return;
+    try {
+        await api.delete("/User/AllTodos");
+        showProfileToast("Görevler silindi", "Tüm görevleriniz başarıyla silindi.", true);
+    } catch (error) {
+        showProfileToast("Silinemedi", error.message || "Görevler silinemedi.", false);
+    }
+}
+
+async function logoutAllSessions() {
+    if (!confirm("Tüm cihazlardaki aktif oturumlarınız sonlandırılacak. Devam etmek istiyor musunuz?")) return;
+    try {
+        await api.post("/User/LogoutAllSessions", {});
+        api.logout();
+    } catch (error) {
+        showProfileToast("İşlem başarısız", error.message || "Oturumlar sonlandırılamadı.", false);
+    }
+}
+
+async function deleteAccount() {
+    const first = confirm("Hesabınız ve tüm verileriniz kalıcı olarak silinecek. Bu işlem geri alınamaz. Devam etmek istiyor musunuz?");
+    if (!first) return;
+    const second = prompt('Onaylamak için "HESABIMI SIL" yazın.');
+    if (second !== "HESABIMI SIL") return;
+
+    try {
+        await api.delete("/User/Account");
+        api.logout();
+    } catch (error) {
+        showProfileToast("Hesap silinemedi", error.message || "Hesap silinirken bir hata oluştu.", false);
+    }
+}
 
 /* ========================================================= */
 /* TOAST */

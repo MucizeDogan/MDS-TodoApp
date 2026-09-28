@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,5 +10,10 @@ namespace TodoApp.Infrastructure.Identity {
         public string? FullName { get; set; }
 
         public DateTime CreatedAt { get; set; }
+
+        // Bildirim tercihleri
+        public bool AppNotificationsEnabled { get; set; } = true;
+        public bool TaskRemindersEnabled { get; set; } = true;
+        public bool EmailNotificationsEnabled { get; set; } = false;
     }
 }

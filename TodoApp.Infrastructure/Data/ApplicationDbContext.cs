@@ -56,6 +56,12 @@ namespace TodoApp.Infrastructure.Data {
                 .HasForeignKey(x => x.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            builder.Entity<Category>()
+                .HasOne(x => x.ParentCategory)
+                .WithMany(x => x.ChildCategories)
+                .HasForeignKey(x => x.ParentCategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
+
 
             // -----------------------------------------
             // Category
