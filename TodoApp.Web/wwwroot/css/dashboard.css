@@ -1,4 +1,4 @@
-﻿:root {
+:root {
     --primary: #6c63ff;
     --primary-dark: #574fd6;
     --background: #f7f8fc;
@@ -4790,4 +4790,277 @@ body.notification-detail-open .todo-detail-drawer {
 
 #categoryParent {
     width: 100%;
+}
+
+
+/* ========================================================= */
+/* WHAT'S NEW / RELEASE NOTES */
+/* ========================================================= */
+
+/*
+ * What's New modalı Bootstrap backdrop kullanmaz.
+ * Böylece mobilde dashboard kararmıyor ve alttaki navigation
+ * dokunmatik olarak kilitlenmiyor.
+ */
+#whatsNewModal {
+    z-index: 3000 !important;
+}
+
+#whatsNewModal .modal-dialog {
+    pointer-events: auto;
+}
+
+
+.whats-new-dialog {
+    max-width: 760px;
+}
+
+.whats-new-modal {
+    border: 1px solid rgba(108, 99, 255, 0.10);
+    border-radius: 22px;
+    overflow: hidden;
+    box-shadow: 0 28px 80px rgba(25, 25, 60, 0.18);
+}
+
+.whats-new-header {
+    padding: 25px 27px 21px;
+    background:
+        radial-gradient(circle at 0% 0%, rgba(108, 99, 255, 0.10), transparent 34%),
+        radial-gradient(circle at 100% 0%, rgba(59, 130, 246, 0.08), transparent 30%),
+        var(--surface);
+}
+
+.whats-new-heading {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.whats-new-icon {
+    width: 50px;
+    height: 50px;
+    flex: 0 0 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 15px;
+    background: linear-gradient(135deg, #7c73ff, #574fd6);
+    color: #fff;
+    font-size: 22px;
+    box-shadow: 0 10px 24px rgba(108, 99, 255, 0.22);
+}
+
+.whats-new-header .modal-title {
+    margin: 0;
+    font-size: 21px;
+    letter-spacing: -0.35px;
+}
+
+.whats-new-subtitle {
+    margin: 6px 0 0;
+    color: var(--text-secondary);
+    font-size: 12px;
+    line-height: 1.55;
+}
+
+.whats-new-body {
+    padding: 24px 27px 20px;
+    background: #fcfcff;
+}
+
+.whats-new-version {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.whats-new-version span {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(108, 99, 255, 0.08);
+    color: var(--primary);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.whats-new-version small {
+    color: var(--text-muted);
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.whats-new-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.whats-new-feature {
+    min-width: 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: 15px;
+    background: #fff;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.whats-new-feature:hover {
+    transform: translateY(-1px);
+    border-color: rgba(108, 99, 255, 0.16);
+    box-shadow: var(--shadow);
+}
+
+.whats-new-feature-icon {
+    width: 39px;
+    height: 39px;
+    flex: 0 0 39px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 11px;
+    font-size: 17px;
+}
+
+.whats-new-feature-icon.purple {
+    background: rgba(108, 99, 255, 0.10);
+    color: var(--primary);
+}
+
+.whats-new-feature-icon.blue {
+    background: rgba(59, 130, 246, 0.10);
+    color: var(--info);
+}
+
+.whats-new-feature-icon.green {
+    background: rgba(22, 163, 74, 0.10);
+    color: var(--success);
+}
+
+.whats-new-feature-icon.orange {
+    background: rgba(245, 158, 11, 0.12);
+    color: var(--warning);
+}
+
+.whats-new-feature h6 {
+    margin: 1px 0 5px;
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.whats-new-feature p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 11px;
+    line-height: 1.55;
+}
+
+.whats-new-feature p strong {
+    color: var(--text);
+    font-weight: 700;
+}
+
+.whats-new-footer-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 14px;
+    padding: 11px 13px;
+    border-radius: 11px;
+    background: rgba(108, 99, 255, 0.05);
+    color: var(--text-secondary);
+    font-size: 10px;
+    line-height: 1.5;
+}
+
+.whats-new-footer-note > i {
+    flex: 0 0 auto;
+    margin-top: 1px;
+    color: var(--primary);
+}
+
+.whats-new-footer-note strong {
+    color: var(--text);
+}
+
+.whats-new-footer {
+    padding: 15px 27px 20px;
+    background: #fff;
+}
+
+.whats-new-close-button {
+    min-width: 145px;
+    margin-left: auto;
+}
+
+@media (max-width: 767.98px) {
+
+    .whats-new-dialog {
+        width: calc(100% - 20px);
+        max-width: none;
+        margin: 10px auto;
+    }
+
+    .whats-new-modal {
+        border-radius: 20px;
+    }
+
+    .whats-new-header {
+        padding: 20px 18px 17px;
+    }
+
+    .whats-new-heading {
+        align-items: flex-start;
+        gap: 11px;
+    }
+
+    .whats-new-icon {
+        width: 43px;
+        height: 43px;
+        flex-basis: 43px;
+        border-radius: 12px;
+        font-size: 18px;
+    }
+
+    .whats-new-header .modal-title {
+        font-size: 18px;
+    }
+
+    .whats-new-subtitle {
+        font-size: 11px;
+        line-height: 1.5;
+    }
+
+    .whats-new-body {
+        padding: 18px;
+        max-height: calc(100dvh - 205px);
+        overflow-y: auto;
+    }
+
+    .whats-new-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .whats-new-feature {
+        padding: 13px;
+    }
+
+    .whats-new-footer {
+        padding: 12px 18px calc(12px + env(safe-area-inset-bottom));
+    }
+
+    .whats-new-close-button {
+        width: 100%;
+        min-width: 0;
+    }
 }

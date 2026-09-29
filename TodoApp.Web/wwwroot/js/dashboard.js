@@ -1,4 +1,4 @@
-﻿let todos = [];
+let todos = [];
 let categories = [];
 let currentUserProfile = null;
 
@@ -9,6 +9,7 @@ let currentCategory = "all";
 let todoModal;
 let categoryModal;
 let categoryManagementModal;
+let whatsNewModal;
 
 let selectedTodoId = null;
 let editingCategoryId = null;
@@ -65,6 +66,9 @@ async function initializeDashboard() {
     initializeNotifications();
 
     await loadDashboardData();
+
+    // Yeni sürüm duyurusunu kullanıcı başına bir kez göster.
+    showWhatsNewIfNeeded();
 }
 
 
@@ -110,6 +114,26 @@ function initializeBootstrapModals() {
             document.getElementById(
                 "categoryManagementModal"
             )
+        );
+
+    whatsNewModal =
+        new bootstrap.Modal(
+            document.getElementById("whatsNewModal"),
+            {
+                // Duyuru modalı dashboardu karartmamalı ve
+                // alttaki mobil navigasyonu engellememeli.
+                // Kullanıcı isterse modal açıkken dashboard ile
+                // etkileşime devam edebilir.
+                backdrop: false,
+                keyboard: true
+            }
+        );
+
+    document
+        .getElementById("whatsNewModal")
+        ?.addEventListener(
+            "hidden.bs.modal",
+            markWhatsNewAsSeen
         );
 
 
@@ -161,6 +185,72 @@ document
                 ?.classList.add("active");
         }
     );
+
+
+/* ========================================================= */
+/* WHAT'S NEW */
+/* ========================================================= */
+
+/*
+ * Migration gerektirmeden duyuruyu kullanıcı başına bir kez
+ * göstermek için tarayıcı localStorage kullanıyoruz.
+ *
+ * Sürüm değiştiğinde sadece bu değeri artırmak yeterlidir:
+ * 2026.09 -> 2026.10
+ *
+ * userId anahtara dahil edildiği için aynı bilgisayarda farklı
+ * kullanıcılar birbirinin duyurusunu etkilemez.
+ */
+const WHATS_NEW_VERSION = "2026.09";
+
+function getWhatsNewStorageKey() {
+
+    const userId =
+        localStorage.getItem("userId")
+        || localStorage.getItem("email")
+        || "anonymous";
+
+    return `mdstodoapp_whats_new_${WHATS_NEW_VERSION}_${userId}`;
+}
+
+
+function showWhatsNewIfNeeded() {
+
+    if (!whatsNewModal) {
+        return;
+    }
+
+    const storageKey =
+        getWhatsNewStorageKey();
+
+    if (
+        localStorage.getItem(storageKey) === "1"
+    ) {
+        return;
+    }
+
+    /*
+     * Dashboard tamamen hazırlandıktan sonra
+     * modalı küçük bir gecikmeyle açıyoruz.
+     * Böylece kullanıcı önce dashboardu görür ve
+     * modal açılışı daha doğal hissedilir.
+     */
+    window.setTimeout(
+        () => {
+            whatsNewModal.show();
+        },
+        450
+    );
+}
+
+
+function markWhatsNewAsSeen() {
+
+    localStorage.setItem(
+        getWhatsNewStorageKey(),
+        "1"
+    );
+}
 
 
 /* ========================================================= */
